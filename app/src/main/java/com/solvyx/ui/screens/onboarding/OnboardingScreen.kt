@@ -78,7 +78,7 @@ fun OnboardingScreen(
 
     val onFinish = {
         viewModel.markDone()
-        nav.navigate(Routes.LOGIN) {
+        nav.navigate(Routes.AUTH_CHOICE) {
             popUpTo(Routes.ONBOARDING) { inclusive = true }
         }
     }

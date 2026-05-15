@@ -28,7 +28,7 @@ fun SplashScreen(
         val destination = viewModel.destination.first { it !is SplashViewModel.Destination.Loading }
         val route = when (destination) {
             is SplashViewModel.Destination.Onboarding -> Routes.ONBOARDING
-            else -> Routes.LOGIN
+            else -> Routes.AUTH_CHOICE
         }
         nav.navigate(route) {
             popUpTo(Routes.SPLASH) { inclusive = true }

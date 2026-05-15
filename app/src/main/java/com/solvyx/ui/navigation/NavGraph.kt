@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.solvyx.ui.screens.auth.AuthChoiceScreen
 import com.solvyx.ui.screens.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 
@@ -24,8 +25,15 @@ fun SolvyxNavGraph(navController: NavHostController) {
         composable(Routes.ONBOARDING) {
             OnboardingScreen(navController)
         }
+        composable(Routes.AUTH_CHOICE) {
+            AuthChoiceScreen(navController)
+        }
         composable(Routes.LOGIN) {
             // TODO: LoginScreen(navController)
+            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+        }
+        composable(Routes.REGISTER) {
+            // TODO: RegisterScreen(navController)
             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
         }
     }
