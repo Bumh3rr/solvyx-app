@@ -1,58 +1,107 @@
 package com.solvyx.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// ── Esquema de color modo claro ───────────────────────
+private val LightColorScheme = lightColorScheme(
+    // Primario → teal principal, botones, top bars
+    primary            = TealPrimary,
+    onPrimary          = White,
+    primaryContainer   = TealLightest,
+    onPrimaryContainer = TealDark,
+
+    // Secundario → teal medio, elementos de apoyo
+    secondary            = TealMedium,
+    onSecondary          = White,
+    secondaryContainer   = TealLight,
+    onSecondaryContainer = TealDark,
+
+    // Terciario → crisis / SOS (solo para botón SOS y pantalla de crisis)
+    tertiary            = CrisisRed,
+    onTertiary          = White,
+    tertiaryContainer   = CrisisRedLight,
+    onTertiaryContainer = CrisisRedDark,
+
+    // Error → mismo rojo de crisis
+    error            = CrisisRed,
+    onError          = White,
+    errorContainer   = CrisisRedLight,
+    onErrorContainer = CrisisRedDark,
+
+    // Fondo y superficie
+    background  = BackgroundApp,
+    onBackground = TealDark,
+    surface      = White,
+    onSurface    = TealDark,
+
+    // Surface variant → usado en campos de input, chips no activos
+    surfaceVariant   = TealLightest,
+    onSurfaceVariant = TealMedium,
+
+    // Outline → bordes de cards, inputs
+    outline        = TealLight,
+    outlineVariant = TealLightest,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+// ── Esquema de color modo oscuro (MVP: similar al claro) ─
+private val DarkColorScheme = darkColorScheme(
+    primary            = TealMedium,
+    onPrimary          = TealDark,
+    primaryContainer   = TealDark,
+    onPrimaryContainer = TealLightest,
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary            = TealLight,
+    onSecondary          = TealDark,
+    secondaryContainer   = TealDark,
+    onSecondaryContainer = TealLight,
+
+    tertiary            = CrisisRed,
+    onTertiary          = White,
+    tertiaryContainer   = CrisisRedDark,
+    onTertiaryContainer = CrisisRedLight,
+
+    error            = CrisisRed,
+    onError          = White,
+    errorContainer   = CrisisRedDark,
+    onErrorContainer = CrisisRedLight,
+
+    background   = TealDark,
+    onBackground = TealLightest,
+    surface      = Color(0xFF0A3D2E),  // surface oscuro
+    onSurface    = TealLightest,
+
+    surfaceVariant   = Color(0xFF0F5440),
+    onSurfaceVariant = TealLight,
+
+    outline        = TealMedium,
+    outlineVariant = TealDark,
 )
 
 @Composable
 fun SolvyxappTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+//    val colorScheme = when {
+//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+//            val context = LocalContext.current
+//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+//        }
+//
+//        darkTheme -> DarkColorScheme
+//        else -> LightColorScheme
+//    }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = SolvyxTypography,
         content = content
     )
 }
