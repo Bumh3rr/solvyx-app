@@ -111,7 +111,7 @@ val SolvyxTypography = Typography(
     // ── Labels: botones, chips, badges ───────────────
     labelLarge = TextStyle(
         fontFamily = NunitoFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.ExtraBold,
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.sp
