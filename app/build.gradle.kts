@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -35,9 +38,61 @@ android {
     buildFeatures {
         compose = true
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 dependencies {
+
+    // Coroutines dependencies
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Lifecycle dependencies
+    implementation(libs.lifecycle.runtime.compose)
+
+    // Accompanist Pager
+    implementation(libs.accompanist.pager)
+
+    // Lottie Compose
+    implementation(libs.lottie.compose)
+
+    // BlurView
+    implementation(libs.haze)
+    implementation(libs.ui)
+
+    // Preferencias DataStore
+    implementation(libs.datastore.preferences)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // Material3 dependencies
+    implementation(libs.androidx.material3)
+
+    // Runtime saveable dependencies
+    implementation(libs.androidx.compose.runtime.saveable)
+    implementation(libs.androidx.compose.runtime.livedata)
+
+    // Navigation dependencies
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.runtime.ktx)
+
+    // Gson para la serialización/deserialización de JSON
+    implementation(libs.gson)
+
+    // OkHttp para realizar solicitudes HTTP
+    implementation(libs.okhttp)
+
+    // HILT - VERSIONES COMPATIBLES CON KOTLIN 2.0.21
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+
+    // KSP para Hilt (en lugar de KAPT)
+    ksp(libs.hilt.compiler)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
