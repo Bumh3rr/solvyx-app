@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Surface
+import androidx.navigation.compose.rememberNavController
+import com.solvyx.ui.navigation.SolvyxNavGraph
 import com.solvyx.ui.theme.SolvyxappTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,9 +16,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SolvyxappTheme {
-                Surface {
-
-                }
+                val navController = rememberNavController()
+                SolvyxNavGraph(navController = navController)
             }
         }
     }
