@@ -273,7 +273,13 @@ fun RegisterScreen(
 
             SolvyxButton(
                 text = "Registrarme",
-                onClick = { viewModel.register { nav.navigate(Routes.HOME) } },
+                onClick = {
+                    viewModel.register {
+                        nav.navigate(Routes.DIAGNOSTICO) {
+                            popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(

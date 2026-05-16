@@ -46,6 +46,7 @@ private fun AuthChoiceScreenPreviewDark() {
         AuthChoiceScreen(nav = NavHostController(LocalContext.current))
     }
 }
+
 @Composable
 fun AuthChoiceScreen(nav: NavHostController) {
 

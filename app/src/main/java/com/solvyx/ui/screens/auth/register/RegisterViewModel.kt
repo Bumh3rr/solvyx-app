@@ -35,6 +35,7 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
     fun register(onSuccess: () -> Unit) {
         viewModelScope.launch {
             // TODO: implement with Retrofit
+            onSuccess()
         }
     }
 }
