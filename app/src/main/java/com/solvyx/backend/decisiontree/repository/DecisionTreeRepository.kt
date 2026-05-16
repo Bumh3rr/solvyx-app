@@ -5,8 +5,9 @@ import com.solvyx.backend.decisiontree.trees.alcoholCravingTree
 import com.solvyx.backend.decisiontree.trees.alcoholInfoTree
 import com.solvyx.backend.decisiontree.trees.cristalCravingTree
 import com.solvyx.backend.decisiontree.trees.cristalInfoTree
+import javax.inject.Inject
 
-class DecisionTreeRepository {
+class DecisionTreeRepository @Inject constructor() {
 
     // Registro central de árboles
     private val trees = mapOf(
