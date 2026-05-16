@@ -51,6 +51,7 @@ dependencies {
 
     // Lifecycle dependencies
     implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx.v280)
 
     // Accompanist Pager
     implementation(libs.accompanist.pager)
@@ -92,6 +93,12 @@ dependencies {
 
     // KSP para Hilt (en lugar de KAPT)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.room.compiler)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
