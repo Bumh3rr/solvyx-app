@@ -18,7 +18,7 @@ import com.solvyx.ui.screens.splash.SplashScreen
 fun SolvyxNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH
+        startDestination = Routes.HOME
     ) {
         composable(Routes.SPLASH) {
             SplashScreen(navController)
@@ -49,6 +49,7 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 }
             )
         }
+
         composable(Routes.HOME) {
             MainScreen(
                 onLogout = {

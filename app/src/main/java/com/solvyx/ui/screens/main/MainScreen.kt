@@ -8,13 +8,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,13 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.SolvyxBottomNavigationBar
+import com.solvyx.ui.components.SolvyxBottomTab
+import com.solvyx.ui.components.SosConfirmationDialog
 import com.solvyx.ui.components.drawer.CustomDrawer
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.drawer.model.NavigationItem
@@ -142,7 +147,8 @@ fun MainScreen(
                 },
             selectedItem = selectedItem,
             drawerState = drawerState,
-            onDrawerClick = { drawerState = drawerState.opposite() }
+            onDrawerClick = { drawerState = drawerState.opposite() },
+            onBottomNavNavigate = { item -> selectedItem = item }
         )
     }
 }
@@ -152,28 +158,73 @@ private fun SolvyxMainContent(
     modifier: Modifier = Modifier,
     selectedItem: NavigationItem,
     drawerState: CustomDrawerState,
-    onDrawerClick: () -> Unit
+    onDrawerClick: () -> Unit,
+    onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
-    Box(modifier = modifier) {
-        when (selectedItem) {
-            NavigationItem.Inicio ->
-                InicioScreen(
-                    onOpenDrawer = onDrawerClick,
-                    drawerState = drawerState
+    var showSosDialog by remember { mutableStateOf(false) }
+
+    val showBottomBar = selectedItem == NavigationItem.Inicio ||
+                        selectedItem == NavigationItem.Berto ||
+                        selectedItem == NavigationItem.RegistroEmocional
+
+    val selectedTab = when (selectedItem) {
+        NavigationItem.Berto            -> SolvyxBottomTab.CHATBOT
+        NavigationItem.RegistroEmocional -> SolvyxBottomTab.REGISTRO
+        else                             -> SolvyxBottomTab.INICIO
+    }
+
+    if (showSosDialog) {
+        SosConfirmationDialog(
+            onConfirm = { showSosDialog = false },
+            onDismiss = { showSosDialog = false }
+        )
+    }
+
+    Scaffold(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0),
+        bottomBar = {
+            if (showBottomBar) {
+                SolvyxBottomNavigationBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { tab ->
+                        when (tab) {
+                            SolvyxBottomTab.CHATBOT  -> onBottomNavNavigate(NavigationItem.Berto)
+                            SolvyxBottomTab.REGISTRO -> onBottomNavNavigate(NavigationItem.RegistroEmocional)
+                            SolvyxBottomTab.INICIO   -> onBottomNavNavigate(NavigationItem.Inicio)
+                        }
+                    },
+                    onSosClick = { showSosDialog = true }
                 )
-            NavigationItem.Berto ->
-                BertoScreen(onOpenDrawer = onDrawerClick)
-            NavigationItem.PlanReduccion ->
-                PlanReduccionScreen(onOpenDrawer = onDrawerClick)
-            NavigationItem.RegistroEmocional ->
-                RegistroEmocionalScreen(onOpenDrawer = onDrawerClick)
-            NavigationItem.GuiasPrimerosAuxilios ->
-                GuiasScreen(onOpenDrawer = onDrawerClick)
-            NavigationItem.RedApoyo ->
-                RedApoyoScreen(onOpenDrawer = onDrawerClick)
-            NavigationItem.Configuracion ->
-                ConfiguracionScreen(onOpenDrawer = onDrawerClick)
-            NavigationItem.CerrarSesion -> { /* manejado en MainScreen */ }
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (selectedItem) {
+                NavigationItem.Inicio ->
+                    InicioScreen(
+                        onOpenDrawer = onDrawerClick,
+                        drawerState = drawerState
+                    )
+                NavigationItem.Berto ->
+                    BertoScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.PlanReduccion ->
+                    PlanReduccionScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.RegistroEmocional ->
+                    RegistroEmocionalScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.GuiasPrimerosAuxilios ->
+                    GuiasScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.RedApoyo ->
+                    RedApoyoScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.Configuracion ->
+                    ConfiguracionScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.CerrarSesion -> { /* manejado en MainScreen */ }
+            }
         }
     }
 }
