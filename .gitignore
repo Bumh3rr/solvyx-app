@@ -10,7 +10,6 @@ Thumbs.db
 # Build outputs
 /build/
 **/build/
-/app/build/
 
 # Kotlin/Java class files
 *.class
