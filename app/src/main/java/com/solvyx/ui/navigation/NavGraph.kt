@@ -10,6 +10,7 @@ import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
 import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
+import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 
@@ -41,7 +42,20 @@ fun SolvyxNavGraph(navController: NavHostController) {
             val diagnosticoNavController = rememberNavController()
             DiagnosticoNavGraph(
                 navController = diagnosticoNavController,
-                onFinishAssist = { navController.popBackStack() }
+                onFinishAssist = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Routes.HOME) {
+            MainScreen(
+                onLogout = {
+                    navController.navigate(Routes.AUTH_CHOICE) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
     }
