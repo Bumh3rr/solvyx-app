@@ -1,1 +1,74 @@
-local.properties
+# Android/Gradle
+.gradle/
+/local.properties
+/*.iml
+/*.keystore
+/*.jks
+/*.keystore
+/.idea/
+.DS_Store
+Thumbs.db
+
+# Build outputs
+/build/
+**/build/
+/app/build/
+
+# Kotlin/Java class files
+*.class
+
+# Gradle
+.gradle/
+build/
+
+# Android Studio captures and preview
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Native debug
+*.so
+
+# APKs
+*.apk
+*.ap_
+*.aab
+
+# Keystore
+*.jks
+keystore.jks
+debug.keystore
+
+# Local env files
+.env
+.env.*
+
+# Misc
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/gradle.xml
+
+# Ignore local log and temp files
+*.log
+*.tmp
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# JetBrains
+out/
+.idea_modules/
+
+# Caches
+/.gradle
+
+# Ignore generated kapt files
+build/generated/ksp/
+
+# If you need to untrack files already committed, run:
+# git rm -r --cached <file_or_folder>
