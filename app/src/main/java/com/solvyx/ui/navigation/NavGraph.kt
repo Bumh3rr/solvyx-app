@@ -37,6 +37,10 @@ fun SolvyxNavGraph(navController: NavHostController) {
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
         }
+        composable(Routes.HOME) {
+            // Simple home screen for logged-in users
+            com.solvyx.ui.screens.home.HomeScreen(navController)
+        }
         composable(Routes.DIAGNOSTICO) {
             val diagnosticoNavController = rememberNavController()
             DiagnosticoNavGraph(
