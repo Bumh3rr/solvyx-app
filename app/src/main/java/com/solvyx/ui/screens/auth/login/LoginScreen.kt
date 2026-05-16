@@ -208,7 +208,13 @@ fun LoginScreen(
 
             SolvyxButton(
                 text = "Iniciar sesión",
-                onClick = { viewModel.login { nav.navigate(Routes.HOME) } },
+                onClick = {
+                    viewModel.login {
+                        nav.navigate(Routes.HOME) {
+                            popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
