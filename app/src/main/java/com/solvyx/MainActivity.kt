@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
 import com.solvyx.ui.theme.SolvyxappTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,7 +16,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SolvyxappTheme {
                 Surface {
-                    DiagnosticoNavGraph()
+
                 }
             }
         }
