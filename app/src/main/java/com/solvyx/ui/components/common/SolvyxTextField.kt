@@ -12,16 +12,12 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.solvyx.ui.theme.TealDark
-import com.solvyx.ui.theme.TealPrimary
-import com.solvyx.ui.theme.TextMuted
 
 @Composable
 fun SolvyxTextField(
@@ -42,7 +38,7 @@ fun SolvyxTextField(
             Text(
                 text = placeholder,
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextMuted
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         leadingIcon = {
@@ -60,17 +56,17 @@ fun SolvyxTextField(
             imeAction = imeAction
         ),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = TealPrimary,
-            unfocusedBorderColor = Color(0xFFE5E2DB),
-            focusedLeadingIconColor = TealPrimary,
-            unfocusedLeadingIconColor = TextMuted,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            cursorColor = TealPrimary,
-            focusedTextColor = TealDark,
-            unfocusedTextColor = TealDark,
-            focusedPlaceholderColor = TextMuted,
-            unfocusedPlaceholderColor = TextMuted,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceDim,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceDim,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     )
 }

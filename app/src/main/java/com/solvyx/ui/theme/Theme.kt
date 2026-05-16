@@ -36,7 +36,8 @@ private val LightColorScheme = lightColorScheme(
     // Fondo y superficie
     background  = BackgroundApp,
     onBackground = TealDark,
-    surface      = White,
+    surface      = BackgroundApp,
+    surfaceDim = White,
     onSurface    = TealDark,
 
     // Surface variant → usado en campos de input, chips no activos
@@ -73,6 +74,7 @@ private val DarkColorScheme = darkColorScheme(
     background   = TealDark,
     onBackground = TealLightest,
     surface      = Color(0xFF0A3D2E),  // surface oscuro
+    surfaceDim      = Color(0xFF0A3D2E),  // surface oscuro
     onSurface    = TealLightest,
 
     surfaceVariant   = Color(0xFF0F5440),
