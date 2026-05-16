@@ -10,6 +10,7 @@ import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
 import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
+import com.solvyx.ui.screens.chatbot.BertoScreen
 import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.splash.SplashScreen
@@ -49,13 +50,23 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 }
             )
         }
+
         composable(Routes.HOME) {
             MainScreen(
                 onLogout = {
                     navController.navigate(Routes.AUTH_CHOICE) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToChat = {
+                    navController.navigate(Routes.CHAT)
                 }
+            )
+        }
+
+        composable(Routes.CHAT) {
+            BertoScreen(
+                onBack = { navController.navigateUp() }
             )
         }
     }
