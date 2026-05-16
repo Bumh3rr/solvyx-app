@@ -3,8 +3,6 @@
 /local.properties
 /*.iml
 /*.keystore
-/*.jks
-/*.keystore
 /.idea/
 .DS_Store
 Thumbs.db
@@ -16,10 +14,6 @@ Thumbs.db
 
 # Kotlin/Java class files
 *.class
-
-# Gradle
-.gradle/
-build/
 
 # Android Studio captures and preview
 captures/
@@ -65,7 +59,7 @@ out/
 .idea_modules/
 
 # Caches
-/.gradle
+.gradle/
 
 # Ignore generated kapt files
 build/generated/ksp/
