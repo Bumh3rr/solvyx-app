@@ -48,18 +48,9 @@ debug.keystore
 *.log
 *.tmp
 
-# Mac
-.DS_Store
-
-# Windows
-Thumbs.db
-
 # JetBrains
 out/
 .idea_modules/
-
-# Caches
-.gradle/
 
 # Ignore generated kapt files
 build/generated/ksp/
