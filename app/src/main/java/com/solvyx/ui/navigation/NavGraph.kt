@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
 import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
 import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
@@ -34,6 +36,13 @@ fun SolvyxNavGraph(navController: NavHostController) {
         }
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
+        }
+        composable(Routes.DIAGNOSTICO) {
+            val diagnosticoNavController = rememberNavController()
+            DiagnosticoNavGraph(
+                navController = diagnosticoNavController,
+                onFinishAssist = { navController.popBackStack() }
+            )
         }
     }
 }

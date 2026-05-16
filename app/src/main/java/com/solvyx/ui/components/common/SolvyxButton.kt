@@ -24,13 +24,15 @@ fun SolvyxButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .height(56.dp)
-            .shadow(8.dp, RoundedCornerShape(28.dp))
+            .then(if (enabled) Modifier.shadow(3.dp, RoundedCornerShape(28.dp)) else Modifier)
             .clip(RoundedCornerShape(28.dp)),
         shape = RoundedCornerShape(28.dp),
         colors = ButtonDefaults.buttonColors(
@@ -50,10 +52,12 @@ fun SolvyxOutlinedButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
     OutlinedButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .height(56.dp)
             .clip(RoundedCornerShape(28.dp)),

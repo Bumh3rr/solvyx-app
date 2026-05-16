@@ -8,4 +8,5 @@ object Routes {
     const val FORGOT_PASSWORD = "forgot_password"
     const val REGISTER = "register"
     const val HOME = "home"
+    const val DIAGNOSTICO = "diagnostico"
 }
