@@ -44,7 +44,6 @@ import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
 import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
-import com.solvyx.ui.screens.chatbot.BertoScreen
 import com.solvyx.ui.screens.configuracion.ConfiguracionScreen
 import com.solvyx.ui.screens.guias.GuiasScreen
 import com.solvyx.ui.screens.home.InicioScreen
@@ -57,6 +56,7 @@ import kotlin.math.roundToInt
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
+    onNavigateToChat: () -> Unit,
     userNickname: String = "Alex"
 ) {
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
@@ -116,11 +116,16 @@ fun MainScreen(
             selectedNavigationItem = selectedItem,
             userNickname = userNickname,
             onNavigationItemClick = { item ->
-                if (item == NavigationItem.CerrarSesion) {
-                    onLogout()
-                } else {
-                    selectedItem = item
-                    drawerState = CustomDrawerState.Closed
+                when (item) {
+                    NavigationItem.CerrarSesion -> onLogout()
+                    NavigationItem.Berto -> {
+                        drawerState = CustomDrawerState.Closed
+                        onNavigateToChat()
+                    }
+                    else -> {
+                        selectedItem = item
+                        drawerState = CustomDrawerState.Closed
+                    }
                 }
             },
             onCloseClick = { drawerState = CustomDrawerState.Closed },
@@ -148,6 +153,7 @@ fun MainScreen(
             selectedItem = selectedItem,
             drawerState = drawerState,
             onDrawerClick = { drawerState = drawerState.opposite() },
+            onNavigateToChat = onNavigateToChat,
             onBottomNavNavigate = { item -> selectedItem = item }
         )
     }
@@ -159,16 +165,15 @@ private fun SolvyxMainContent(
     selectedItem: NavigationItem,
     drawerState: CustomDrawerState,
     onDrawerClick: () -> Unit,
+    onNavigateToChat: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
     var showSosDialog by remember { mutableStateOf(false) }
 
     val showBottomBar = selectedItem == NavigationItem.Inicio ||
-                        selectedItem == NavigationItem.Berto ||
                         selectedItem == NavigationItem.RegistroEmocional
 
     val selectedTab = when (selectedItem) {
-        NavigationItem.Berto            -> SolvyxBottomTab.CHATBOT
         NavigationItem.RegistroEmocional -> SolvyxBottomTab.REGISTRO
         else                             -> SolvyxBottomTab.INICIO
     }
@@ -190,7 +195,7 @@ private fun SolvyxMainContent(
                     selectedTab = selectedTab,
                     onTabSelected = { tab ->
                         when (tab) {
-                            SolvyxBottomTab.CHATBOT  -> onBottomNavNavigate(NavigationItem.Berto)
+                            SolvyxBottomTab.CHATBOT  -> onNavigateToChat()
                             SolvyxBottomTab.REGISTRO -> onBottomNavNavigate(NavigationItem.RegistroEmocional)
                             SolvyxBottomTab.INICIO   -> onBottomNavNavigate(NavigationItem.Inicio)
                         }
@@ -211,8 +216,6 @@ private fun SolvyxMainContent(
                         onOpenDrawer = onDrawerClick,
                         drawerState = drawerState
                     )
-                NavigationItem.Berto ->
-                    BertoScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.PlanReduccion ->
                     PlanReduccionScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.RegistroEmocional ->
@@ -223,6 +226,7 @@ private fun SolvyxMainContent(
                     RedApoyoScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.Configuracion ->
                     ConfiguracionScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }
                 NavigationItem.CerrarSesion -> { /* manejado en MainScreen */ }
             }
         }
