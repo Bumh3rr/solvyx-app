@@ -30,19 +30,11 @@ captures/
 
 # Keystore
 *.jks
-keystore.jks
 debug.keystore
 
 # Local env files
 .env
 .env.*
-
-# Misc
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/dictionaries
-.idea/**/shelf
-.idea/gradle.xml
 
 # Ignore local log and temp files
 *.log
