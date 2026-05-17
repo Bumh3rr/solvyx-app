@@ -5,6 +5,8 @@ import com.solvyx.backend.decisiontree.trees.alcoholCravingTree
 import com.solvyx.backend.decisiontree.trees.alcoholInfoTree
 import com.solvyx.backend.decisiontree.trees.cristalCravingTree
 import com.solvyx.backend.decisiontree.trees.cristalInfoTree
+import com.solvyx.backend.decisiontree.trees.vapeCravingTree
+import com.solvyx.backend.decisiontree.trees.vapeInfoTree
 import javax.inject.Inject
 
 class DecisionTreeRepository @Inject constructor() {
@@ -16,9 +18,13 @@ class DecisionTreeRepository @Inject constructor() {
 
         "cristal_craving" to cristalCravingTree,
 
+        "vape_craving" to vapeCravingTree,
+
         "alcohol_info" to alcoholInfoTree,
 
-        "cristal_info" to cristalInfoTree
+        "cristal_info" to cristalInfoTree,
+
+        "vape_info" to vapeInfoTree
     )
 
     // Obtener árbol
