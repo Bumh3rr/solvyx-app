@@ -10,4 +10,6 @@ object Routes {
     const val HOME = "home"
     const val CHAT = "chat"
     const val DIAGNOSTICO = "diagnostico"
+    const val RED_APOYO_SETUP = "red_apoyo_setup"
+    const val SOS_OVERLAY = "sos_overlay"
 }

@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Solvyx</string>
+
+    <!-- TTS: Ejercicio 5-4-3-2-1 -->
+    <string name="tts_intro">Hola. Soy Berto y estoy aquí contigo. Vamos a hacer juntas el ejercicio cinco cuatro tres dos uno. Es una técnica de anclaje que trae tu mente al presente. Respira profundo y cuando estés lista, presiona comenzar.</string>
+    <string name="tts_step_ver">Muy bien. Primer sentido: la vista. Busca cinco cosas que puedas ver ahora mismo a tu alrededor. Pueden ser objetos, colores, luces, o cualquier cosa visible. Toca cada burbuja cuando encuentres una.</string>
+    <string name="tts_step_tocar">Excelente. Ahora el tacto. Identifica cuatro cosas que puedas tocar. Siente su textura, su temperatura. Puede ser tu ropa, la silla, el suelo, cualquier superficie cercana.</string>
+    <string name="tts_step_escuchar">Muy bien. Tercer sentido: el oído. Escucha con atención y encuentra tres sonidos distintos. Puede ser el viento, voces lejanas, tu propia respiración. Tómate el tiempo que necesites.</string>
+    <string name="tts_step_oler">Genial. Ahora el olfato. Identifica dos aromas que puedas detectar. Inhala suavemente por la nariz. Puede ser el aire, tu ropa, algún alimento cercano.</string>
+    <string name="tts_step_saborear">Casi terminamos. Último sentido: el sabor. Presta atención a un sabor que puedas identificar ahora mismo en tu boca.</string>
+    <string name="tts_completion">Lo lograste. Completaste el ejercicio cinco cuatro tres dos uno. Tu mente está anclada al presente. El pánico disminuye cuando traes tu atención al aquí y ahora. Estás haciendo un gran trabajo cuidándote.</string>
 </resources>

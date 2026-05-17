@@ -14,8 +14,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_decorations_hero_3_drawer" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/app/src/main/res/drawable/bg-drawer.svg" />
+                            <entry key="outputName" value="ic_header_hero" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/app/src/main/res/drawable/skdjd.svg" />
                           </map>
                         </option>
                       </PersistentState>
