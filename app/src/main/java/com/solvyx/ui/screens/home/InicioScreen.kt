@@ -136,17 +136,28 @@ fun InicioScreen(
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.primary)
                         .padding(horizontal = 20.dp)
-                        .padding(top = 20.dp, bottom = 48.dp)
+                        .padding(top = 10.dp, bottom = 38.dp)
                 ) {
+//                    Image(
+//                        painter = painterResource(R.drawable.ic_decorations_hero_header),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(120.dp)
+//                            .align(Alignment.TopCenter),
+//                        contentScale = ContentScale.FillWidth,
+//                        alpha = 1f
+//                    )
+                    // Formas decorativas de fondo (cuadros y círculos)
                     Image(
-                        painter = painterResource(R.drawable.ic_decorations_hero_1),
+                        painter = painterResource(R.drawable.ic_header_hero),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
+                            .padding(horizontal = 22.dp)
                             .align(Alignment.TopCenter),
                         contentScale = ContentScale.FillWidth,
-                        alpha = 0.5f
+                        alpha = 1f
                     )
                     Image(
                         painter = painterResource(R.drawable.berto_saludando),

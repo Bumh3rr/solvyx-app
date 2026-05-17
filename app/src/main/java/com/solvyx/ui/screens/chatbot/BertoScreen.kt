@@ -106,6 +106,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun BertoScreen(
     onBack: () -> Unit,
+    onNavigateToSos: () -> Unit = {},
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     val listState = rememberLazyListState()
@@ -139,7 +140,10 @@ fun BertoScreen(
     // ── Diálogos / sheets ─────────────────────────────
     if (viewModel.showSosDialog) {
         SosConfirmationDialog(
-            onConfirm = { viewModel.toggleSosDialog() },
+            onConfirm = {
+                viewModel.toggleSosDialog()
+                onNavigateToSos()
+            },
             onDismiss = { viewModel.toggleSosDialog() }
         )
     }

@@ -204,7 +204,7 @@ fun RegisterScreen(
                 value = viewModel.birthdate,
                 onValueChange = viewModel::onBirthdateChange,
                 placeholder = "Fecha de nacimiento",
-                leadingIconRes = R.drawable.ic_calendar,
+                leadingIconRes = R.drawable.ic_birthday,
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
             )

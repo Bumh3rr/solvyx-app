@@ -33,6 +33,10 @@ enum class NavigationItem(
         title = "Mi Red de apoyo",
         icon = R.drawable.ic_people
     ),
+    Directorio(
+        title = "Directorio Profesional",
+        icon = R.drawable.ic_building
+    ),
     Configuracion(
         title = "Configuración",
         icon = R.drawable.ic_settings
@@ -57,6 +61,7 @@ fun NavigationItem.isPrimary(): Boolean =
 fun NavigationItem.isSecondary(): Boolean =
     this in listOf(
         NavigationItem.RedApoyo,
+        NavigationItem.Directorio,
         NavigationItem.Configuracion
     )
 

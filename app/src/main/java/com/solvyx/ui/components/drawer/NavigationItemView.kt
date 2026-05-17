@@ -1,6 +1,7 @@
 package com.solvyx.ui.components.drawer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.ui.components.drawer.model.NavigationItem
+import com.solvyx.ui.theme.CrisisRed
 
 @Composable
 fun NavigationItemView(
@@ -31,28 +33,36 @@ fun NavigationItemView(
     onClick: () -> Unit
 ) {
     val textColor = when {
-        isDestructive -> Color(0xFFfca5a5)
+        isDestructive -> CrisisRed
         selected      -> Color.White
-        else          -> Color.White.copy(alpha = 0.70f)
+        else          -> Color.White.copy(alpha = 0.95f)
     }
     val iconTint = when {
-        isDestructive -> Color(0xFFfca5a5)
+        isDestructive -> CrisisRed
         selected      -> Color.White
-        else          -> Color.White.copy(alpha = 0.70f)
+        else          -> Color.White.copy(alpha = 0.95f)
     }
     val bgColor = when {
         isDestructive -> Color.Transparent
-        selected      -> Color.White.copy(alpha = 0.15f)
+        selected      -> Color.White.copy(alpha = 0.14f)
         else          -> Color.Transparent
     }
+
+    val shape = RoundedCornerShape(12.dp)
+
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(shape)
             .background(bgColor)
+            .border(
+                width = if (bgColor == Color.Transparent) 0.dp else 1.dp,
+                color = if (bgColor == Color.Transparent) Color.Transparent else Color.White.copy(alpha = 0.18f),
+                shape = shape
+            )
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(horizontal = 14.dp, vertical = 15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -64,8 +74,8 @@ fun NavigationItemView(
         Spacer(Modifier.width(14.dp))
         Text(
             text = navigationItem.title,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold
             ),
             color = textColor,
             modifier = Modifier.weight(1f)

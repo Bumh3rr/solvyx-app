@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,8 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
@@ -45,31 +44,29 @@ import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
 import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
 import com.solvyx.ui.screens.configuracion.ConfiguracionScreen
-import com.solvyx.ui.screens.guias.GuiasScreen
+import com.solvyx.ui.screens.directorio.DirectorioRootScreen
+import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
 import com.solvyx.ui.screens.home.InicioScreen
 import com.solvyx.ui.screens.plan.PlanReduccionScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
-import kotlin.math.roundToInt
 
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
     onNavigateToChat: () -> Unit,
+    onNavigateToSos: () -> Unit = {},
     userNickname: String = "Alex"
 ) {
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
 
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current.density
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current
 
-    val screenWidth = remember {
-        derivedStateOf { (configuration.screenWidthDp * density).roundToInt() }
-    }
-    val offsetValue by remember {
-        derivedStateOf { (screenWidth.value / 2.8f).dp }
+    val offsetValue = with(density) {
+        (windowInfo.containerSize.width * 0.60f).toDp()
     }
 
     val animatedOffset by animateDpAsState(
@@ -107,8 +104,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter),
-            contentScale = ContentScale.FillWidth,
-            alpha = 0.18f
+            contentScale = ContentScale.FillWidth
         )
 
         // ── Capa 1: drawer (fijo, debajo en z-order) ──────
@@ -154,6 +150,7 @@ fun MainScreen(
             drawerState = drawerState,
             onDrawerClick = { drawerState = drawerState.opposite() },
             onNavigateToChat = onNavigateToChat,
+            onNavigateToSos = onNavigateToSos,
             onBottomNavNavigate = { item -> selectedItem = item }
         )
     }
@@ -166,6 +163,7 @@ private fun SolvyxMainContent(
     drawerState: CustomDrawerState,
     onDrawerClick: () -> Unit,
     onNavigateToChat: () -> Unit,
+    onNavigateToSos: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
     var showSosDialog by remember { mutableStateOf(false) }
@@ -180,7 +178,10 @@ private fun SolvyxMainContent(
 
     if (showSosDialog) {
         SosConfirmationDialog(
-            onConfirm = { showSosDialog = false },
+            onConfirm = {
+                showSosDialog = false
+                onNavigateToSos()
+            },
             onDismiss = { showSosDialog = false }
         )
     }
@@ -221,9 +222,23 @@ private fun SolvyxMainContent(
                 NavigationItem.RegistroEmocional ->
                     RegistroEmocionalScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.GuiasPrimerosAuxilios ->
-                    GuiasScreen(onOpenDrawer = onDrawerClick)
+                    GuiasNavGraph(
+                        onOpenDrawer = onDrawerClick,
+                        onNavigateToChat = onNavigateToChat,
+                        onNavigateToSos = onNavigateToSos
+                    )
                 NavigationItem.RedApoyo ->
-                    RedApoyoScreen(onOpenDrawer = onDrawerClick)
+                    RedApoyoScreen(
+                        isSetupMode = false,
+                        onBack = {},
+                        onOpenDrawer = onDrawerClick,
+                        onFinishSetup = {}
+                    )
+                NavigationItem.Directorio ->
+                    DirectorioRootScreen(
+                        onOpenDrawer = onDrawerClick,
+                        onNavigateToChat = onNavigateToChat
+                    )
                 NavigationItem.Configuracion ->
                     ConfiguracionScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }
