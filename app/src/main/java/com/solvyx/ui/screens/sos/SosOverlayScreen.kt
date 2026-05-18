@@ -90,17 +90,16 @@ private val LINEA_VIDA = "8009112000"
 
 @Composable
 fun SosOverlayScreen(
-    contactos: List<String>,
-    telefonos: List<String> = emptyList(),
     onCancel: () -> Unit,
     onHablarConBerto: () -> Unit,
     onClose: () -> Unit,
     viewModel: SosViewModel = hiltViewModel()
 ) {
     val sosState = viewModel.sosState
+    val contactos = viewModel.contactoNames
 
     LaunchedEffect(Unit) {
-        viewModel.startCountdown(telefonos)
+        viewModel.startCountdown()
     }
 
     Box(

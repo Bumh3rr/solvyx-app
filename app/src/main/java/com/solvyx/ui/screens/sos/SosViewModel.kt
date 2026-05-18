@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.data.local.entity.ContactoSosEntity
+import com.solvyx.backend.repository.SosRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +28,8 @@ enum class SosState { COUNTDOWN, SENT }
 
 @HiltViewModel
 class SosViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context
+    @ApplicationContext private val appContext: Context,
+    private val repository: SosRepository
 ) : ViewModel() {
 
     var sosState by mutableStateOf(SosState.COUNTDOWN)
@@ -35,16 +38,30 @@ class SosViewModel @Inject constructor(
     var countdown by mutableIntStateOf(3)
         private set
 
+    var contactoNames by mutableStateOf(listOf<String>())
+        private set
+
+    private var cachedContactos = listOf<ContactoSosEntity>()
     private var countdownJob: Job? = null
     private var tts: TextToSpeech? = null
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    init {
+        viewModelScope.launch {
+            repository.observarContactos().collect { contactos ->
+                cachedContactos = contactos
+                contactoNames = contactos.map { it.nombre }
+            }
+        }
+    }
+
     // ── Countdown ─────────────────────────────────────────────────────────────
 
-    fun startCountdown(telefonos: List<String> = emptyList()) {
+    fun startCountdown() {
+        val phones = cachedContactos.map { it.telefono }.filter { it.isNotBlank() }
         countdownJob?.cancel()
         countdown = 3
-        sendSmsBackground(telefonos)
+        sendSmsBackground(phones)
         countdownJob = viewModelScope.launch {
             repeat(3) {
                 delay(1000L)
@@ -77,6 +94,7 @@ class SosViewModel @Inject constructor(
                 phones.forEach { phone ->
                     smsManager?.sendTextMessage(phone, null, msg, null, null)
                 }
+                repository.registrarEvento(phones)
             }
         }
     }

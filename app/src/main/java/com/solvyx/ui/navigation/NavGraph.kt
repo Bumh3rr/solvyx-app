@@ -130,8 +130,6 @@ fun SolvyxNavGraph(navController: NavHostController) {
 
         composable(Routes.SOS_OVERLAY) {
             SosOverlayScreen(
-                contactos = listOf("Mamá", "Dr. Reyes", "Carlos"),
-                telefonos = emptyList(),
                 onCancel = { navController.navigateUp() },
                 onHablarConBerto = {
                     navController.navigate(Routes.CHAT) {
