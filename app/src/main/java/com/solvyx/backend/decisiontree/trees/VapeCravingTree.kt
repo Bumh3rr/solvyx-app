@@ -17,10 +17,14 @@ val vapeCravingTree = DecisionTree(
         "inicio" to DecisionNode(
             id = "inicio",
             texto = "¿En este momento sientes ganas intensas de usar el vapeador?",
+            mensaje =
+                """
+                Estoy contigo. Vamos paso a paso y sin juzgarte.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "intensidad"
                 ),
                 DecisionOption(
@@ -35,12 +39,12 @@ val vapeCravingTree = DecisionTree(
         // =========================
         "prevencion" to DecisionNode(
             id = "prevencion",
-            texto = "Excelente. Mantenerte firme y consciente cuida tus pulmones y tu salud.",
-            mensaje = "¿Quieres revisar estrategias de prevención para mantenerte sin vapear?",
+            texto = "Que bien. Mantenerte firme protege tus pulmones y tu energia.",
+            mensaje = "¿Te late revisar estrategias para mantenerte sin vapear?",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "estrategias"
                 ),
                 DecisionOption(
@@ -55,10 +59,11 @@ val vapeCravingTree = DecisionTree(
             texto = "Estrategias recomendadas para evitar el vapeo:",
             mensaje =
                 """
-                • Mantén el vapeador guardado o deséchalo
-                • Sustituye el gesto de vapear (masticar chicle, usar un popote)
-                • Identifica qué lugares o amigos te dan ganas de vapear
-                • Toma agua fría cuando sientas un impulso leve
+                • Guarda o desecha el vapeador si puedes.
+                • Sustituye el gesto (chicle, popote, menta).
+                • Identifica lugares o personas que te disparan el impulso.
+                • Toma agua fria cuando sientas un antojo leve.
+                • Descansa bien: el cansancio hace mas dificil resistir.
                 """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
@@ -66,7 +71,7 @@ val vapeCravingTree = DecisionTree(
 
         "fin_prevencion" to DecisionNode(
             id = "fin_prevencion",
-            texto = "Continúa reforzando tu autonomía y tus hábitos saludables.",
+            texto = "Sigue asi. Cada dia sin vapear es una decision que te fortalece.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
@@ -77,6 +82,10 @@ val vapeCravingTree = DecisionTree(
         "intensidad" to DecisionNode(
             id = "intensidad",
             texto = "¿Qué tan fuerte es el deseo de usar el vapeador en este momento?",
+            mensaje =
+                """
+                Los picos suelen bajar en minutos si no los alimentas.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
@@ -99,11 +108,15 @@ val vapeCravingTree = DecisionTree(
         // =========================
         "leve" to DecisionNode(
             id = "leve",
-            texto = "¿Puedes comprometerte a distraerte e intentar posponer el vapeo durante 15 minutos?",
+            texto = "¿Te animas a posponer el vapeo 15 minutos y distraerte?",
+            mensaje =
+                """
+                Retrasar el impulso debilita el habito automatico.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "distraccion"
                 ),
                 DecisionOption(
@@ -115,13 +128,13 @@ val vapeCravingTree = DecisionTree(
 
         "distraccion" to DecisionNode(
             id = "distraccion",
-            texto = "Prueba estas estrategias para romper el impulso automático:",
+            texto = "Prueba estas estrategias para romper el impulso automatico:",
             mensaje =
                 """
-                • Toma un vaso grande de agua fría para refrescar tu garganta.
-                • Busca un chicle o una menta fuerte para mantener tu boca ocupada.
-                • Haz un ejercicio de respiración: inhala en 4 tiempos y exhala lento.
-                • Cambia de habitación o muévete de lugar justo ahora.
+                • Toma un vaso grande de agua fria.
+                • Mastica chicle o una menta fuerte.
+                • Respira lento: inhala 4, exhala 6, repite 6 veces.
+                • Cambia de lugar por unos minutos.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -150,7 +163,7 @@ val vapeCravingTree = DecisionTree(
 
         "leve_controlado" to DecisionNode(
             id = "leve_controlado",
-            texto = "¡Excelente trabajo! Lograste surfear la ola del craving y mantuviste el control sin vapear.",
+            texto = "¡Bien hecho! Lograste surfear la ola del craving y mantener el control.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
@@ -160,11 +173,15 @@ val vapeCravingTree = DecisionTree(
         // =========================
         "moderado" to DecisionNode(
             id = "moderado",
-            texto = "¿Has usado el vapeador el día de hoy?",
+            texto = "¿Has usado el vapeador el dia de hoy?",
+            mensaje =
+                """
+                Una sola bocanada puede reactivar el impulso. No es un fracaso, es informacion.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "consumo_hoy"
                 ),
                 DecisionOption(
@@ -176,7 +193,11 @@ val vapeCravingTree = DecisionTree(
 
         "consumo_hoy" to DecisionNode(
             id = "consumo_hoy",
-            texto = "Dar una sola bocanada (*hit*) reactiva los niveles de nicotina en tu cerebro, haciendo que el deseo de seguir vapeando sea más intenso.",
+            texto = "El uso reciente suele intensificar el deseo por nicotina.",
+            mensaje =
+                """
+                Vamos a protegerte del siguiente impulso.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
@@ -204,11 +225,11 @@ val vapeCravingTree = DecisionTree(
 
         "buscar_apoyo" to DecisionNode(
             id = "buscar_apoyo",
-            texto = "Romper el entorno que te incita a vapear es clave en este nivel moderado:",
+            texto = "Vamos a romper el entorno que te incita a vapear:",
             mensaje =
                 """
-                • Si estás en una reunión o con un grupo que está vapeando, muévete de lugar unos minutos.
-                • Envía un mensaje de texto a alguien de confianza diciéndole cómo te sientes.
+                • Si estas con gente que vapea, muévete de lugar unos minutos.
+                • Manda un mensaje a alguien de confianza diciendo como te sientes.
                 • Recuerda que no necesitas traer el dispositivo contigo.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
@@ -222,11 +243,15 @@ val vapeCravingTree = DecisionTree(
 
         "sintomas" to DecisionNode(
             id = "sintomas",
-            texto = "¿Presentas fuerte dolor de cabeza, irritabilidad extrema, desesperación o una fijación mental muy alta por vapear?",
+            texto = "¿Tienes dolor de cabeza, irritabilidad intensa o una fijacion muy alta por vapear?",
+            mensaje =
+                """
+                Son sintomas comunes de abstinencia de nicotina y suelen bajar con el tiempo.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "alto"
                 ),
                 DecisionOption(
@@ -238,7 +263,7 @@ val vapeCravingTree = DecisionTree(
 
         "moderado_controlado" to DecisionNode(
             id = "moderado_controlado",
-            texto = "Lograste estabilizar un episodio moderado de craving. Mantén tus manos ocupadas y recuerda por qué decidiste dejar el vape.",
+            texto = "Lograste estabilizar este episodio. Mantén tus manos ocupadas y recuerda tu por que.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
@@ -248,12 +273,12 @@ val vapeCravingTree = DecisionTree(
         // =========================
         "alto" to DecisionNode(
             id = "alto",
-            texto = "Tu nivel de craving por la nicotina es críticamente alto y tu cerebro está bajo una fuerte demanda química.",
-            mensaje = "¿Sientes que estás a punto de perder el control y usar el vapeador?",
+            texto = "El impulso es muy fuerte, pero no es permanente.",
+            mensaje = "¿Sientes que estas a punto de perder el control y usar el vapeador?",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "alto_riesgo"
                 ),
                 DecisionOption(
@@ -265,13 +290,13 @@ val vapeCravingTree = DecisionTree(
 
         "alto_riesgo" to DecisionNode(
             id = "alto_riesgo",
-            texto = "¡Detén el impulso justo ahora! Recuerda que Solvyx cuenta con un sistema de Alertas SOS vía SMS.",
+            texto = "Detente un momento. Vamos con pasos concretos:",
             mensaje =
                 """
-                • Considera presionar el botón de pánico en la pantalla principal para notificar a tu red de apoyo.
-                • Deshazte del vapeador inmediatamente (mójalo o dáselo a alguien si es necesario).
-                • Aléjate por completo del lugar o situación donde te encuentres.
-                • No te quedes a solas con el pensamiento.
+                • Considera usar el boton SOS si tu app lo permite.
+                • Aleja o entrega el vapeador a alguien de confianza.
+                • Sal del lugar y respira lento por 2 minutos.
+                • No te quedes solo con el pensamiento.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -284,11 +309,15 @@ val vapeCravingTree = DecisionTree(
 
         "sintomas_abstinencia" to DecisionNode(
             id = "sintomas_abstinencia",
-            texto = "¿Presentas sudoración, temblores leves, palpitaciones o una ansiedad que te cuesta mucho trabajo contener?",
+            texto = "¿Presentas sudoracion, temblores leves, palpitaciones o ansiedad dificil de contener?",
+            mensaje =
+                """
+                Si los sintomas son intensos, pedir ayuda es valido.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "buscar_profesional"
                 ),
                 DecisionOption(
@@ -300,15 +329,19 @@ val vapeCravingTree = DecisionTree(
 
         "buscar_profesional" to DecisionNode(
             id = "buscar_profesional",
-            texto = "Estos síntomas físicos intensos son una respuesta clara del síndrome de abstinencia a la nicotina.",
-            mensaje = "Te recomendamos utilizar el módulo de Canalización Profesional de Solvyx para contactar de forma anónima con un especialista del CESMAA o un centro de salud en Guerrero.",
+            texto = "Buscar apoyo profesional puede hacer el proceso mas llevadero.",
+            mensaje =
+                """
+                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
+                Si hay una urgencia, llama al 911.
+                """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
         ),
 
         "alto_controlado" to DecisionNode(
             id = "alto_controlado",
-            texto = "El craving severo funciona por picos; si resistes unos minutos más, la intensidad biológica del deseo comenzará a descender. Mantente firme.",
+            texto = "El pico del deseo baja en minutos. Si te sostienes un poco mas, el impulso pierde fuerza.",
             tipo = NodeType.FINAL,
             esFinal = true
         )

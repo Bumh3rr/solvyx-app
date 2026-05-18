@@ -17,10 +17,14 @@ val cigarroCravingTree = DecisionTree(
         "inicio" to DecisionNode(
             id = "inicio",
             texto = "¿En este momento sientes ganas intensas de fumar un cigarro?",
+            mensaje =
+                """
+                Estoy contigo. Vamos paso a paso, sin juzgarte.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "intensidad"
                 ),
                 DecisionOption(
@@ -35,12 +39,12 @@ val cigarroCravingTree = DecisionTree(
         // =========================
         "prevencion" to DecisionNode(
             id = "prevencion",
-            texto = "¡Qué gran noticia! Mantenerte libre del humo de tabaco protege tu sistema cardiovascular.",
-            mensaje = "¿Te gustaría revisar algunas pautas para prevenir una recaída?",
+            texto = "¡Que buena noticia! Mantenerte libre del humo protege tu salud y tu energia.",
+            mensaje = "¿Te late revisar pautas simples para prevenir una recaida?",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "estrategias"
                 ),
                 DecisionOption(
@@ -52,13 +56,14 @@ val cigarroCravingTree = DecisionTree(
 
         "estrategias" to DecisionNode(
             id = "estrategias",
-            texto = "Estrategias de prevención recomendadas:",
+            texto = "Estrategias de prevencion recomendadas:",
             mensaje =
                 """
-                • Deshazte de ceniceros, encendedores y cajetillas que tengas en casa o el auto.
-                • Identifica tus disparadores (café, salir de clases, momentos de estrés).
-                • Cambia tus rutas habituales si pasas cerca de donde solías comprar cigarros.
-                • Mantén a la mano sustitutos conductuales (palillos de madera, popotes o dulces sanos).
+                • Retira ceniceros, encendedores y cajetillas de tu casa o auto.
+                • Identifica tus detonantes (cafe, salir de clases, estres, alcohol).
+                • Cambia rutas si pasas por donde solias comprar cigarros.
+                • Ten sustitutos conductuales: palillos, popotes, chicle o agua.
+                • Duerme bien y come a tiempo: el cansancio aumenta el impulso.
                 """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
@@ -66,7 +71,7 @@ val cigarroCravingTree = DecisionTree(
 
         "fin_prevencion" to DecisionNode(
             id = "fin_prevencion",
-            texto = "Continúa firme. Cada día sin fumar es un paso hacia una vida más saludable.",
+            texto = "Sigue firme. Cada dia sin fumar es una decision que te fortalece.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
@@ -76,7 +81,11 @@ val cigarroCravingTree = DecisionTree(
         // =========================
         "intensidad" to DecisionNode(
             id = "intensidad",
-            texto = "¿Qué tan fuerte es la necesidad de fumar justo ahora?",
+            texto = "¿Que tan fuerte es la necesidad de fumar justo ahora?",
+            mensaje =
+                """
+                Los picos de ansias suelen durar pocos minutos y luego bajan.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
@@ -99,11 +108,15 @@ val cigarroCravingTree = DecisionTree(
         // =========================
         "leve" to DecisionNode(
             id = "leve",
-            texto = "¿Puedes comprometerte a retrasar el cigarro durante 15 minutos realizando otra actividad?",
+            texto = "¿Te animas a retrasar el cigarro 15 minutos haciendo otra cosa?",
+            mensaje =
+                """
+                Retrasar el impulso debilita el habito automatico.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "distraccion"
                 ),
                 DecisionOption(
@@ -115,13 +128,13 @@ val cigarroCravingTree = DecisionTree(
 
         "distraccion" to DecisionNode(
             id = "distraccion",
-            texto = "La ansiedad del tabaco baja si mantienes tus manos y boca ocupadas. Intenta esto:",
+            texto = "La ansiedad baja si mantienes manos y boca ocupadas. Prueba esto:",
             mensaje =
                 """
-                • Sostén un bolígrafo o un objeto pequeño entre tus dedos para calmar la costumbre manual.
-                • Toma un vaso de agua despacio, saboreando cada trago.
-                • Mastica una goma de mascar o una pastilla de menta.
-                • Realiza 5 respiraciones profundas inhalando por la nariz y exhalando lentamente por la boca.
+                • Sostene un boligrafo o un objeto pequeno para calmar la costumbre manual.
+                • Toma agua despacio, saboreando cada trago.
+                • Mastica chicle o una pastilla de menta.
+                • Haz 5 respiraciones lentas: inhala por la nariz, exhala por la boca.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -134,11 +147,11 @@ val cigarroCravingTree = DecisionTree(
 
         "deseo_disminuyo" to DecisionNode(
             id = "deseo_disminuyo",
-            texto = "¿Sientes que las ganas de fumar disminuyeron tras la distracción?",
+            texto = "¿Sientes que las ganas de fumar disminuyeron tras la distraccion?",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "leve_controlado"
                 ),
                 DecisionOption(
@@ -150,7 +163,7 @@ val cigarroCravingTree = DecisionTree(
 
         "leve_controlado" to DecisionNode(
             id = "leve_controlado",
-            texto = "¡Excelente! Lograste romper el eslabón automático del antojo. Estás ganando control.",
+            texto = "¡Excelente! Rompiste el impulso automatico. Ese es un gran avance.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
@@ -160,11 +173,15 @@ val cigarroCravingTree = DecisionTree(
         // =========================
         "moderado" to DecisionNode(
             id = "moderado",
-            texto = "¿Has fumado aunque sea una parte de un cigarro el día de hoy?",
+            texto = "¿Has fumado aunque sea una parte de un cigarro hoy?",
+            mensaje =
+                """
+                Si fumas, el cerebro vuelve a pedir nicotina con mas fuerza. Reconocerlo ayuda a cortar el ciclo.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "consumo_hoy"
                 ),
                 DecisionOption(
@@ -176,7 +193,11 @@ val cigarroCravingTree = DecisionTree(
 
         "consumo_hoy" to DecisionNode(
             id = "consumo_hoy",
-            texto = "Fumar hoy mantiene activos los receptores de nicotina en tu cerebro, haciendo que el impulso se repita con más fuerza.",
+            texto = "Fumar hoy reactiva el habito y puede hacer que el impulso se repita.",
+            mensaje =
+                """
+                No es un fracaso. Es informacion para decidir tu siguiente paso.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
@@ -188,11 +209,11 @@ val cigarroCravingTree = DecisionTree(
 
         "acompanado" to DecisionNode(
             id = "acompanado",
-            texto = "¿Te encuentras acompañado de personas de tu confianza en este momento?",
+            texto = "¿Estas acompanado por alguien de tu confianza en este momento?",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "sintomas"
                 ),
                 DecisionOption(
@@ -204,12 +225,12 @@ val cigarroCravingTree = DecisionTree(
 
         "buscar_apoyo" to DecisionNode(
             id = "buscar_apoyo",
-            texto = "Es momento de modificar tu entorno inmediato para protegerte:",
+            texto = "Vamos a cuidar tu entorno inmediato:",
             mensaje =
                 """
-                • Si estás en el 'área de fumadores' o con amigos que fuman, aléjate inmediatamente.
-                • Llama o escribe a alguien de tu red de apoyo y dile: 'Tengo antojo de fumar, ayúdame a platicar de otra cosa'.
-                • Camina hacia un espacio cerrado o público libre de humo.
+                • Alejate de areas de fumadores o de personas que esten fumando.
+                • Manda un mensaje a alguien de confianza: "Traigo antojo de fumar, ayudame a distraerme".
+                • Muevete a un espacio libre de humo.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -222,11 +243,15 @@ val cigarroCravingTree = DecisionTree(
 
         "sintomas" to DecisionNode(
             id = "sintomas",
-            texto = "¿Experimentas fuerte irritabilidad, tensión muscular, cambios de humor o sudoración en las manos?",
+            texto = "¿Notas irritabilidad, tension muscular, ansiedad o sudoracion?",
+            mensaje =
+                """
+                Son sintomas comunes de abstinencia de nicotina y suelen mejorar con el tiempo.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "alto"
                 ),
                 DecisionOption(
@@ -238,7 +263,7 @@ val cigarroCravingTree = DecisionTree(
 
         "moderado_controlado" to DecisionNode(
             id = "moderado_controlado",
-            texto = "Superaste un episodio moderado. Recuerda que la ansiedad pasará, pero los beneficios en tus pulmones se quedan.",
+            texto = "Superaste un episodio moderado. El malestar pasa y tus pulmones agradecen cada dia sin humo.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
@@ -248,12 +273,12 @@ val cigarroCravingTree = DecisionTree(
         // =========================
         "alto" to DecisionNode(
             id = "alto",
-            texto = "Tu nivel de urgencia por fumar es elevado y la dependencia conductual está presionando al máximo.",
-            mensaje = "¿Sientes que estás a punto de ceder y encender un cigarro?",
+            texto = "El impulso es fuerte, pero no es permanente.",
+            mensaje = "¿Sientes que estas a punto de ceder y encender un cigarro?",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "alto_riesgo"
                 ),
                 DecisionOption(
@@ -265,12 +290,12 @@ val cigarroCravingTree = DecisionTree(
 
         "alto_riesgo" to DecisionNode(
             id = "alto_riesgo",
-            texto = "¡Detente! Estás en una zona de alto riesgo de recaída. Recuerda las herramientas de Solvyx:",
+            texto = "Detente un momento. Vamos con pasos concretos para salir de este pico:",
             mensaje =
                 """
-                • Tienes a tu disposición el sistema de Alertas SOS vía SMS en la app para pedir ayuda sin usar datos.
-                • Desecha o destruye el cigarro que tengas en la mano justo ahora. No te lo guardes.
-                • Lávate los dientes o la cara con agua muy fría para cambiar el estímulo sensorial.
+                • Desecha el cigarro o cualquier cajetilla que tengas a la mano.
+                • Lavar la cara con agua fria o cepillarte los dientes cambia el estimulo sensorial.
+                • Respira lento durante 2 minutos. El cuerpo se calma antes que la mente.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -283,11 +308,15 @@ val cigarroCravingTree = DecisionTree(
 
         "sintomas_abstinencia" to DecisionNode(
             id = "sintomas_abstinencia",
-            texto = "¿Presentas opresión leve en el pecho, dolores de cabeza punzantes o una desesperación difícil de contener?",
+            texto = "¿Presentas dolor de cabeza, opresion en el pecho o una ansiedad dificil de contener?",
+            mensaje =
+                """
+                Si aparecen sintomas intensos o te sientes en riesgo, pedir ayuda es valido.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "buscar_profesional"
                 ),
                 DecisionOption(
@@ -299,15 +328,20 @@ val cigarroCravingTree = DecisionTree(
 
         "buscar_profesional" to DecisionNode(
             id = "buscar_profesional",
-            texto = "La abstinencia física severa de la nicotina combustionada genera malestares reales en el cuerpo.",
-            mensaje = "No estás solo en esto. Te sugerimos acudir al módulo de Canalización Profesional de Solvyx para recibir asesoría especializada y anónima de las instituciones de salud en Guerrero.",
+            texto = "Pedir apoyo profesional puede hacer el proceso mas llevadero.",
+            mensaje =
+                """
+                Puedes acudir a un medico, psicologo o a un programa para dejar de fumar.
+                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
+                Si sientes riesgo inmediato, llama al 911.
+                """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
         ),
 
         "alto_controlado" to DecisionNode(
             id = "alto_controlado",
-            texto = "El pico del deseo severo dura solo unos minutos. Si logras sostenerte un poco más, la química cerebral volverá a equilibrarse. Mantente firme.",
+            texto = "El pico del deseo suele bajar en minutos. Si te sostienes un poco mas, el impulso pierde fuerza.",
             tipo = NodeType.FINAL,
             esFinal = true
         )

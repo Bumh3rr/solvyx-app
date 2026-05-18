@@ -16,16 +16,20 @@ val cigarroInfoTree = DecisionTree(
         // =========================
         "inicio" to DecisionNode(
             id = "inicio",
-            texto = "¿Conoces los compuestos químicos y los efectos reales del tabaco en tu salud?",
+            texto = "¿Quieres saber, sin rollo, que le hace el tabaco a tu cuerpo?",
+            mensaje =
+                """
+                Estoy aqui para contartelo claro y sin juzgarte.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí, los conozco",
-                    siguienteNodoId = "riesgo"
+                    texto = "Si, quiero entenderlo bien",
+                    siguienteNodoId = "efectos"
                 ),
                 DecisionOption(
-                    texto = "No del todo / Tengo dudas",
-                    siguienteNodoId = "efectos"
+                    texto = "Ya se algo, pero tengo dudas",
+                    siguienteNodoId = "impacto"
                 )
             )
         ),
@@ -35,12 +39,13 @@ val cigarroInfoTree = DecisionTree(
         // =========================
         "efectos" to DecisionNode(
             id = "efectos",
-            texto = "El humo del cigarro contiene más de 7,000 sustancias químicas, de las cuales al menos 70 causan cáncer:",
+            texto = "El humo del cigarro contiene mas de 7,000 sustancias quimicas; al menos 70 se asocian con cancer:",
             mensaje =
                 """
-                • Alquitrán: Una sustancia densa que se adhiere a los pulmones obstruyendo los alveolos.
-                • Monóxido de carbono: Un gas tóxico que desplaza al oxígeno en la sangre, forzando al corazón.
-                • El mito de la relajación: El cigarro no relaja; solo calma temporalmente la ansiedad de la abstinencia que el mismo cigarro provocó.
+                • Alquitran: se pega a los pulmones y reduce la capacidad de oxigeno.
+                • Monoxido de carbono: desplaza al oxigeno en la sangre y fuerza al corazon.
+                • Nicotina: genera dependencia y mantiene el ciclo de ansiedad.
+                • El mito de la relajacion: el cigarro no relaja, solo calma la ansiedad de abstinencia que el mismo provoca.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -56,11 +61,15 @@ val cigarroInfoTree = DecisionTree(
         // =========================
         "impacto" to DecisionNode(
             id = "impacto",
-            texto = "¿Sabías que el tabaquismo causa un impacto directo e inmediato en tus actividades diarias y economía?",
+            texto = "¿Sabias que el tabaquismo afecta lo que haces diario y tambien tu bolsillo?",
+            mensaje =
+                """
+                No solo es salud futura; hay efectos que se notan en semanas.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "abstinencia"
                 ),
                 DecisionOption(
@@ -75,9 +84,10 @@ val cigarroInfoTree = DecisionTree(
             texto = "Consecuencias cotidianas del consumo de tabaco:",
             mensaje =
                 """
-                • Pérdida notable de la condición física, capacidad pulmonar y resistencia al hacer ejercicio.
-                • Daño estético visible: coloración amarillenta en dientes y dedos, además de mal aliento crónico.
-                • Impacto financiero severo debido al costo acumulado de las cajetillas semanales.
+                • Menos condicion fisica y mas falta de aire al subir escaleras.
+                • Mal aliento y manchas en dientes y dedos.
+                • Gasto acumulado que puede ser alto al mes.
+                • Humo de segunda mano: afecta a quienes conviven contigo.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -93,11 +103,15 @@ val cigarroInfoTree = DecisionTree(
         // =========================
         "abstinencia" to DecisionNode(
             id = "abstinencia",
-            texto = "¿Sabías que la nicotina es una de las sustancias más adictivas y que su abstinencia genera malestares físicos?",
+            texto = "¿Sabias que la nicotina genera dependencia y que al dejarla pueden aparecer molestias?",
+            mensaje =
+                """
+                No significa que sea imposible; significa que tu cuerpo se esta ajustando.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "final"
                 ),
                 DecisionOption(
@@ -109,13 +123,13 @@ val cigarroInfoTree = DecisionTree(
 
         "info_abstinencia" to DecisionNode(
             id = "info_abstinencia",
-            texto = "Cuando dejas de fumar, tu cuerpo experimenta un proceso de desintoxicación que incluye:",
+            texto = "Cuando dejas de fumar, pueden aparecer sintomas comunes como:",
             mensaje =
                 """
-                • Fuertes deseos de fumar (craving) repetitivos durante el día.
-                • Dolores de cabeza constantes debido a la regulación del flujo sanguíneo.
-                • Aumento temporal de la tos (tus pulmones se están limpiando y expulsando flemas).
-                • Dificultad para dormir o despertarse a mitad de la noche.
+                • Deseos intensos (craving) que aparecen y bajan con el tiempo.
+                • Irritabilidad o ansiedad leve.
+                • Dificultad para dormir los primeros dias.
+                • Tos temporal mientras los pulmones se limpian.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -131,11 +145,15 @@ val cigarroInfoTree = DecisionTree(
         // =========================
         "riesgo" to DecisionNode(
             id = "riesgo",
-            texto = "¿Te interesa aprender a identificar las señales que indican una dependencia severa al tabaco?",
+            texto = "¿Te interesa identificar senales de dependencia al tabaco?",
+            mensaje =
+                """
+                Saber esto ayuda a decidir si necesitas apoyo extra.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "senales"
                 ),
                 DecisionOption(
@@ -147,13 +165,13 @@ val cigarroInfoTree = DecisionTree(
 
         "senales" to DecisionNode(
             id = "senales",
-            texto = "Señales críticas de dependencia al cigarro:",
+            texto = "Senales frecuentes de dependencia al cigarro:",
             mensaje =
                 """
-                • Necesidad imperiosa de fumar el primer cigarro del día dentro de los primeros 30 minutos tras despertar.
-                • Dificultad extrema para abstenerse en lugares prohibidos (hospitales, escuelas, cines).
-                • Fumar incluso cuando estás tan enfermo que debes guardar cama.
-                • Consumir más de media cajetilla al día para sentir el mismo efecto.
+                • Fumar el primer cigarro dentro de los 30 minutos de despertar.
+                • Dificultad para no fumar en lugares prohibidos.
+                • Fumar incluso cuando estas enfermo.
+                • Necesitar cada vez mas cigarros para sentir el mismo efecto.
                 """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
@@ -164,7 +182,47 @@ val cigarroInfoTree = DecisionTree(
         // =========================
         "final" to DecisionNode(
             id = "final",
-            texto = "Tomar la decisión de cuidar tu salud es un acto de valentía. Sigue usando Solvyx para mantener tus metas claras y tus pulmones limpios.",
+            texto = "Cuidar tu salud es una decision valiente. ¿Quieres ver tips iniciales para empezar?",
+            mensaje =
+                """
+                Si quieres cerrar aqui, esta bien. Y si quieres apoyo, tambien.
+                """.trimIndent(),
+            tipo = NodeType.QUESTION,
+            opciones = listOf(
+                DecisionOption(
+                    texto = "Si, dame tips",
+                    siguienteNodoId = "tips_iniciales"
+                ),
+                DecisionOption(
+                    texto = "No, terminar",
+                    siguienteNodoId = "fin"
+                )
+            )
+        ),
+
+        "tips_iniciales" to DecisionNode(
+            id = "tips_iniciales",
+            texto = "Tips iniciales para dejar de fumar:",
+            mensaje =
+                """
+                • Elige una fecha cercana para empezar y avisa a alguien de confianza.
+                • Quita cajetillas, encendedores y ceniceros de tu entorno.
+                • Cambia rutinas que te disparen el antojo (cafe, alcohol, estres).
+                • Ten sustitutos a la mano: agua, chicle, palillos o caminar 5 minutos.
+                • Si un antojo sube, espera 10 minutos y respira lento: baja mas rapido de lo que parece.
+                """.trimIndent(),
+            tipo = NodeType.FINAL,
+            esFinal = true
+        ),
+
+        "fin" to DecisionNode(
+            id = "fin",
+            texto = "Cuidar tu salud es una decision valiente. Aqui estoy cuando lo necesites.",
+            mensaje =
+                """
+                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
+                Si hay una urgencia, llama al 911.
+                """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
         )

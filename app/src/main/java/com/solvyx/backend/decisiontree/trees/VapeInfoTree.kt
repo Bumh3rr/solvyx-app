@@ -13,11 +13,15 @@ val vapeInfoTree = DecisionTree(
         // =========================
         "inicio" to DecisionNode(
             id = "inicio",
-            texto = "¿Conoces los efectos reales que tienen los vapeadores en tu cuerpo y cerebro?",
+            texto = "¿Quieres que te cuente, sin juicio, los efectos del vape en tu cuerpo y tu mente?",
+            mensaje =
+                """
+                Te lo explico claro y sin reganos.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí, los conozco",
+                    texto = "Si, quiero entenderlo bien",
                     siguienteNodoId = "evaluar_riesgo"
                 ),
                 DecisionOption(
@@ -29,13 +33,13 @@ val vapeInfoTree = DecisionTree(
 
         "efectos_vape" to DecisionNode(
             id = "efectos_vape",
-            texto = "El aerosol del vapeador NO es vapor de agua; contiene sustancias altamente tóxicas:",
+            texto = "El aerosol del vape no es vapor de agua; puede contener sustancias irritantes y toxicas:",
             mensaje =
                 """
-                • Sales de nicotina ultra concentradas (generan adicción más rápido que el cigarro común).
-                • Metales pesados (níquel, estaño y plomo) que se desprenden de la resistencia al calentarse.
-                • Compuestos orgánicos volátiles que dañan el tejido pulmonar profundamente.
-                • Químicos saborizantes asociados a enfermedades pulmonares graves (como el diacetilo).
+                • Nicotina (muchos liquidos la contienen y genera dependencia).
+                • Metales que pueden desprenderse de la resistencia al calentarse.
+                • Compuestos organicos volatiles que irritan vias respiratorias.
+                • Saborizantes que, al inhalarse, pueden danar el tejido pulmonar.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -48,11 +52,15 @@ val vapeInfoTree = DecisionTree(
 
         "impacto_vida" to DecisionNode(
             id = "impacto_vida",
-            texto = "¿Sabías que el uso constante del vapeador puede afectar tu rendimiento escolar, tu condición física y tus relaciones?",
+            texto = "¿Sabias que el uso frecuente puede afectar tu rendimiento, tu condicion fisica y tus relaciones?",
+            mensaje =
+                """
+                No solo es el momento de vapear: tambien cambia rutinas, energia y decisiones.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "abstinencia"
                 ),
                 DecisionOption(
@@ -64,12 +72,12 @@ val vapeInfoTree = DecisionTree(
 
         "problemas_sociales" to DecisionNode(
             id = "problemas_sociales",
-            texto = "El vapeo frecuente genera una dependencia invisible que altera tu rutina:",
+            texto = "El vapeo frecuente puede meterse en tu rutina sin que lo notes:",
             mensaje =
                 """
-                • Aislamiento para poder vapear a escondidas en baños o salones.
-                • Gasto económico constante que afecta tus finanzas personales o familiares.
-                • Disminución del rendimiento físico y fatiga prematura al hacer ejercicio.
+                • Aislarte para vapear a escondidas.
+                • Gasto constante que se acumula.
+                • Menos aire al hacer ejercicio o subir escaleras.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -82,11 +90,15 @@ val vapeInfoTree = DecisionTree(
 
         "abstinencia" to DecisionNode(
             id = "abstinencia",
-            texto = "¿Sabías que la falta de nicotina por pasar unas horas sin vapear provoca cambios muy rápidos en tu estado de ánimo?",
+            texto = "¿Sabias que pasar unas horas sin nicotina puede cambiar tu estado de animo?",
+            mensaje =
+                """
+                No significa debilidad; es el cuerpo ajustandose.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "final"
                 ),
                 DecisionOption(
@@ -98,13 +110,13 @@ val vapeInfoTree = DecisionTree(
 
         "info_abstinencia" to DecisionNode(
             id = "info_abstinencia",
-            texto = "Al ser una sustancia de acción rápida, la abstinencia de la nicotina en vapeadores incluye:",
+            texto = "La abstinencia de nicotina puede incluir:",
             mensaje =
                 """
-                • Ansiedad y desesperación intensa a los pocos minutos o horas de dejarlo.
-                • Irritabilidad severa y cambios drásticos de humor inexplicables.
-                • Dolores de cabeza y dificultad severa para concentrarte en tus clases.
-                • Problemas para conciliar el sueño o insomnio.
+                • Ansiedad o inquietud que sube y baja.
+                • Irritabilidad o cambios de humor.
+                • Dolor de cabeza y dificultad para concentrarte.
+                • Problemas para dormir los primeros dias.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
@@ -120,11 +132,15 @@ val vapeInfoTree = DecisionTree(
         // =========================
         "evaluar_riesgo" to DecisionNode(
             id = "evaluar_riesgo",
-            texto = "¿Te gustaría aprender a identificar cuándo el uso del vapeador se convierte en un comportamiento de riesgo?",
+            texto = "¿Te gustaria identificar cuando el vapeo se vuelve de riesgo?",
+            mensaje =
+                """
+                Saberlo ayuda a pedir apoyo a tiempo.
+                """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Sí",
+                    texto = "Si",
                     siguienteNodoId = "senales"
                 ),
                 DecisionOption(
@@ -142,10 +158,10 @@ val vapeInfoTree = DecisionTree(
             texto = "Señales de alerta de dependencia al vapeo:",
             mensaje =
                 """
-                • Sentir una necesidad incontrolable de vapear apenas te despiertas por la mañana.
-                • Esconder el dispositivo o usarlo en espacios prohibidos (salones de clase, baños, cines).
-                • Continuar vapeando a pesar de presentar tos crónica, dolor de pecho o resequedad severa.
-                • Experimentar desesperación o ansiedad intensa si te quedas sin batería o líquido.
+                • Necesidad de vapear poco despues de despertar.
+                • Usarlo en lugares donde no se permite.
+                • Seguir vapeando aunque ya tengas tos, irritacion o resequedad.
+                • Ansiedad intensa si no tienes bateria o liquido.
                 """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
@@ -156,7 +172,12 @@ val vapeInfoTree = DecisionTree(
         // =========================
         "final" to DecisionNode(
             id = "final",
-            texto = "Recuerda que tú tienes el control absoluto de tus decisiones. Continúa fortaleciendo tus hábitos saludables y protegiendo tu capacidad pulmonar.",
+            texto = "Tu salud es primero. Si quieres apoyo, aqui estoy.",
+            mensaje =
+                """
+                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
+                Si hay una urgencia, llama al 911.
+                """.trimIndent(),
             tipo = NodeType.FINAL,
             esFinal = true
         )
