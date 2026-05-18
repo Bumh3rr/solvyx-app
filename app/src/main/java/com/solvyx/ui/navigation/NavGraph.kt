@@ -9,11 +9,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
+import com.solvyx.ui.screens.sos.SosOverlayScreen
 import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
 import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
+import com.solvyx.ui.screens.chatbot.BertoScreen
+import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.onboarding.OnboardingScreen
+import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 
 @Composable
@@ -64,7 +68,61 @@ fun SolvyxNavGraph(navController: NavHostController) {
             val diagnosticoNavController = rememberNavController()
             DiagnosticoNavGraph(
                 navController = diagnosticoNavController,
-                onFinishAssist = { navController.popBackStack() }
+                onFinishAssist = {
+                    navController.navigate(Routes.RED_APOYO_SETUP) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.RED_APOYO_SETUP) {
+            RedApoyoScreen(
+                isSetupMode = true,
+                onBack = { navController.navigateUp() },
+                onOpenDrawer = {},
+                onFinishSetup = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.ONBOARDING) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.HOME) {
+            MainScreen(
+                onLogout = {
+                    navController.navigate(Routes.AUTH_CHOICE) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onNavigateToChat = {
+                    navController.navigate(Routes.CHAT)
+                },
+                onNavigateToSos = {
+                    navController.navigate(Routes.SOS_OVERLAY)
+                }
+            )
+        }
+
+        composable(Routes.CHAT) {
+            BertoScreen(
+                onBack = { navController.navigateUp() },
+                onNavigateToSos = { navController.navigate(Routes.SOS_OVERLAY) }
+            )
+        }
+
+        composable(Routes.SOS_OVERLAY) {
+            SosOverlayScreen(
+                contactos = listOf("Mamá", "Dr. Reyes", "Carlos"),
+                telefonos = emptyList(),
+                onCancel = { navController.navigateUp() },
+                onHablarConBerto = {
+                    navController.navigate(Routes.CHAT) {
+                        popUpTo(Routes.SOS_OVERLAY) { inclusive = true }
+                    }
+                },
+                onClose = { navController.navigateUp() }
             )
         }
     }

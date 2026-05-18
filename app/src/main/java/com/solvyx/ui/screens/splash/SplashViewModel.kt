@@ -32,9 +32,7 @@ class SplashViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val prefs = context.solvyxDataStore.data.first()
-            //val done = prefs[ONBOARDING_DONE] ?: false
-            // TODO: Implementar lógica real para determinar si el onboarding ya se completó
-            val done =  false
+            val done = prefs[ONBOARDING_DONE] ?: false
 
             _destination.value = if (done) Destination.Login else Destination.Onboarding
         }
