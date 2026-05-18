@@ -44,6 +44,7 @@ import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
 import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
 import com.solvyx.ui.screens.configuracion.ConfiguracionScreen
+import com.solvyx.ui.screens.directorio.DirectorioRootScreen
 import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
 import com.solvyx.ui.screens.home.InicioScreen
 import com.solvyx.ui.screens.plan.PlanReduccionScreen
@@ -232,6 +233,11 @@ private fun SolvyxMainContent(
                         onBack = {},
                         onOpenDrawer = onDrawerClick,
                         onFinishSetup = {}
+                    )
+                NavigationItem.Directorio ->
+                    DirectorioRootScreen(
+                        onOpenDrawer = onDrawerClick,
+                        onNavigateToChat = onNavigateToChat
                     )
                 NavigationItem.Configuracion ->
                     ConfiguracionScreen(onOpenDrawer = onDrawerClick)
