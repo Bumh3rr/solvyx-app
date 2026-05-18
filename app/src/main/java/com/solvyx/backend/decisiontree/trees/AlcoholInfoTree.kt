@@ -182,15 +182,11 @@ val alcoholInfoTree = DecisionTree(
             id = "final",
 
             texto =
-                "Información importante sobre alcohol.",
-
-            mensaje =
-                """
-                • Habla pastosa
-                • Incoordinación
-                • Alteración del juicio
-                • Riesgo físico
-                """.trimIndent(),
+                "Información importante sobre alcohol.\n\n" +
+                "• Habla pastosa\n" +
+                "• Incoordinación\n" +
+                "• Alteración del juicio\n" +
+                "• Riesgo físico",
 
             tipo = NodeType.FINAL,
 

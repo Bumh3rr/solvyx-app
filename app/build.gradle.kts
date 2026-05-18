@@ -45,6 +45,8 @@ android {
 
 dependencies {
 
+    implementation("com.google.code.gson:gson:2.10.1")
+
     // Coroutines dependencies
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)

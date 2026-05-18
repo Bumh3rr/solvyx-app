@@ -1,2 +1,15 @@
+# Archivos de compilación
 /build
-../local.properties
+app/build
+.gradle/
+
+# Configuraciones locales del IDE (Android Studio / IntelliJ)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Archivos de configuración local del sistema y SDK
+local.properties
+.DS_Store
+/captures
