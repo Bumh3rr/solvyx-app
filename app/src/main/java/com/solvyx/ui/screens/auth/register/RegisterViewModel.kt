@@ -5,12 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.data.local.entity.UserEntity
+import com.solvyx.backend.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor() : ViewModel() {
+class RegisterViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     var nickname by mutableStateOf("")
         private set
@@ -34,7 +38,14 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
 
     fun register(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            // TODO: implement with Retrofit
+            userRepository.guardar(
+                UserEntity(
+                    apodo = nickname.trim(),
+                    email = email.trim(),
+                    fechaRegistro = System.currentTimeMillis(),
+                    fechaNacimiento = birthdate.trim()
+                )
+            )
             onSuccess()
         }
     }
