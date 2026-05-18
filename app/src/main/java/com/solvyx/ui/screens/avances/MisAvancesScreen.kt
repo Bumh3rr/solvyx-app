@@ -289,7 +289,7 @@ fun MisAvancesScreen(
 
             // ── Feelings chart ───────────────────────────────────────────────
             Text(
-                text  = "Estado emocional",
+                text  = "Mi bienestar",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = TealDark
             )

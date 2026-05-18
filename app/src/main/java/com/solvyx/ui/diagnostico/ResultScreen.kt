@@ -59,8 +59,8 @@ fun ResultScreen(
     onNavigateToChat: () -> Unit = {},
     onNavigateToBitacora: () -> Unit = {},
     onNavigateToAvances: () -> Unit = {},
-    onNavigateToMisMetas: () -> Unit = {},
-    onNavigateToMisDetonantes: () -> Unit = {},
+    onNavigateToManejoCraving: () -> Unit = {},
+    onNavigateToInfoSustancia: () -> Unit = {},
     onNavigateToDirectorio: () -> Unit = {},
     onNavigateToRedApoyo: () -> Unit = {}
 ) {
@@ -151,8 +151,8 @@ fun ResultScreen(
                     onNavigateToChat = onNavigateToChat,
                     onNavigateToBitacora = onNavigateToBitacora,
                     onNavigateToAvances = onNavigateToAvances,
-                    onNavigateToMisMetas = onNavigateToMisMetas,
-                    onNavigateToMisDetonantes = onNavigateToMisDetonantes,
+                    onNavigateToManejoCraving = onNavigateToManejoCraving,
+                    onNavigateToInfoSustancia = onNavigateToInfoSustancia,
                     onNavigateToDirectorio = onNavigateToDirectorio,
                     onNavigateToRedApoyo = onNavigateToRedApoyo
                 )
@@ -299,8 +299,8 @@ private fun AccionesSugeridas(
     onNavigateToChat: () -> Unit,
     onNavigateToBitacora: () -> Unit,
     onNavigateToAvances: () -> Unit,
-    onNavigateToMisMetas: () -> Unit,
-    onNavigateToMisDetonantes: () -> Unit,
+    onNavigateToManejoCraving: () -> Unit,
+    onNavigateToInfoSustancia: () -> Unit,
     onNavigateToDirectorio: () -> Unit,
     onNavigateToRedApoyo: () -> Unit
 ) {
@@ -316,10 +316,10 @@ private fun AccionesSugeridas(
                 "Mira cuánto has progresado", onNavigateToAvances)
         )
         NivelRiesgo.MODERADO -> listOf(
-            AccionItem(R.drawable.ic_flag, "Crea tu primera meta",
-                "Un paso concreto hacia el cambio", onNavigateToMisMetas),
-            AccionItem(R.drawable.ic_brain, "Identifica tus detonantes",
-                "Conocerlos es el primer paso", onNavigateToMisDetonantes),
+            AccionItem(R.drawable.ic_brain, "Aprende a manejar el craving",
+                "Técnicas para el momento difícil", onNavigateToManejoCraving),
+            AccionItem(R.drawable.ic_info, "Conoce las sustancias",
+                "Información para reducir daños", onNavigateToInfoSustancia),
             AccionItem(R.drawable.ic_chat, "Habla con Berto cuando lo necesites",
                 "Siempre disponible para escucharte", onNavigateToChat)
         )

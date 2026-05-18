@@ -25,18 +25,17 @@ data class RegistroMock(
     val estadoAnimo: String,
     val consumio: Boolean,
     val sustancia: String?,
-    val nivelAnsiedad: Int,
     val nota: String?
 )
 
 @Composable
 fun HistorialBitacoraScreen(onBack: () -> Unit) {
     val registros = listOf(
-        RegistroMock("Jueves, 14 de mayo", "euforico", false, null, 3, "Muy buen día"),
-        RegistroMock("Miércoles, 13 de mayo", "ansioso", true, "alcohol", 7, null),
-        RegistroMock("Martes, 12 de mayo", "bien", false, null, 2, null),
-        RegistroMock("Lunes, 11 de mayo", "neutral", true, "vape", 5, null),
-        RegistroMock("Domingo, 10 de mayo", "triste", false, null, 8, "Día difícil")
+        RegistroMock("Jueves, 14 de mayo", "euforico", false, null, "Muy buen día"),
+        RegistroMock("Miércoles, 13 de mayo", "ansioso", true, "alcohol", null),
+        RegistroMock("Martes, 12 de mayo", "bien", false, null, null),
+        RegistroMock("Lunes, 11 de mayo", "neutral", true, "vape", null),
+        RegistroMock("Domingo, 10 de mayo", "triste", false, null, "Día difícil")
     )
 
     Column(
@@ -73,7 +72,6 @@ fun HistorialBitacoraScreen(onBack: () -> Unit) {
         ) {
             ResumenStatItem("5", "Registros")
             ResumenStatItem("3", "Sin consumo")
-            ResumenStatItem("4.2", "Ansiedad media")
         }
 
         LazyColumn(
@@ -119,11 +117,6 @@ private fun HistorialRegistroCard(registro: RegistroMock) {
         "neutral" to "Neutral", "bien" to "Bien", "euforico" to "Eufórico"
     )
     val sosRed = Color(0xFFE24B4A)
-    val ansiedadColor = when {
-        registro.nivelAnsiedad <= 3 -> MaterialTheme.colorScheme.primary
-        registro.nivelAnsiedad <= 6 -> Color(0xFFd97706)
-        else -> sosRed
-    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -208,18 +201,6 @@ private fun HistorialRegistroCard(registro: RegistroMock) {
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        registro.nivelAnsiedad.toString(),
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                        color = ansiedadColor
-                    )
-                    Text(
-                        "ansiedad",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }

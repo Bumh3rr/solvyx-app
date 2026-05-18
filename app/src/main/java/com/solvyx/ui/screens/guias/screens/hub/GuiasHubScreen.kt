@@ -191,7 +191,7 @@ fun GuiasHubScreen(
                     )
                 }
                 Spacer(Modifier.height(8.dp))
-                HelpLineRow("Línea de la Vida", "8002900024")
+                HelpLineRow("Línea de la Vida", "8009112000")
                 HelpLineRow("SAPTEL", "5552598121")
                 HorizontalDivider(
                     color = TealLightest,

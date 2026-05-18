@@ -776,25 +776,25 @@ private fun EmocionSugerenciaCard(
     onNavigateToRegistro: () -> Unit
 ) {
     val iconRes = when (emocion) {
-        "Bien"      -> R.drawable.ic_plan
+        "Bien"      -> R.drawable.ic_trending_up
         "Tranquilo" -> R.drawable.ic_trending_up
         "Ansioso"   -> R.drawable.ic_wind
         else        -> R.drawable.ic_chat
     }
     val mensaje = when (emocion) {
-        "Bien"      -> "¡Sigue así! Revisa el avance de tu plan."
+        "Bien"      -> "Buen momento para registrar tu día."
         "Tranquilo" -> "Buen momento para registrar cómo te sientes."
         "Ansioso"   -> "Prueba un ejercicio de respiración."
         else        -> "Berto puede escucharte en este momento."
     }
     val accion = when (emocion) {
-        "Bien"      -> "Ver mi plan"
+        "Bien"      -> "Ir al registro"
         "Tranquilo" -> "Ir al registro"
         "Ansioso"   -> "Respirar ahora"
         else        -> "Hablar con Berto"
     }
     val onAccion: () -> Unit = when (emocion) {
-        "Bien"      -> onNavigateToPlan
+        "Bien"      -> onNavigateToRegistro
         "Tranquilo" -> onNavigateToRegistro
         "Ansioso"   -> onNavigateToEjercicio
         else        -> onNavigateToChat

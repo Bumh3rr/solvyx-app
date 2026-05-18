@@ -16,21 +16,6 @@ class PlanViewModel @Inject constructor() : ViewModel() {
     var metaLogradaHoy: Boolean by mutableStateOf(false)
         private set
 
-    var detonantes: List<String> by mutableStateOf(
-        listOf(
-            "Fiestas o reuniones sociales",
-            "Estrés laboral",
-            "Soledad por las noches"
-        )
-    )
-        private set
-
-    var mostrarAgregarDetonante: Boolean by mutableStateOf(false)
-        private set
-
-    var showCelebracion: Boolean by mutableStateOf(false)
-        private set
-
     var showSosDialog: Boolean by mutableStateOf(false)
         private set
 
@@ -50,26 +35,6 @@ class PlanViewModel @Inject constructor() : ViewModel() {
     fun siguienteMeta() {
         metaIndex = (metaIndex + 1) % metasList.size
         metaLogradaHoy = false
-    }
-
-    fun removeDetonante(index: Int) {
-        detonantes = detonantes.filterIndexed { i, _ -> i != index }
-    }
-
-    fun abrirAgregarDetonante() {
-        mostrarAgregarDetonante = true
-    }
-
-    fun cerrarAgregarDetonante() {
-        mostrarAgregarDetonante = false
-    }
-
-    fun abrirCelebracion() {
-        showCelebracion = true
-    }
-
-    fun cerrarCelebracion() {
-        showCelebracion = false
     }
 
     fun abrirSosDialog() {

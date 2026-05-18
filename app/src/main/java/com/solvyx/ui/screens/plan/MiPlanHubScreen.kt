@@ -45,8 +45,6 @@ import com.solvyx.ui.theme.TealLightest
 fun MiPlanHubScreen(
     onOpenDrawer: () -> Unit,
     onNavigateToManejoCraving: () -> Unit,
-    onNavigateToDetonantes: () -> Unit,
-    onNavigateToMetas: () -> Unit,
     onNavigateToInfoSustancia: () -> Unit,
     viewModel: PlanViewModel = hiltViewModel()
 ) {
@@ -166,39 +164,21 @@ fun MiPlanHubScreen(
             // ── Herramientas para este momento ────────────────────────────
             CardLabel(iconRes = R.drawable.ic_brain, text = "Herramientas para este momento")
             Spacer(Modifier.height(8.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    HerramientaCard(
-                        iconRes = R.drawable.ic_flame,
-                        titulo = "Manejo del craving",
-                        subtitulo = "Técnicas para momentos difíciles",
-                        onClick = onNavigateToManejoCraving,
-                        modifier = Modifier.weight(1f)
-                    )
-                    HerramientaCard(
-                        iconRes = R.drawable.ic_brain,
-                        titulo = "Mis detonantes",
-                        subtitulo = "Identifica qué te impulsa a consumir",
-                        onClick = onNavigateToDetonantes,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    HerramientaCard(
-                        iconRes = R.drawable.ic_flag,
-                        titulo = "Mis metas",
-                        subtitulo = "Sigue el avance de tus objetivos",
-                        onClick = onNavigateToMetas,
-                        modifier = Modifier.weight(1f)
-                    )
-                    HerramientaCard(
-                        iconRes = R.drawable.ic_info,
-                        titulo = "Info por sustancia",
-                        subtitulo = "Efectos y reducción de daños",
-                        onClick = onNavigateToInfoSustancia,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                HerramientaCard(
+                    iconRes = R.drawable.ic_flame,
+                    titulo = "Manejo del craving",
+                    subtitulo = "Técnicas para momentos difíciles",
+                    onClick = onNavigateToManejoCraving,
+                    modifier = Modifier.weight(1f)
+                )
+                HerramientaCard(
+                    iconRes = R.drawable.ic_info,
+                    titulo = "Info por sustancia",
+                    subtitulo = "Efectos y reducción de daños",
+                    onClick = onNavigateToInfoSustancia,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }

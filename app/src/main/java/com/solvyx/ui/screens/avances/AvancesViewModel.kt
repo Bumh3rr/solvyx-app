@@ -24,26 +24,14 @@ class AvancesViewModel @Inject constructor() : ViewModel() {
         selectedTab = index
     }
 
-    // Feelings chart data: 7 data points for the week
-    // bienestar: 0-10 scale, ansiedad: 0-10 scale
-    val feelingsDataSemana = listOf(
-        Pair(6f, 4f),  // Lun
-        Pair(7f, 3f),  // Mar
-        Pair(5f, 6f),  // Mie
-        Pair(6f, 5f),  // Jue
-        Pair(8f, 2f),  // Vie
-        Pair(9f, 1f),  // Sab
-        Pair(7f, 3f)   // Dom
-    )
+    // Feelings chart data: bienestar only, 0-10 scale
+    val feelingsDataSemana = listOf(6f, 7f, 5f, 6f, 8f, 9f, 7f)
 
     val feelingsDataMes = listOf(
-        Pair(5f, 5f), Pair(6f, 4f), Pair(7f, 4f), Pair(6f, 5f),
-        Pair(8f, 3f), Pair(7f, 3f), Pair(9f, 2f), Pair(8f, 3f),
-        Pair(7f, 4f), Pair(6f, 5f), Pair(5f, 6f), Pair(7f, 4f),
-        Pair(8f, 2f), Pair(9f, 1f), Pair(8f, 2f), Pair(7f, 3f),
-        Pair(6f, 4f), Pair(5f, 5f), Pair(7f, 3f), Pair(8f, 2f),
-        Pair(9f, 1f), Pair(8f, 2f), Pair(7f, 3f), Pair(6f, 4f),
-        Pair(5f, 5f), Pair(6f, 4f), Pair(7f, 3f), Pair(8f, 2f)
+        5f, 6f, 7f, 6f, 8f, 7f, 9f, 8f,
+        7f, 6f, 5f, 7f, 8f, 9f, 8f, 7f,
+        6f, 5f, 7f, 8f, 9f, 8f, 7f, 6f,
+        5f, 6f, 7f, 8f
     )
 
     // Consumption chart: days with consumption (0 = no use, higher = more)

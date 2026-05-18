@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
@@ -38,7 +36,7 @@ import com.solvyx.ui.theme.TealPrimary
 
 @Composable
 fun FeelingsChart(
-    data: List<Pair<Float, Float>>,  // (bienestar, ansiedad) pairs, values 0-10
+    data: List<Float>,  // bienestar values 0-10
     labels: List<String>,
     modifier: Modifier = Modifier
 ) {
@@ -109,7 +107,7 @@ fun FeelingsChart(
             }
 
             // ── Draw BIENESTAR line (solid, TealPrimary) ───────────────────
-            val bienestarValues = data.map { it.first }
+            val bienestarValues = data
             val bienestarPath   = buildSmoothPath(bienestarValues)
             drawPath(
                 path        = bienestarPath,
@@ -130,28 +128,6 @@ fun FeelingsChart(
                 drawCircle(
                     color  = Color.White,
                     radius = 1.5.dp.toPx(),
-                    center = Offset(xAt(i), yAt(v))
-                )
-            }
-
-            // ── Draw ANSIEDAD line (dashed, TealMedium) ────────────────────
-            val ansiedadValues = data.map { it.second }
-            val ansiedadPath   = buildSmoothPath(ansiedadValues)
-            drawPath(
-                path        = ansiedadPath,
-                color       = TealMedium,
-                style       = Stroke(
-                    width       = 2.dp.toPx(),
-                    cap         = StrokeCap.Round,
-                    pathEffect  = PathEffect.dashPathEffect(floatArrayOf(10f, 5f))
-                )
-            )
-
-            // ── Draw data points for ansiedad ──────────────────────────────
-            ansiedadValues.forEachIndexed { i, v ->
-                drawCircle(
-                    color  = TealMedium,
-                    radius = 2.5.dp.toPx(),
                     center = Offset(xAt(i), yAt(v))
                 )
             }
@@ -190,29 +166,6 @@ fun FeelingsChart(
             Spacer(Modifier.width(5.dp))
             Text(
                 text  = "Bienestar",
-                style = MaterialTheme.typography.labelSmall,
-                color = TealDark
-            )
-            Spacer(Modifier.width(16.dp))
-            // Ansiedad dashed line preview
-            Box(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(2.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(TealMedium)
-            )
-            Spacer(Modifier.width(4.dp))
-            Box(
-                modifier = Modifier
-                    .width(6.dp)
-                    .height(2.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(TealMedium.copy(alpha = 0.3f))
-            )
-            Spacer(Modifier.width(5.dp))
-            Text(
-                text  = "Ansiedad",
                 style = MaterialTheme.typography.labelSmall,
                 color = TealDark
             )

@@ -35,8 +35,6 @@ fun PlanNavGraph(
             MiPlanHubScreen(
                 onOpenDrawer = onOpenDrawer,
                 onNavigateToManejoCraving = { navController.navigate("manejo_craving") },
-                onNavigateToDetonantes = { navController.navigate("detonantes") },
-                onNavigateToMetas = { navController.navigate("metas") },
                 onNavigateToInfoSustancia = { navController.navigate("info_sustancia") }
             )
         }
@@ -46,12 +44,6 @@ fun PlanNavGraph(
                 onNavigateToEjercicio = { /* ejercicio route comes later */ },
                 onNavigateToRedApoyo = onNavigateToRedApoyo
             )
-        }
-        composable("detonantes") {
-            MisDetonantesScreen(onBack = { navController.navigateUp() })
-        }
-        composable("metas") {
-            MisMetasScreen(onBack = { navController.navigateUp() })
         }
         composable("info_sustancia") {
             InfoSustanciaScreen(onBack = { navController.navigateUp() })

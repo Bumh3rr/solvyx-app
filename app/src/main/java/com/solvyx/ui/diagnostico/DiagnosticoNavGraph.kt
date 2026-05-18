@@ -57,8 +57,8 @@ fun DiagnosticoNavGraph(
                 onNavigateToChat = onNavigateToHome,
                 onNavigateToBitacora = onNavigateToHome,
                 onNavigateToAvances = onNavigateToHome,
-                onNavigateToMisMetas = onNavigateToHome,
-                onNavigateToMisDetonantes = onNavigateToHome,
+                onNavigateToManejoCraving = onNavigateToHome,
+                onNavigateToInfoSustancia = onNavigateToHome,
                 onNavigateToDirectorio = onNavigateToHome,
                 onNavigateToRedApoyo = onNavigateToHome
             )

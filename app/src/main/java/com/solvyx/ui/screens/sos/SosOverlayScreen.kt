@@ -86,7 +86,7 @@ import com.solvyx.ui.theme.TealMedium
 import com.solvyx.ui.theme.TealPrimary
 import kotlinx.coroutines.delay
 
-private val LINEA_VIDA = "8002900024"
+private val LINEA_VIDA = "8009112000"
 
 @Composable
 fun SosOverlayScreen(
