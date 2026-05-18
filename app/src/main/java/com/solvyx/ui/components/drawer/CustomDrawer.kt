@@ -31,13 +31,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.drawer.model.NavigationItem
-import com.solvyx.ui.components.drawer.model.isBottom
-import com.solvyx.ui.components.drawer.model.isPrimary
-import com.solvyx.ui.components.drawer.model.isSecondary
+import com.solvyx.ui.components.drawer.model.isHerramientas
+import com.solvyx.ui.components.drawer.model.isMiCuenta
+import com.solvyx.ui.components.drawer.model.isRutina
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealMedium
 
@@ -54,7 +55,6 @@ fun CustomDrawer(
             .fillMaxHeight()
             .fillMaxWidth(fraction = 0.63f)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -65,7 +65,6 @@ fun CustomDrawer(
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // ── Botón cerrar ──────────────────────────────
             SolvyxBackButton(onClick = onCloseClick)
 
             Spacer(Modifier.height(20.dp))
@@ -81,15 +80,13 @@ fun CustomDrawer(
             )
             Text(
                 text = "Tu mente, tu red, tu libertad",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontStyle = FontStyle.Italic
-                ),
+                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                 color = Color.White.copy(alpha = 0.75f)
             )
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Card de perfil ────────────────────────────
+            // ── Tarjeta de perfil ─────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -133,11 +130,12 @@ fun CustomDrawer(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
-            // ── Ítems primarios ───────────────────────────
+            // ── RUTINA ────────────────────────────────────
+            DrawerSectionHeader("RUTINA")
             NavigationItem.entries
-                .filter { it.isPrimary() }
+                .filter { it.isRutina() }
                 .forEach { item ->
                     NavigationItemView(
                         navigationItem = item,
@@ -147,18 +145,14 @@ fun CustomDrawer(
                     Spacer(Modifier.height(2.dp))
                 }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
+            HorizontalDivider(color = Color.White.copy(alpha = 0.12f), thickness = 0.5.dp)
+            Spacer(Modifier.height(10.dp))
 
-            HorizontalDivider(
-                color = Color.White.copy(alpha = 0.15f),
-                thickness = 0.5.dp
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // ── Ítems secundarios ─────────────────────────
+            // ── HERRAMIENTAS ──────────────────────────────
+            DrawerSectionHeader("HERRAMIENTAS")
             NavigationItem.entries
-                .filter { it.isSecondary() }
+                .filter { it.isHerramientas() }
                 .forEach { item ->
                     NavigationItemView(
                         navigationItem = item,
@@ -170,28 +164,38 @@ fun CustomDrawer(
 
             Spacer(Modifier.weight(1f))
 
-            HorizontalDivider(
-                color = Color.White.copy(alpha = 0.15f),
-                thickness = 0.5.dp
-            )
+            HorizontalDivider(color = Color.White.copy(alpha = 0.12f), thickness = 0.5.dp)
+            Spacer(Modifier.height(10.dp))
 
-            Spacer(Modifier.height(8.dp))
-
-            // ── Cerrar sesión ─────────────────────────────
+            // ── MI CUENTA ─────────────────────────────────
+            DrawerSectionHeader("MI CUENTA")
             NavigationItem.entries
-                .filter { it.isBottom() }
+                .filter { it.isMiCuenta() }
                 .forEach { item ->
                     NavigationItemView(
                         navigationItem = item,
-                        selected = false,
-                        isDestructive = true,
+                        selected = item == selectedNavigationItem,
+                        isDestructive = item == NavigationItem.CerrarSesion,
                         onClick = { onNavigationItemClick(item) }
                     )
+                    Spacer(Modifier.height(2.dp))
                 }
 
             Spacer(Modifier.height(20.dp))
         }
     }
+}
+
+@Composable
+private fun DrawerSectionHeader(label: String) {
+    Text(
+        text = label,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.Bold,
+        color = TealLight.copy(alpha = 0.7f),
+        letterSpacing = 1.2.sp,
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
 }
 
 @Preview(showBackground = false, widthDp = 320, heightDp = 720, name = "CustomDrawer")
@@ -205,4 +209,3 @@ private fun CustomDrawerPreview() {
         onProfileClick = {}
     )
 }
-

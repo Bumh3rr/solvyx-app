@@ -3,6 +3,8 @@ package com.solvyx.ui.diagnostico
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,13 +47,22 @@ import com.solvyx.backend.models.ResultadoDiagnostico
 import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
+import com.solvyx.ui.theme.TealDark
+import com.solvyx.ui.theme.TealLightest
 
 @Composable
 fun ResultScreen(
     viewModel: DiagnosticoViewModel,
     onReiniciar: () -> Unit,
     onVerHistorial: () -> Unit,
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    onNavigateToChat: () -> Unit = {},
+    onNavigateToBitacora: () -> Unit = {},
+    onNavigateToAvances: () -> Unit = {},
+    onNavigateToMisMetas: () -> Unit = {},
+    onNavigateToMisDetonantes: () -> Unit = {},
+    onNavigateToDirectorio: () -> Unit = {},
+    onNavigateToRedApoyo: () -> Unit = {}
 ) {
     val resultados by viewModel.resultados.collectAsState()
 
@@ -132,6 +144,18 @@ fun ResultScreen(
         ) {
             items(resultados) { resultado ->
                 ResultadoCard(resultado)
+            }
+            item {
+                AccionesSugeridas(
+                    nivel = peorNivel,
+                    onNavigateToChat = onNavigateToChat,
+                    onNavigateToBitacora = onNavigateToBitacora,
+                    onNavigateToAvances = onNavigateToAvances,
+                    onNavigateToMisMetas = onNavigateToMisMetas,
+                    onNavigateToMisDetonantes = onNavigateToMisDetonantes,
+                    onNavigateToDirectorio = onNavigateToDirectorio,
+                    onNavigateToRedApoyo = onNavigateToRedApoyo
+                )
             }
         }
 
@@ -265,6 +289,112 @@ private fun ResultadoCard(resultado: ResultadoDiagnostico) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AccionesSugeridas(
+    nivel: NivelRiesgo,
+    onNavigateToChat: () -> Unit,
+    onNavigateToBitacora: () -> Unit,
+    onNavigateToAvances: () -> Unit,
+    onNavigateToMisMetas: () -> Unit,
+    onNavigateToMisDetonantes: () -> Unit,
+    onNavigateToDirectorio: () -> Unit,
+    onNavigateToRedApoyo: () -> Unit
+) {
+    data class AccionItem(val icon: Int, val title: String, val description: String, val onClick: () -> Unit)
+
+    val acciones: List<AccionItem> = when (nivel) {
+        NivelRiesgo.BAJO -> listOf(
+            AccionItem(R.drawable.ic_trending_up, "Registra tu estado cada día",
+                "La bitácora te ayuda a ver tus patrones", onNavigateToBitacora),
+            AccionItem(R.drawable.ic_chat, "Conoce a Berto",
+                "Siempre disponible para escucharte", onNavigateToChat),
+            AccionItem(R.drawable.ic_trophy, "Conoce tus avances",
+                "Mira cuánto has progresado", onNavigateToAvances)
+        )
+        NivelRiesgo.MODERADO -> listOf(
+            AccionItem(R.drawable.ic_flag, "Crea tu primera meta",
+                "Un paso concreto hacia el cambio", onNavigateToMisMetas),
+            AccionItem(R.drawable.ic_brain, "Identifica tus detonantes",
+                "Conocerlos es el primer paso", onNavigateToMisDetonantes),
+            AccionItem(R.drawable.ic_chat, "Habla con Berto cuando lo necesites",
+                "Siempre disponible para escucharte", onNavigateToChat)
+        )
+        NivelRiesgo.ALTO -> listOf(
+            AccionItem(R.drawable.ic_building, "Habla con un profesional",
+                "Encuentra apoyo cerca de ti", onNavigateToDirectorio),
+            AccionItem(R.drawable.ic_people, "Configura tu botón SOS",
+                "Agrega contactos de confianza", onNavigateToRedApoyo),
+            AccionItem(R.drawable.ic_chat, "Berto puede acompañarte",
+                "No estás solo en esto", onNavigateToChat)
+        )
+    }
+
+    Column(modifier = Modifier.padding(top = 8.dp)) {
+        Text(
+            text = "¿Qué puedo hacer ahora?",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = TealDark,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        acciones.forEach { accion ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceDim)
+                    .border(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(14.dp)
+                    )
+                    .clickable { accion.onClick() }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(TealLightest),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(accion.icon),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 12.dp)
+                ) {
+                    Text(
+                        text = accion.title,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = TealDark
+                    )
+                    Text(
+                        text = accion.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    painter = painterResource(R.drawable.ic_chevron_right),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Spacer(Modifier.height(8.dp))
         }
     }
 }

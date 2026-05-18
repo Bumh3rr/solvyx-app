@@ -17,6 +17,8 @@ import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
 import com.solvyx.ui.screens.chatbot.BertoScreen
+import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
+import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
 import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
@@ -53,6 +55,11 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 navController = diagnosticoNavController,
                 onFinishAssist = {
                     navController.navigate(Routes.RED_APOYO_SETUP) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                },
+                onNavigateToHome = {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
                     }
                 }
@@ -96,6 +103,9 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 },
                 onNavigateToAssist = {
                     navController.navigate(Routes.DIAGNOSTICO)
+                },
+                onNavigateToEjercicio = {
+                    navController.navigate(Routes.EJERCICIO_GUIADO)
                 }
             )
         }
@@ -129,6 +139,14 @@ fun SolvyxNavGraph(navController: NavHostController) {
                     }
                 },
                 onClose = { navController.navigateUp() }
+            )
+        }
+
+        composable(Routes.EJERCICIO_GUIADO) {
+            val viewModel: EjercicioGuiadoViewModel = hiltViewModel()
+            EjercicioGuiadoScreen(
+                viewModel = viewModel,
+                onFinish = { navController.navigateUp() }
             )
         }
     }

@@ -1,5 +1,10 @@
 package com.solvyx.ui.screens.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,9 +14,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +26,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,9 +58,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
+import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
+import com.solvyx.ui.screens.red.RedApoyoViewModel
 import com.solvyx.ui.theme.SolvyxappTheme
+import com.solvyx.ui.theme.WarnAmber
+import com.solvyx.ui.theme.WarnAmberDark
 
 @Preview(name = "Inicio — Light", showSystemUi = true)
 @Composable
@@ -68,8 +81,25 @@ private fun InicioScreenPreviewLight() {
 @Composable
 fun InicioScreen(
     onOpenDrawer: () -> Unit,
-    drawerState: CustomDrawerState
+    drawerState: CustomDrawerState,
+    onNavigateToRedApoyo: () -> Unit = {},
+    onNavigateToChat: () -> Unit = {},
+    onNavigateToSos: () -> Unit = {},
+    onNavigateToDirectorio: () -> Unit = {},
+    onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToPlan: () -> Unit = {},
+    onNavigateToRegistro: () -> Unit = {},
+    onNavigateToGuias: () -> Unit = {}
 ) {
+    val redApoyoViewModel: RedApoyoViewModel = hiltViewModel()
+    val contactCount = redApoyoViewModel.contactos.count { it.nombre.isNotBlank() }
+    var showSosDialog by remember { mutableStateOf(false) }
+    if (showSosDialog) {
+        SosConfirmationDialog(
+            onConfirm = { showSosDialog = false; onNavigateToSos() },
+            onDismiss = { showSosDialog = false }
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -211,6 +241,38 @@ fun InicioScreen(
                         .padding(horizontal = 20.dp)
                         .padding(top = 20.dp, bottom = 8.dp)
                 ) {
+                    // ── SOS warning banner ────────────
+                    AnimatedVisibility(
+                        visible = contactCount == 0,
+                        enter = fadeIn() + expandVertically(),
+                        exit  = fadeOut() + shrinkVertically()
+                    ) {
+                        Column {
+                            SosWarningBanner(onConfigClick = onNavigateToRedApoyo)
+                            Spacer(Modifier.height(16.dp))
+                        }
+                    }
+
+                    // ── Herramientas rápidas ─────────
+                    Text(
+                        "Herramientas rápidas",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        HerramientaRapidaCard("Respirar",         R.drawable.ic_wind,           onNavigateToEjercicio)
+                        HerramientaRapidaCard("Hablar con Berto", R.drawable.ic_chat,           onNavigateToChat)
+                        HerramientaRapidaCard("Estoy en crisis",  R.drawable.ic_alert_triangle, { showSosDialog = true })
+                        HerramientaRapidaCard("Buscar ayuda",     R.drawable.ic_building,       onNavigateToDirectorio)
+                    }
+                    Spacer(Modifier.height(16.dp))
+
                     // ── Mi meta de hoy card ───────────
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -332,13 +394,13 @@ fun InicioScreen(
                     Spacer(Modifier.height(12.dp))
 
                     // ── ¿Cómo te sientes hoy? card ────
-                    var emocionSeleccionada by remember { mutableStateOf("Agotado") }
+                    var emocionSeleccionada by remember { mutableStateOf<String?>(null) }
                     val emociones = listOf(
-                        "Bien" to R.drawable.ic_face_happy,
+                        "Bien"      to R.drawable.ic_face_happy,
                         "Tranquilo" to R.drawable.ic_face_neutral,
-                        "Ansioso" to R.drawable.ic_face_anxious,
-                        "Triste" to R.drawable.ic_face_sad,
-                        "Agotado" to R.drawable.ic_face_tired
+                        "Ansioso"   to R.drawable.ic_face_anxious,
+                        "Triste"    to R.drawable.ic_face_sad,
+                        "Agotado"   to R.drawable.ic_face_tired
                     )
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -434,6 +496,22 @@ fun InicioScreen(
                                     }
                                 }
                             }
+                            AnimatedVisibility(
+                                visible = emocionSeleccionada != null,
+                                enter = fadeIn() + expandVertically(),
+                                exit  = fadeOut() + shrinkVertically()
+                            ) {
+                                Column {
+                                    Spacer(Modifier.height(12.dp))
+                                    EmocionSugerenciaCard(
+                                        emocion = emocionSeleccionada ?: "",
+                                        onNavigateToChat = onNavigateToChat,
+                                        onNavigateToEjercicio = onNavigateToEjercicio,
+                                        onNavigateToPlan = onNavigateToPlan,
+                                        onNavigateToRegistro = onNavigateToRegistro
+                                    )
+                                }
+                            }
                             Spacer(Modifier.height(10.dp))
                             Text(
                                 "Tu registro es privado y nunca sale de este teléfono.",
@@ -455,28 +533,31 @@ fun InicioScreen(
                     )
                     Spacer(Modifier.height(12.dp))
 
+                    class AccesoItem(val titulo: String, val subtitulo: String, val iconRes: Int, val usePrimary: Boolean = true, val onClick: () -> Unit = {})
                     val accesos = listOf(
-                        Triple("Mi Plan",           "Meta de hoy lista",   R.drawable.ic_target),
-                        Triple("Hablar con Berto",  "Disponible ahora",    R.drawable.ic_chat),
-                        Triple("Primeros Auxilios", "Sin internet",         R.drawable.ic_guide),
-                        Triple("Mi Registro",       "Ver mis patrones",    R.drawable.ic_trending_up)
+                        AccesoItem("Mi Plan",           "Meta de hoy lista",       R.drawable.ic_target,      usePrimary = true,  onClick = onNavigateToPlan),
+                        AccesoItem("Técnicas",          "Manejo y reducción",      R.drawable.ic_brain,       usePrimary = false, onClick = onNavigateToPlan),
+                        AccesoItem("Hablar con Berto",  "Disponible ahora",        R.drawable.ic_chat,        usePrimary = true,  onClick = onNavigateToChat),
+                        AccesoItem("Primeros Auxilios", "Sin conexión a internet", R.drawable.ic_guide,       usePrimary = false, onClick = onNavigateToGuias),
+                        AccesoItem("Mi Registro",       "Ver mis patrones",        R.drawable.ic_trending_up, usePrimary = true,  onClick = onNavigateToRegistro),
+                        AccesoItem("Mi Red de Apoyo",   "Contactos de confianza",  R.drawable.ic_people,      usePrimary = false, onClick = onNavigateToRedApoyo)
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        accesos.chunked(2).forEachIndexed { rowIdx, rowItems ->
+                        accesos.chunked(2).forEach { rowItems ->
                             Row(
                                 Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                rowItems.forEachIndexed { colIdx, (titulo, subtitulo, icono) ->
-                                    val itemIdx = rowIdx * 2 + colIdx
+                                rowItems.forEach { item ->
                                     AccesoRapidoCard(
-                                        titulo = titulo,
-                                        subtitulo = subtitulo,
-                                        iconRes = icono,
-                                        iconContainerColor = if (itemIdx % 2 == 0)
+                                        titulo = item.titulo,
+                                        subtitulo = item.subtitulo,
+                                        iconRes = item.iconRes,
+                                        iconContainerColor = if (item.usePrimary)
                                             MaterialTheme.colorScheme.primaryContainer
                                         else
                                             MaterialTheme.colorScheme.secondaryContainer,
+                                        onClick = item.onClick,
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -537,15 +618,80 @@ fun InicioScreen(
 }
 
 @Composable
+private fun SosWarningBanner(onConfigClick: () -> Unit) {
+    val amberStroke = Color(0xFFd97706)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .clip(RoundedCornerShape(12.dp))
+            .border(0.5.dp, amberStroke.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+            .background(WarnAmber),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(
+            modifier = Modifier
+                .width(4.dp)
+                .fillMaxHeight()
+                .background(amberStroke)
+        )
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_alert_triangle),
+                contentDescription = null,
+                tint = amberStroke,
+                modifier = Modifier.size(20.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = "Tu botón SOS no tiene contactos",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = WarnAmberDark
+                )
+                Text(
+                    text = "Sin contactos, nadie recibirá aviso en una emergencia.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = WarnAmberDark.copy(alpha = 0.75f),
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+            Text(
+                text = "Configurar →",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = amberStroke,
+                modifier = Modifier.clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onConfigClick() }
+            )
+        }
+    }
+}
+
+@Composable
 private fun AccesoRapidoCard(
     titulo: String,
     subtitulo: String,
     iconRes: Int,
     iconContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -578,6 +724,112 @@ private fun AccesoRapidoCard(
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun HerramientaRapidaCard(
+    titulo: String,
+    iconRes: Int,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .width(88.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable { onClick() }
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = titulo,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            maxLines = 2
+        )
+    }
+}
+
+@Composable
+private fun EmocionSugerenciaCard(
+    emocion: String,
+    onNavigateToChat: () -> Unit,
+    onNavigateToEjercicio: () -> Unit,
+    onNavigateToPlan: () -> Unit,
+    onNavigateToRegistro: () -> Unit
+) {
+    val iconRes = when (emocion) {
+        "Bien"      -> R.drawable.ic_plan
+        "Tranquilo" -> R.drawable.ic_trending_up
+        "Ansioso"   -> R.drawable.ic_wind
+        else        -> R.drawable.ic_chat
+    }
+    val mensaje = when (emocion) {
+        "Bien"      -> "¡Sigue así! Revisa el avance de tu plan."
+        "Tranquilo" -> "Buen momento para registrar cómo te sientes."
+        "Ansioso"   -> "Prueba un ejercicio de respiración."
+        else        -> "Berto puede escucharte en este momento."
+    }
+    val accion = when (emocion) {
+        "Bien"      -> "Ver mi plan"
+        "Tranquilo" -> "Ir al registro"
+        "Ansioso"   -> "Respirar ahora"
+        else        -> "Hablar con Berto"
+    }
+    val onAccion: () -> Unit = when (emocion) {
+        "Bien"      -> onNavigateToPlan
+        "Tranquilo" -> onNavigateToRegistro
+        "Ansioso"   -> onNavigateToEjercicio
+        else        -> onNavigateToChat
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            text = mensaje,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp)
+        )
+        Text(
+            text = accion,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onAccion() }
+        )
     }
 }
 

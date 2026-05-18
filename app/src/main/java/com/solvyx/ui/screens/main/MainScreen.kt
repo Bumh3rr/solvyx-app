@@ -48,7 +48,8 @@ import com.solvyx.ui.screens.directorio.DirectorioRootScreen
 import com.solvyx.ui.screens.perfil.PerfilNavGraph
 import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
 import com.solvyx.ui.screens.home.InicioScreen
-import com.solvyx.ui.screens.plan.PlanReduccionScreen
+import com.solvyx.ui.screens.plan.PlanNavGraph
+import com.solvyx.ui.screens.avances.MisAvancesScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
@@ -60,6 +61,7 @@ fun MainScreen(
     onNavigateToChatFromDrawer: (() -> Unit)? = null,
     onNavigateToSos: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
+    onNavigateToEjercicio: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {},
     userNickname: String = "Alex"
@@ -167,6 +169,7 @@ fun MainScreen(
             onNavigateToChat = onNavigateToChat,
             onNavigateToSos = onNavigateToSos,
             onNavigateToAssist = onNavigateToAssist,
+            onNavigateToEjercicio = onNavigateToEjercicio,
             onBottomNavNavigate = { item -> selectedItem = item },
             onLogout = onLogout
         )
@@ -182,17 +185,21 @@ private fun SolvyxMainContent(
     onNavigateToChat: () -> Unit,
     onNavigateToSos: () -> Unit,
     onNavigateToAssist: () -> Unit,
+    onNavigateToEjercicio: () -> Unit = {},
     onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
     var showSosDialog by remember { mutableStateOf(false) }
 
-    val showBottomBar = selectedItem == NavigationItem.Inicio ||
-                        selectedItem == NavigationItem.RegistroEmocional
+    val showBottomBar = selectedItem in listOf(
+        NavigationItem.Inicio, NavigationItem.Plan,
+        NavigationItem.RegistroEmocional, NavigationItem.Avances
+    )
 
     val selectedTab = when (selectedItem) {
-        NavigationItem.RegistroEmocional -> SolvyxBottomTab.REGISTRO
-        else                             -> SolvyxBottomTab.INICIO
+        NavigationItem.Plan    -> SolvyxBottomTab.PLAN
+        NavigationItem.Avances -> SolvyxBottomTab.AVANCES
+        else                   -> SolvyxBottomTab.INICIO
     }
 
     if (showSosDialog) {
@@ -216,7 +223,8 @@ private fun SolvyxMainContent(
                     onTabSelected = { tab ->
                         when (tab) {
                             SolvyxBottomTab.CHATBOT  -> onNavigateToChat()
-                            SolvyxBottomTab.REGISTRO -> onBottomNavNavigate(NavigationItem.RegistroEmocional)
+                            SolvyxBottomTab.PLAN     -> onBottomNavNavigate(NavigationItem.Plan)
+                            SolvyxBottomTab.AVANCES  -> onBottomNavNavigate(NavigationItem.Avances)
                             SolvyxBottomTab.INICIO   -> onBottomNavNavigate(NavigationItem.Inicio)
                         }
                     },
@@ -234,12 +242,27 @@ private fun SolvyxMainContent(
                 NavigationItem.Inicio ->
                     InicioScreen(
                         onOpenDrawer = onDrawerClick,
-                        drawerState = drawerState
+                        drawerState = drawerState,
+                        onNavigateToRedApoyo  = { onBottomNavNavigate(NavigationItem.RedApoyo) },
+                        onNavigateToChat      = onNavigateToChat,
+                        onNavigateToSos       = onNavigateToSos,
+                        onNavigateToDirectorio = { onBottomNavNavigate(NavigationItem.Directorio) },
+                        onNavigateToEjercicio = onNavigateToEjercicio,
+                        onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
+                        onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.RegistroEmocional) },
+                        onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) }
                     )
-                NavigationItem.PlanReduccion ->
-                    PlanReduccionScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.Plan ->
+                    PlanNavGraph(
+                        onOpenDrawer = onDrawerClick,
+                        onNavigateToChat = onNavigateToChat,
+                        onNavigateToSos = onNavigateToSos,
+                        onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) }
+                    )
                 NavigationItem.RegistroEmocional ->
                     RegistroEmocionalScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.Avances ->
+                    MisAvancesScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.GuiasPrimerosAuxilios ->
                     GuiasNavGraph(
                         onOpenDrawer = onDrawerClick,
