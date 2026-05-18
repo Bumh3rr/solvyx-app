@@ -1,5 +1,7 @@
 package com.solvyx.ui.screens.bitacora
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,25 +22,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.backend.data.local.entity.BitacoraEntity
 import com.solvyx.ui.components.common.SolvyxBackButton
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-data class RegistroMock(
-    val fecha: String,
-    val estadoAnimo: String,
-    val consumio: Boolean,
-    val sustancia: String?,
-    val nota: String?
-)
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HistorialBitacoraScreen(onBack: () -> Unit) {
-    val registros = listOf(
-        RegistroMock("Jueves, 14 de mayo", "euforico", false, null, "Muy buen día"),
-        RegistroMock("Miércoles, 13 de mayo", "ansioso", true, "alcohol", null),
-        RegistroMock("Martes, 12 de mayo", "bien", false, null, null),
-        RegistroMock("Lunes, 11 de mayo", "neutral", true, "vape", null),
-        RegistroMock("Domingo, 10 de mayo", "triste", false, null, "Día difícil")
-    )
+fun HistorialBitacoraScreen(
+    viewModel: RegistroViewModel,
+    onBack: () -> Unit
+) {
+    val registros by viewModel.historial.collectAsState()
+    val totalRegistros = registros.size
+    val sinConsumo = registros.count { !it.consumio }
+    val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "MX"))
 
     Column(
         modifier = Modifier
@@ -62,7 +63,6 @@ fun HistorialBitacoraScreen(onBack: () -> Unit) {
             Spacer(Modifier.size(48.dp))
         }
 
-        // Stats strip
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,8 +70,8 @@ fun HistorialBitacoraScreen(onBack: () -> Unit) {
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            ResumenStatItem("5", "Registros")
-            ResumenStatItem("3", "Sin consumo")
+            ResumenStatItem(totalRegistros.toString(), "Registros")
+            ResumenStatItem(sinConsumo.toString(), "Sin consumo")
         }
 
         LazyColumn(
@@ -80,7 +80,11 @@ fun HistorialBitacoraScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(registros) { registro ->
-                HistorialRegistroCard(registro)
+                HistorialRegistroCard(
+                    registro = registro,
+                    fechaLabel = dateFormat.format(Date(registro.fecha))
+                        .replaceFirstChar { it.uppercase() }
+                )
             }
         }
     }
@@ -104,7 +108,7 @@ private fun ResumenStatItem(valor: String, label: String) {
 }
 
 @Composable
-private fun HistorialRegistroCard(registro: RegistroMock) {
+private fun HistorialRegistroCard(registro: BitacoraEntity, fechaLabel: String) {
     val faceIcons = mapOf(
         "triste"   to R.drawable.ic_face_sad,
         "ansioso"  to R.drawable.ic_face_anxious,
@@ -127,7 +131,7 @@ private fun HistorialRegistroCard(registro: RegistroMock) {
         Column(Modifier.padding(16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    registro.fecha,
+                    fechaLabel,
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurfaceVariant

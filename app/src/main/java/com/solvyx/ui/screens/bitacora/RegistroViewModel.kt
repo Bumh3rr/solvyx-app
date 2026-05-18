@@ -6,13 +6,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.data.local.entity.BitacoraEntity
+import com.solvyx.backend.repository.BitacoraRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
-class RegistroViewModel @Inject constructor() : ViewModel() {
+class RegistroViewModel @Inject constructor(
+    private val repository: BitacoraRepository
+) : ViewModel() {
 
     var fechaSeleccionada by mutableStateOf(LocalDate.now())
         private set
@@ -31,24 +41,47 @@ class RegistroViewModel @Inject constructor() : ViewModel() {
     var isSaved by mutableStateOf(false)
         private set
 
+    val historial: StateFlow<List<BitacoraEntity>> =
+        repository.observar()
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val fechasConRegistro: StateFlow<Set<LocalDate>> =
+        repository.observarFechas()
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptySet())
+
     fun canSave(): Boolean =
         estadoAnimo != null && consumo != null &&
         (consumo == false || sustanciaSeleccionada != null)
 
-    fun setFecha(fecha: LocalDate)          { fechaSeleccionada = fecha }
-    fun updateEstadoAnimo(estado: String)   { estadoAnimo = estado }
-    fun updateNotaAnimo(nota: String)       { if (nota.length <= 100) notaAnimo = nota }
+    fun setFecha(fecha: LocalDate) { fechaSeleccionada = fecha }
+    fun updateEstadoAnimo(estado: String) { estadoAnimo = estado }
+    fun updateNotaAnimo(nota: String) { if (nota.length <= 100) notaAnimo = nota }
     fun updateConsumo(value: Boolean) {
         consumo = value
         if (!value) sustanciaSeleccionada = null
         if (value) showSustanciaSheet = true
     }
-    fun setSustancia(s: String)             { sustanciaSeleccionada = s }
-    fun toggleCalendar()               { showCalendar = !showCalendar }
-    fun toggleSustanciaSheet()         { showSustanciaSheet = !showSustanciaSheet }
+    fun setSustancia(s: String) { sustanciaSeleccionada = s }
+    fun toggleCalendar() { showCalendar = !showCalendar }
+    fun toggleSustanciaSheet() { showSustanciaSheet = !showSustanciaSheet }
+
     fun guardarRegistro() {
         if (!canSave()) return
-        isSaved = true
+        viewModelScope.launch {
+            repository.guardar(
+                BitacoraEntity(
+                    fecha = fechaSeleccionada
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli(),
+                    estadoAnimo = estadoAnimo!!,
+                    consumio = consumo!!,
+                    sustancia = sustanciaSeleccionada,
+                    nota = notaAnimo.ifBlank { null }
+                )
+            )
+            isSaved = true
+        }
     }
 
     fun resetForm() {
@@ -58,13 +91,4 @@ class RegistroViewModel @Inject constructor() : ViewModel() {
         sustanciaSeleccionada = null
         isSaved = false
     }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    val fechasConRegistro: Set<LocalDate> = setOf(
-        LocalDate.now().minusDays(1),
-        LocalDate.now().minusDays(3),
-        LocalDate.now().minusDays(7),
-        LocalDate.now().minusDays(8),
-        LocalDate.now().minusDays(14)
-    )
 }

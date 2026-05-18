@@ -54,7 +54,7 @@ fun RegistroEmocionalScreen(
     var showHistorial by remember { mutableStateOf(false) }
 
     if (showHistorial) {
-        HistorialBitacoraScreen(onBack = { showHistorial = false })
+        HistorialBitacoraScreen(viewModel = viewModel, onBack = { showHistorial = false })
         return
     }
 
@@ -70,7 +70,7 @@ fun RegistroEmocionalScreen(
     if (viewModel.showCalendar) {
         CalendarBottomSheet(
             fechaSeleccionada = viewModel.fechaSeleccionada,
-            fechasConRegistro = viewModel.fechasConRegistro,
+            fechasConRegistro = viewModel.fechasConRegistro.collectAsState().value,
             onFechaSelected = {
                 viewModel.setFecha(it)
                 viewModel.toggleCalendar()
