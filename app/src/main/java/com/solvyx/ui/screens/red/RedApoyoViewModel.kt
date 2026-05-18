@@ -5,20 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.data.local.entity.ContactoSosEntity
+import com.solvyx.backend.repository.ContactoSosRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ContactoSOS(
-    val nombre: String = "",
-    val telefono: String = ""
-)
-
 @HiltViewModel
-class RedApoyoViewModel @Inject constructor() : ViewModel() {
+class RedApoyoViewModel @Inject constructor(
+    private val repository: ContactoSosRepository
+) : ViewModel() {
 
-    var contactos by mutableStateOf(listOf(ContactoSOS()))
+    var contactos by mutableStateOf(listOf(ContactoSosEntity()))
         private set
 
     var isSaving by mutableStateOf(false)
@@ -26,6 +24,14 @@ class RedApoyoViewModel @Inject constructor() : ViewModel() {
 
     var savedSuccessfully by mutableStateOf(false)
         private set
+
+    init {
+        viewModelScope.launch {
+            repository.observar().collect { stored ->
+                if (stored.isNotEmpty()) contactos = stored
+            }
+        }
+    }
 
     fun phoneValido(telefono: String): Boolean =
         telefono.filter { it.isDigit() }.length >= 7
@@ -35,13 +41,13 @@ class RedApoyoViewModel @Inject constructor() : ViewModel() {
         return c0.nombre.trim().length >= 2 && phoneValido(c0.telefono)
     }
 
-    fun setContacto(index: Int, contacto: ContactoSOS) {
+    fun setContacto(index: Int, contacto: ContactoSosEntity) {
         contactos = contactos.toMutableList().also { it[index] = contacto }
     }
 
     fun addContacto() {
         if (contactos.size >= 3) return
-        contactos = contactos + ContactoSOS()
+        contactos = contactos + ContactoSosEntity()
     }
 
     fun removeContacto(index: Int) {
@@ -53,7 +59,7 @@ class RedApoyoViewModel @Inject constructor() : ViewModel() {
         if (!canSave()) return
         viewModelScope.launch {
             isSaving = true
-            delay(1100L)
+            repository.guardarTodos(contactos)
             isSaving = false
             savedSuccessfully = true
         }

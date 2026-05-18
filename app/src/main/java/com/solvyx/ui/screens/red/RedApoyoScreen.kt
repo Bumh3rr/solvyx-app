@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
+import com.solvyx.backend.data.local.entity.ContactoSosEntity
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealLightest
@@ -438,9 +439,9 @@ private fun SpeechBubble(text: String) {
 @Composable
 private fun ContactCard(
     index: Int,
-    contacto: ContactoSOS,
+    contacto: ContactoSosEntity,
     isRequired: Boolean,
-    onContactoChange: (ContactoSOS) -> Unit,
+    onContactoChange: (ContactoSosEntity) -> Unit,
     onRemove: () -> Unit
 ) {
     val primary = MaterialTheme.colorScheme.primary
