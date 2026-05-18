@@ -366,7 +366,7 @@ fun MisAvancesScreen(
             )
             Spacer(Modifier.height(8.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(viewModel.logros) { logro ->
+                items(viewModel.uiLogros) { logro ->
                     LogroCard(logro = logro)
                 }
             }
@@ -377,7 +377,7 @@ fun MisAvancesScreen(
 // ── Logro Card ───────────────────────────────────────────────────────────────
 
 @Composable
-private fun LogroCard(logro: AvancesViewModel.Logro) {
+private fun LogroCard(logro: AvancesViewModel.UiLogro) {
     Card(
         modifier = Modifier.width(100.dp),
         shape    = RoundedCornerShape(16.dp),
