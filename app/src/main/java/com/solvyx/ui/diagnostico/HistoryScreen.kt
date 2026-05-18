@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.solvyx.backend.data.local.entity.ResultadoEntity
+import com.solvyx.backend.data.local.entity.ResultadoAssistEntity
 import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 import com.solvyx.ui.components.common.SolvyxBackButton
 import java.text.SimpleDateFormat
@@ -45,8 +45,6 @@ fun HistoryScreen(
     viewModel: DiagnosticoViewModel,
     onBack: () -> Unit
 ) {
-    LaunchedEffect(Unit) { viewModel.cargarHistorial() }
-
     val historial by viewModel.historial.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -115,7 +113,7 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun HistoryItemCard(resultado: ResultadoEntity) {
+private fun HistoryItemCard(resultado: ResultadoAssistEntity) {
     val nombreSustancia = when (resultado.sustanciaId) {
         "cigarro" -> "Tabaco"
         else      -> resultado.sustanciaId.replaceFirstChar { it.uppercase() }
