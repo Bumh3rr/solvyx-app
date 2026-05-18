@@ -138,16 +138,6 @@ fun InicioScreen(
                         .padding(horizontal = 20.dp)
                         .padding(top = 10.dp, bottom = 38.dp)
                 ) {
-//                    Image(
-//                        painter = painterResource(R.drawable.ic_decorations_hero_header),
-//                        contentDescription = null,
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(120.dp)
-//                            .align(Alignment.TopCenter),
-//                        contentScale = ContentScale.FillWidth,
-//                        alpha = 1f
-//                    )
                     // Formas decorativas de fondo (cuadros y círculos)
                     Image(
                         painter = painterResource(R.drawable.ic_header_hero),
@@ -160,7 +150,7 @@ fun InicioScreen(
                         alpha = 1f
                     )
                     Image(
-                        painter = painterResource(R.drawable.berto_saludando),
+                        painter = painterResource(R.drawable.berto_tranquilo),
                         contentDescription = "Berto",
                         modifier = Modifier
                             .size(130.dp)
@@ -541,17 +531,6 @@ fun InicioScreen(
                             }
                         }
                     }
-
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        "Solvyx 2026",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
                 }
             }
     }

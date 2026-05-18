@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.solvyx.ui.components.SosConfirmationDialog
+import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.screens.guias.screens.hub.GuiasHubScreen
 import com.solvyx.ui.screens.guias.screens.GuiaCrisisIdScreen
 import com.solvyx.ui.screens.guias.screens.panico.GuiaPanicoScreen

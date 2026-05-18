@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.onboarding
+package com.solvyx.ui.screens.auth.onboarding
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,17 +35,17 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
-import com.solvyx.ui.components.SolvyxBottomNavigationBar
-import com.solvyx.ui.components.SolvyxBottomTab
-import com.solvyx.ui.components.SosConfirmationDialog
+import com.solvyx.ui.components.navigation.SolvyxBottomNavigationBar
+import com.solvyx.ui.components.navigation.SolvyxBottomTab
+import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.drawer.CustomDrawer
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
 import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
-import com.solvyx.ui.screens.configuracion.ConfiguracionScreen
 import com.solvyx.ui.screens.directorio.DirectorioRootScreen
+import com.solvyx.ui.screens.perfil.PerfilNavGraph
 import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
 import com.solvyx.ui.screens.home.InicioScreen
 import com.solvyx.ui.screens.plan.PlanReduccionScreen
@@ -56,11 +57,22 @@ import com.solvyx.ui.theme.TealPrimary
 fun MainScreen(
     onLogout: () -> Unit,
     onNavigateToChat: () -> Unit,
+    onNavigateToChatFromDrawer: (() -> Unit)? = null,
     onNavigateToSos: () -> Unit = {},
+    onNavigateToAssist: () -> Unit = {},
+    openDrawerOnReturn: Boolean = false,
+    onDrawerOpened: () -> Unit = {},
     userNickname: String = "Alex"
 ) {
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
+
+    LaunchedEffect(openDrawerOnReturn) {
+        if (openDrawerOnReturn) {
+            drawerState = CustomDrawerState.Opened
+            onDrawerOpened()
+        }
+    }
 
     val windowInfo = LocalWindowInfo.current
     val density = LocalDensity.current
@@ -116,7 +128,7 @@ fun MainScreen(
                     NavigationItem.CerrarSesion -> onLogout()
                     NavigationItem.Berto -> {
                         drawerState = CustomDrawerState.Closed
-                        onNavigateToChat()
+                        (onNavigateToChatFromDrawer ?: onNavigateToChat)()
                     }
                     else -> {
                         selectedItem = item
@@ -125,7 +137,10 @@ fun MainScreen(
                 }
             },
             onCloseClick = { drawerState = CustomDrawerState.Closed },
-            onProfileClick = { }
+            onProfileClick = {
+                selectedItem = NavigationItem.MiPerfil
+                drawerState = CustomDrawerState.Closed
+            }
         )
 
         // ── Capa 2: contenido principal (animado, encima) ──
@@ -151,7 +166,9 @@ fun MainScreen(
             onDrawerClick = { drawerState = drawerState.opposite() },
             onNavigateToChat = onNavigateToChat,
             onNavigateToSos = onNavigateToSos,
-            onBottomNavNavigate = { item -> selectedItem = item }
+            onNavigateToAssist = onNavigateToAssist,
+            onBottomNavNavigate = { item -> selectedItem = item },
+            onLogout = onLogout
         )
     }
 }
@@ -164,6 +181,8 @@ private fun SolvyxMainContent(
     onDrawerClick: () -> Unit,
     onNavigateToChat: () -> Unit,
     onNavigateToSos: () -> Unit,
+    onNavigateToAssist: () -> Unit,
+    onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
     var showSosDialog by remember { mutableStateOf(false) }
@@ -239,8 +258,13 @@ private fun SolvyxMainContent(
                         onOpenDrawer = onDrawerClick,
                         onNavigateToChat = onNavigateToChat
                     )
-                NavigationItem.Configuracion ->
-                    ConfiguracionScreen(onOpenDrawer = onDrawerClick)
+                NavigationItem.MiPerfil ->
+                    PerfilNavGraph(
+                        onOpenDrawer = onDrawerClick,
+                        onNavigateToAssist = onNavigateToAssist,
+                        onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) },
+                        onLogout = onLogout
+                    )
                 NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }
                 NavigationItem.CerrarSesion -> { /* manejado en MainScreen */ }
             }

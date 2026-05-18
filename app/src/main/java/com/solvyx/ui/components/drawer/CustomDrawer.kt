@@ -38,10 +38,8 @@ import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isBottom
 import com.solvyx.ui.components.drawer.model.isPrimary
 import com.solvyx.ui.components.drawer.model.isSecondary
-import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealMedium
-import com.solvyx.ui.theme.TealPrimary
 
 @Composable
 fun CustomDrawer(

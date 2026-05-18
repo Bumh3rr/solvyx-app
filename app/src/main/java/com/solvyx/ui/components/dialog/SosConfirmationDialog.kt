@@ -1,4 +1,4 @@
-package com.solvyx.ui.components
+package com.solvyx.ui.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -116,15 +116,14 @@ fun GuiasHubScreen(
             )
 
             Spacer(Modifier.height(14.dp))
-
             GuideCard(
-                id = "crisisId",
-                iconRes = R.drawable.ic_info,
-                iconColor = MaterialTheme.colorScheme.primary,
-                title = "Cómo sé si estoy en crisis",
-                subtitle = "Señales físicas, emocionales y qué hacer",
-                bg = null,
-                titleColor = null,
+                id = "crisis",
+                iconRes = R.drawable.ic_sos,
+                iconColor = Color(0xFFE24B4A),
+                title = "Estoy en crisis ahora mismo",
+                subtitle = "Para cuando eres tú quien necesita ayuda urgente",
+                bg = Color(0xFFfde8e8),
+                titleColor = Color(0xFF991b1b),
                 onOpenGuide = onOpenGuide
             )
             Spacer(Modifier.height(10.dp))
@@ -162,13 +161,13 @@ fun GuiasHubScreen(
             )
             Spacer(Modifier.height(10.dp))
             GuideCard(
-                id = "crisis",
-                iconRes = R.drawable.ic_sos,
-                iconColor = Color(0xFFE24B4A),
-                title = "Estoy en crisis ahora mismo",
-                subtitle = "Para cuando eres tú quien necesita ayuda urgente",
-                bg = Color(0xFFfde8e8),
-                titleColor = Color(0xFF991b1b),
+                id = "crisisId",
+                iconRes = R.drawable.ic_info,
+                iconColor = MaterialTheme.colorScheme.primary,
+                title = "Cómo sé si estoy en crisis",
+                subtitle = "Señales físicas, emocionales y qué hacer",
+                bg = null,
+                titleColor = null,
                 onOpenGuide = onOpenGuide
             )
 

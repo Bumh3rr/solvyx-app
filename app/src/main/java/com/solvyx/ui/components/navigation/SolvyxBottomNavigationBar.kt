@@ -1,4 +1,4 @@
-package com.solvyx.ui.components
+package com.solvyx.ui.components.navigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -97,7 +97,7 @@ fun SolvyxBottomNavigationBar(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(R.drawable.berto_saludando),
+                    painter = painterResource(R.drawable.berto_cabeza),
                     contentDescription = "Berto",
                     modifier = Modifier.size(40.dp),
                     contentScale = ContentScale.Fit

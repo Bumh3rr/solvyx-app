@@ -37,9 +37,9 @@ enum class NavigationItem(
         title = "Directorio Profesional",
         icon = R.drawable.ic_building
     ),
-    Configuracion(
-        title = "Configuración",
-        icon = R.drawable.ic_settings
+    MiPerfil(
+        title = "Mi Perfil",
+        icon = R.drawable.ic_person
     ),
 
     // ── Sección bottom ────────────────────────────────
@@ -62,7 +62,7 @@ fun NavigationItem.isSecondary(): Boolean =
     this in listOf(
         NavigationItem.RedApoyo,
         NavigationItem.Directorio,
-        NavigationItem.Configuracion
+        NavigationItem.MiPerfil
     )
 
 fun NavigationItem.isBottom(): Boolean =

@@ -32,7 +32,8 @@ class SplashViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val prefs = context.solvyxDataStore.data.first()
-            val done = prefs[ONBOARDING_DONE] ?: false
+            //val done = prefs[ONBOARDING_DONE] ?: false
+            val done = false
 
             _destination.value = if (done) Destination.Login else Destination.Onboarding
         }
