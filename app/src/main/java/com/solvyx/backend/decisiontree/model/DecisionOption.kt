@@ -6,5 +6,8 @@ data class DecisionOption(
     val texto: String,
 
     // Nodo al que navega
-    val siguienteNodoId: String
+    val siguienteNodoId: String,
+
+    // Una frase corta de validación (ej: "Entiendo, es difícil...", "Gracias por ser honesto")
+    val reaccion: String? = null
 )
