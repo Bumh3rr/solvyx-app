@@ -157,6 +157,7 @@ fun BertoScreen(
             .background(MaterialTheme.colorScheme.background)
             .imePadding()
     ) {
+
         ChatTopBar(
             bertoState = viewModel.currentBertoState,
             onBack = onBack,
@@ -572,7 +573,7 @@ private fun MessageBubble(message: ChatMessage) {
                     message.timestamp,
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isUser) Color.White.copy(alpha = 0.65f)
-                            else MaterialTheme.colorScheme.primary,
+                    else MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .align(Alignment.End)
                         .padding(top = 4.dp)
@@ -850,7 +851,7 @@ private fun BertoCapabilitiesSheet(onDismiss: () -> Unit) {
                                 fontWeight = FontWeight.Bold
                             ),
                             color = if (isCrisis) CrisisRed
-                                    else MaterialTheme.colorScheme.onBackground
+                            else MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             descripcion,
