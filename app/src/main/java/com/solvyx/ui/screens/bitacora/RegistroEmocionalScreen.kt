@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import android.view.HapticFeedbackConstants
-import androidx.compose.ui.platform.LocalView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
@@ -65,7 +63,6 @@ fun RegistroEmocionalScreen(
             estadoAnimo = viewModel.estadoAnimo,
             consumio = viewModel.consumo == true,
             sustancia = viewModel.sustanciaSeleccionada,
-            nivelAnsiedad = viewModel.nivelAnsiedad,
             onDismiss = { viewModel.resetForm() }
         )
     }
@@ -512,120 +509,6 @@ fun RegistroEmocionalScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(12.dp))
-
-                    // Card 3: Nivel de ansiedad
-                    Card(
-                        Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_activity),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(17.dp)
-                                    )
-                                }
-                                Text(
-                                    "Nivel de ansiedad hoy",
-                                    modifier = Modifier.padding(start = 6.dp),
-                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-
-                            val ansiedadColor = when {
-                                viewModel.nivelAnsiedad <= 3f -> MaterialTheme.colorScheme.primary
-                                viewModel.nivelAnsiedad <= 6f -> Color(0xFFD97706)
-                                else                          -> Color(0xFFE24B4A)
-                            }
-
-                            Spacer(Modifier.height(20.dp))
-
-                            // Número grande con referencia visual
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.Bottom
-                            ) {
-                                Text(
-                                    viewModel.nivelAnsiedad.toInt().toString(),
-                                    style = MaterialTheme.typography.displayLarge.copy(
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 64.sp
-                                    ),
-                                    color = ansiedadColor
-                                )
-                                Text(
-                                    " /10",
-                                    style = MaterialTheme.typography.headlineMedium.copy(
-                                        fontWeight = FontWeight.Normal
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(bottom = 10.dp)
-                                )
-                            }
-
-                            Spacer(Modifier.height(16.dp))
-
-                            // Slider con vibración haptic en cada paso
-                            val view = LocalView.current
-                            var lastStep by remember { mutableIntStateOf(viewModel.nivelAnsiedad.toInt()) }
-                            Slider(
-                                value = viewModel.nivelAnsiedad,
-                                onValueChange = { newValue ->
-                                    val newStep = newValue.toInt()
-                                    if (newStep != lastStep) {
-                                        lastStep = newStep
-                                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                                    }
-                                    viewModel.updateNivelAnsiedad(newValue)
-                                },
-                                valueRange = 1f..10f,
-                                steps = 8,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = SliderDefaults.colors(
-                                    thumbColor = ansiedadColor,
-                                    activeTrackColor = ansiedadColor,
-                                    inactiveTrackColor = ansiedadColor.copy(alpha = 0.20f)
-                                )
-                            )
-
-                            // Etiquetas extremos + nivel central coloreado
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    "1 · Nada",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    viewModel.nivelAnsiedadLabel(),
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = ansiedadColor
-                                )
-                                Text(
-                                    "10 · Mucho",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
                     Spacer(Modifier.height(16.dp))
                 }
             }
@@ -668,7 +551,6 @@ private fun RegistroExitosoDialog(
     estadoAnimo: String?,
     consumio: Boolean,
     sustancia: String?,
-    nivelAnsiedad: Float,
     onDismiss: () -> Unit
 ) {
     val faceIcons = mapOf(
@@ -691,11 +573,6 @@ private fun RegistroExitosoDialog(
         else       -> "Gracias por ser honesto\ncontigo mismo hoy."
     }
     val sosRed = Color(0xFFE24B4A)
-    val ansiedadColor = when {
-        nivelAnsiedad <= 3f -> MaterialTheme.colorScheme.primary
-        nivelAnsiedad <= 6f -> Color(0xFFD97706)
-        else                -> sosRed
-    }
 
     var visible by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
@@ -796,29 +673,6 @@ private fun RegistroExitosoDialog(
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            Box(
-                                Modifier
-                                    .width(0.5.dp)
-                                    .height(36.dp)
-                                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                            )
-
-                            // Ansiedad
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    nivelAnsiedad.toInt().toString(),
-                                    style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.ExtraBold
-                                    ),
-                                    color = ansiedadColor
-                                )
-                                Text(
-                                    "ansiedad",
-                                    style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }

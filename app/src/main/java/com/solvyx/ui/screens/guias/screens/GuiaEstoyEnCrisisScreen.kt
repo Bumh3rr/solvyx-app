@@ -193,7 +193,7 @@ fun GuiaEstoyEnCrisisScreen(
                     )
                 }
                 Spacer(Modifier.height(4.dp))
-                HelpLineRow("Línea de la Vida", "8002900024")
+                HelpLineRow("Línea de la Vida", "8009112000")
                 HelpLineRow("SAPTEL", "5552598121")
             }
 

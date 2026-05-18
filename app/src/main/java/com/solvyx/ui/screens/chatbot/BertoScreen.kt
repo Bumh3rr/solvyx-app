@@ -89,7 +89,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
-import com.solvyx.ui.components.SosConfirmationDialog
+import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.theme.BertoVisorCalm

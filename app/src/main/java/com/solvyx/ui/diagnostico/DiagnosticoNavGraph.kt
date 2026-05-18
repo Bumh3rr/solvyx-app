@@ -10,7 +10,8 @@ import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 @Composable
 fun DiagnosticoNavGraph(
     navController: NavHostController,
-    onFinishAssist: () -> Unit
+    onFinishAssist: () -> Unit,
+    onNavigateToHome: () -> Unit = {}
 ) {
     val viewModel: DiagnosticoViewModel = hiltViewModel()
 
@@ -52,7 +53,14 @@ fun DiagnosticoNavGraph(
                 onVerHistorial = {
                     navController.navigate("history")
                 },
-                onFinish = onFinishAssist
+                onFinish = onFinishAssist,
+                onNavigateToChat = onNavigateToHome,
+                onNavigateToBitacora = onNavigateToHome,
+                onNavigateToAvances = onNavigateToHome,
+                onNavigateToManejoCraving = onNavigateToHome,
+                onNavigateToInfoSustancia = onNavigateToHome,
+                onNavigateToDirectorio = onNavigateToHome,
+                onNavigateToRedApoyo = onNavigateToHome
             )
         }
 

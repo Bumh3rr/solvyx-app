@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -53,8 +54,12 @@ fun SolvyxOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null
+    leadingIcon: @Composable (() -> Unit)? = null,
+    borderColor: Color? = null,
+    textColor: Color? = null
 ) {
+    val resolvedBorder = borderColor ?: MaterialTheme.colorScheme.primary
+    val resolvedText = textColor ?: MaterialTheme.colorScheme.primary
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
@@ -62,16 +67,16 @@ fun SolvyxOutlinedButton(
             .height(56.dp)
             .clip(RoundedCornerShape(28.dp)),
         shape = RoundedCornerShape(28.dp),
-        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(1.5.dp, resolvedBorder),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
+            contentColor = resolvedText
         )
     ) {
         if (leadingIcon != null) {
             leadingIcon()
             Spacer(Modifier.width(8.dp))
         }
-        Text(text = text, style = MaterialTheme.typography.labelLarge)
+        Text(text = text, style = MaterialTheme.typography.labelLarge, color = resolvedText)
     }
 }
 

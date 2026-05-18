@@ -1,12 +1,12 @@
-package com.solvyx.ui.components
+package com.solvyx.ui.components.navigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.solvyx.R
 
-enum class SolvyxBottomTab { INICIO, CHATBOT, REGISTRO }
+enum class SolvyxBottomTab { INICIO, PLAN, CHATBOT, AVANCES }
 
 @Composable
 fun SolvyxBottomNavigationBar(
@@ -42,12 +42,17 @@ fun SolvyxBottomNavigationBar(
     onSosClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    // Layout: [Inicio][Plan] [Berto-center] [Avances]
+    // Berto slot is at position 3/4 (62.5% from left).
+    // bertoXOffset shifts the TopCenter overlay (50%) right by 1/8 of width → 62.5%.
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .height(80.dp)
     ) {
-        // ── Background bar ────────────────────────────
+        val bertoXOffset = maxWidth * 0.125f
+
+        // ── Bar background with 4 slots ───────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,29 +67,37 @@ fun SolvyxBottomNavigationBar(
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                 ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
+            verticalAlignment = Alignment.CenterVertically
         ) {
             BottomNavTab(
-                icon = R.drawable.ic_home,
-                label = "Inicio",
+                icon     = R.drawable.ic_home,
+                label    = "Inicio",
                 selected = selectedTab == SolvyxBottomTab.INICIO,
-                onClick = { onTabSelected(SolvyxBottomTab.INICIO) },
+                onClick  = { onTabSelected(SolvyxBottomTab.INICIO) },
                 modifier = Modifier.weight(1f)
             )
-            Spacer(Modifier.weight(1f))
             BottomNavTab(
-                icon = R.drawable.ic_trending_up,
-                label = "Registro",
-                selected = selectedTab == SolvyxBottomTab.REGISTRO,
-                onClick = { onTabSelected(SolvyxBottomTab.REGISTRO) },
+                icon     = R.drawable.ic_plan,
+                label    = "Plan",
+                selected = selectedTab == SolvyxBottomTab.PLAN,
+                onClick  = { onTabSelected(SolvyxBottomTab.PLAN) },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(Modifier.weight(1f))   // Berto slot
+            BottomNavTab(
+                icon     = R.drawable.ic_trophy,
+                label    = "Avances",
+                selected = selectedTab == SolvyxBottomTab.AVANCES,
+                onClick  = { onTabSelected(SolvyxBottomTab.AVANCES) },
                 modifier = Modifier.weight(1f)
             )
         }
 
-        // ── Central elevated Berto button ─────────────
+        // ── Berto elevated button ─────────────────────
         Column(
-            modifier = Modifier.align(Alignment.TopCenter),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(x = bertoXOffset),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -97,7 +110,7 @@ fun SolvyxBottomNavigationBar(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(R.drawable.berto_saludando),
+                    painter = painterResource(R.drawable.berto_cabeza),
                     contentDescription = "Berto",
                     modifier = Modifier.size(40.dp),
                     contentScale = ContentScale.Fit

@@ -1,6 +1,8 @@
 package com.solvyx.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -15,8 +17,10 @@ import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
 import com.solvyx.ui.screens.chatbot.BertoScreen
+import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
+import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
 import com.solvyx.ui.screens.main.MainScreen
-import com.solvyx.ui.screens.onboarding.OnboardingScreen
+import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 
@@ -45,31 +49,17 @@ fun SolvyxNavGraph(navController: NavHostController) {
             RegisterScreen(navController)
         }
 
-        // Top-level trees routes so HomeScreen can navigate to them directly
-        composable("trees") {
-            val treeViewModel: com.solvyx.backend.presentation.viewmodel.DecisionTreeViewModel = hiltViewModel()
-            com.solvyx.ui.decisiontree.TreesSelectionScreen(navController, treeViewModel)
-        }
-
-        composable(
-            route = "trees/{treeId}",
-            arguments = listOf(navArgument("treeId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val treeId = backStackEntry.arguments?.getString("treeId") ?: ""
-            val treeViewModel: com.solvyx.backend.presentation.viewmodel.DecisionTreeViewModel = hiltViewModel()
-            com.solvyx.ui.decisiontree.TreePlayScreen(navController, treeId, treeViewModel)
-        }
-
-        composable(Routes.HOME) {
-            // Simple home screen for logged-in users
-            com.solvyx.ui.screens.home.HomeScreen(navController)
-        }
         composable(Routes.DIAGNOSTICO) {
             val diagnosticoNavController = rememberNavController()
             DiagnosticoNavGraph(
                 navController = diagnosticoNavController,
                 onFinishAssist = {
                     navController.navigate(Routes.RED_APOYO_SETUP) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                },
+                onNavigateToHome = {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
                     }
                 }
@@ -89,8 +79,14 @@ fun SolvyxNavGraph(navController: NavHostController) {
             )
         }
 
-        composable(Routes.HOME) {
+        composable(Routes.HOME) { backStackEntry ->
+            val openDrawer by backStackEntry.savedStateHandle
+                .getStateFlow("openDrawer", false)
+                .collectAsState()
+
             MainScreen(
+                openDrawerOnReturn = openDrawer,
+                onDrawerOpened = { backStackEntry.savedStateHandle["openDrawer"] = false },
                 onLogout = {
                     navController.navigate(Routes.AUTH_CHOICE) {
                         popUpTo(0) { inclusive = true }
@@ -99,15 +95,35 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 onNavigateToChat = {
                     navController.navigate(Routes.CHAT)
                 },
+                onNavigateToChatFromDrawer = {
+                    navController.navigate("${Routes.CHAT}?source=drawer")
+                },
                 onNavigateToSos = {
                     navController.navigate(Routes.SOS_OVERLAY)
+                },
+                onNavigateToAssist = {
+                    navController.navigate(Routes.DIAGNOSTICO)
+                },
+                onNavigateToEjercicio = {
+                    navController.navigate(Routes.EJERCICIO_GUIADO)
                 }
             )
         }
 
-        composable(Routes.CHAT) {
+        composable(
+            route = "${Routes.CHAT}?source={source}",
+            arguments = listOf(navArgument("source") { defaultValue = "" })
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: ""
             BertoScreen(
-                onBack = { navController.navigateUp() },
+                onBack = {
+                    if (source == "drawer") {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("openDrawer", true)
+                    }
+                    navController.navigateUp()
+                },
                 onNavigateToSos = { navController.navigate(Routes.SOS_OVERLAY) }
             )
         }
@@ -123,6 +139,14 @@ fun SolvyxNavGraph(navController: NavHostController) {
                     }
                 },
                 onClose = { navController.navigateUp() }
+            )
+        }
+
+        composable(Routes.EJERCICIO_GUIADO) {
+            val viewModel: EjercicioGuiadoViewModel = hiltViewModel()
+            EjercicioGuiadoScreen(
+                viewModel = viewModel,
+                onFinish = { navController.navigateUp() }
             )
         }
     }

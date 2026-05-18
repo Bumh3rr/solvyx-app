@@ -3,7 +3,6 @@ package com.solvyx.ui.screens.bitacora
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -25,8 +24,6 @@ class RegistroViewModel @Inject constructor() : ViewModel() {
         private set
     var sustanciaSeleccionada by mutableStateOf<String?>(null)
         private set
-    var nivelAnsiedad by mutableFloatStateOf(5f)
-        private set
     var showCalendar by mutableStateOf(false)
         private set
     var showSustanciaSheet by mutableStateOf(false)
@@ -38,13 +35,6 @@ class RegistroViewModel @Inject constructor() : ViewModel() {
         estadoAnimo != null && consumo != null &&
         (consumo == false || sustanciaSeleccionada != null)
 
-    fun nivelAnsiedadLabel(): String = when (nivelAnsiedad.toInt()) {
-        in 1..3  -> "Ansiedad baja"
-        in 4..6  -> "Ansiedad moderada"
-        in 7..10 -> "Ansiedad alta"
-        else     -> ""
-    }
-
     fun setFecha(fecha: LocalDate)          { fechaSeleccionada = fecha }
     fun updateEstadoAnimo(estado: String)   { estadoAnimo = estado }
     fun updateNotaAnimo(nota: String)       { if (nota.length <= 100) notaAnimo = nota }
@@ -54,7 +44,6 @@ class RegistroViewModel @Inject constructor() : ViewModel() {
         if (value) showSustanciaSheet = true
     }
     fun setSustancia(s: String)             { sustanciaSeleccionada = s }
-    fun updateNivelAnsiedad(n: Float)       { nivelAnsiedad = n }
     fun toggleCalendar()               { showCalendar = !showCalendar }
     fun toggleSustanciaSheet()         { showSustanciaSheet = !showSustanciaSheet }
     fun guardarRegistro() {
@@ -67,7 +56,6 @@ class RegistroViewModel @Inject constructor() : ViewModel() {
         notaAnimo = ""
         consumo = null
         sustanciaSeleccionada = null
-        nivelAnsiedad = 5f
         isSaved = false
     }
 
