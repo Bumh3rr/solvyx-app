@@ -368,7 +368,7 @@ fun MisAvancesScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Image(
-                        painter           = painterResource(R.drawable.berto_saludando),
+                        painter           = painterResource(R.drawable.berto_dedo_der),
                         contentDescription = null,
                         modifier          = Modifier.size(44.dp),
                         contentScale      = ContentScale.Fit

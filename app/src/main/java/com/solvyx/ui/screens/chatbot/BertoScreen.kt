@@ -508,12 +508,15 @@ private fun BertoPeekZone(bertoState: BertoState, isTyping: Boolean) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         AnimatedContent(
-            targetState = bertoState,
+            targetState = Pair(bertoState, isTyping),
             transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
             label = "BertoPeekImage"
-        ) { state ->
+        ) { (state, typing) ->
             Image(
-                painter      = painterResource(bertoPainterRes(state)),
+                painter = painterResource(
+                    if (typing) R.drawable.berto_pregunta
+                    else bertoPainterRes(state)
+                ),
                 contentDescription = "Berto",
                 modifier     = Modifier
                     .size(52.dp)
@@ -806,7 +809,7 @@ private fun ChatInputBar(
 private fun bertoPainterRes(state: BertoState): Int = when (state) {
     BertoState.TRANQUILO  -> R.drawable.berto_saludando
     BertoState.PREOCUPADO -> R.drawable.berto_preocupado
-    BertoState.CELEBRANDO -> R.drawable.berto_feliz
+    BertoState.CELEBRANDO -> R.drawable.berto_euforico
     BertoState.CRISIS     -> R.drawable.berto_preocupado
 }
 
@@ -871,7 +874,7 @@ private fun BertoCapabilitiesSheet(onDismiss: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(R.drawable.berto_tranquilo),
+                painter = painterResource(R.drawable.berto_mira_moriposa),
                 contentDescription = null,
                 modifier = Modifier.size(100.dp),
                 contentScale = ContentScale.Fit
