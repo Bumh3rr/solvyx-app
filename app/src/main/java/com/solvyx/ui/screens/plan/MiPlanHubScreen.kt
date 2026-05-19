@@ -156,12 +156,6 @@ fun MiPlanHubScreen(
                         )
                     }
                 }
-                Spacer(Modifier.height(10.dp))
-                SolvyxButton(
-                    text = if (viewModel.metaLogradaHoy) "✓ Logrado hoy" else "Lo logré hoy",
-                    onClick = { viewModel.toggleMetaLograda() },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
 
             Spacer(Modifier.height(20.dp))

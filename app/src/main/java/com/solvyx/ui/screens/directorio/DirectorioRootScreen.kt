@@ -154,7 +154,7 @@ private fun DirectorioHubScreen(
         )
 
         HeroSideBerto(
-            mascot = R.drawable.berto_saludando,
+            mascot = R.drawable.berto_lentes_izq,
             title = "Aquí puedes pedir ayuda profesional.",
             subtitle = "Todos los centros son gratuitos o de bajo costo."
         )
