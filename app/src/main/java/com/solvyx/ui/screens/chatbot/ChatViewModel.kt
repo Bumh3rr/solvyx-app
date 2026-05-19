@@ -11,6 +11,7 @@ import com.solvyx.backend.decisiontree.model.DecisionTree
 import com.solvyx.backend.decisiontree.model.NodeType
 import com.solvyx.backend.decisiontree.repository.DecisionTreeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -54,6 +55,9 @@ class ChatViewModel @Inject constructor(
         private set
     var currentBertoState by mutableStateOf(BertoState.TRANQUILO)
         private set
+    // Non-null for 2.8 s after a state transition; drives the banner animation in the UI.
+    var stateTransition by mutableStateOf<BertoState?>(null)
+        private set
     var showBertoPeek by mutableStateOf(false)
         private set
     var showSosDialog by mutableStateOf(false)
@@ -62,6 +66,7 @@ class ChatViewModel @Inject constructor(
     // Control del flujo actual
     private var currentTree: DecisionTree? = null
     private var currentNode: DecisionNode? = null
+    private var stateTransitionJob: Job? = null
 
     // ID virtual para identificar cuándo estamos parados en el menú principal
     private val MAIN_MENU_ID = "menu_principal_virtual"
@@ -122,14 +127,17 @@ class ChatViewModel @Inject constructor(
         )
         inputText = ""
 
-        //Interceptor de pánico por texto libre
+        // Interceptor de pánico por texto libre
         if (detectEmergencyState(text) == BertoState.CRISIS) {
-            currentBertoState = BertoState.CRISIS
+            updateState(BertoState.CRISIS)
             simulateEmergencyResponse()
             return
         }
 
-        //Procesar navegación del árbol de decisiones
+        // Detectar estado emocional del usuario en texto libre
+        detectStateFromFreeText(text)?.let { updateState(it) }
+
+        // Procesar navegación del árbol de decisiones
         processTreeNavigation(text)
     }
 
@@ -157,6 +165,7 @@ class ChatViewModel @Inject constructor(
                         val selectedTree = treeRepository.obtenerArbol(destinoId)
                         currentTree = selectedTree
                         nextNode = selectedTree.nodos[selectedTree.nodoInicialId]
+                        updateState(stateFromTreeId(destinoId))
                     } catch (e: Exception) {
                         // Resguardo por si el ID del repositorio fallara
                         nextNode = null
@@ -175,7 +184,6 @@ class ChatViewModel @Inject constructor(
             // Responder e interactuar según el nodo obtenido
             if (nextNode != null) {
                 currentNode = nextNode
-                currentBertoState = mapNodeTypeToBertoState(nextNode.tipo)
 
                 val respuestaTexto = if (nextNode.mensaje != null) {
                     "${nextNode.mensaje}\n\n${nextNode.texto}"
@@ -209,6 +217,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun handleEndOfTree() {
+        updateState(BertoState.TRANQUILO)
         addBertoMessage(
             content = "¿Deseas revisar alguna otra sección o regresar al menú principal?",
             quickReplies = listOf("Regresar al menú principal"),
@@ -246,6 +255,31 @@ class ChatViewModel @Inject constructor(
                 quickReplies = currentNode?.opciones?.map { it.texto } ?: listOf("Sí, avisa a mi red", "Dame técnicas de respiración", "Regresar al menú principal"),
                 state = BertoState.CRISIS
             )
+        }
+    }
+
+    private fun updateState(newState: BertoState) {
+        if (newState == currentBertoState) return
+        currentBertoState = newState
+        stateTransitionJob?.cancel()
+        stateTransition = newState
+        stateTransitionJob = viewModelScope.launch {
+            delay(2800)
+            stateTransition = null
+        }
+    }
+
+    private fun stateFromTreeId(treeId: String): BertoState = when {
+        treeId.endsWith("_craving") -> BertoState.PREOCUPADO
+        else -> BertoState.TRANQUILO
+    }
+
+    private fun detectStateFromFreeText(text: String): BertoState? {
+        val lower = text.lowercase()
+        return when {
+            ANXIETY_KEYWORDS.any { lower.contains(it) } -> BertoState.PREOCUPADO
+            POSITIVE_KEYWORDS.any { lower.contains(it) } -> BertoState.CELEBRANDO
+            else -> null
         }
     }
 

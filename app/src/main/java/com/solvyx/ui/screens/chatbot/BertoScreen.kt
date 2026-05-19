@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
@@ -24,6 +25,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -175,6 +178,14 @@ fun BertoScreen(
         )
 
         AnimatedVisibility(
+            visible = viewModel.stateTransition != null,
+            enter = slideInVertically { -it } + fadeIn(tween(250)),
+            exit  = slideOutVertically { -it } + fadeOut(tween(250))
+        ) {
+            viewModel.stateTransition?.let { BertoStateTransitionBanner(it) }
+        }
+
+        AnimatedVisibility(
             visible = viewModel.showBertoPeek,
             enter = expandVertically(spring(dampingRatio = Spring.DampingRatioMediumBouncy)) +
                     fadeIn(tween(300)),
@@ -294,15 +305,18 @@ private fun ChatTopBar(
                 .border(2.dp, Color.White.copy(alpha = 0.6f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(
-                    if (bertoState == BertoState.CRISIS) R.drawable.berto_preocupado
-                    else R.drawable.berto_saludando
-                ),
-                contentDescription = null,
-                modifier = Modifier.size(30.dp),
-                contentScale = ContentScale.Fit
-            )
+            AnimatedContent(
+                targetState = bertoState,
+                transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
+                label = "BertoAvatar"
+            ) { state ->
+                Image(
+                    painter = painterResource(bertoPainterRes(state)),
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
 
         Spacer(Modifier.size(10.dp))
@@ -328,11 +342,25 @@ private fun ChatTopBar(
                         .background(Color(0xFF4CAF50).copy(alpha = pulseAlpha))
                 )
                 Spacer(Modifier.size(4.dp))
-                Text(
-                    "En línea · Privado",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.80f)
-                )
+                AnimatedContent(
+                    targetState = bertoState,
+                    transitionSpec = {
+                        (fadeIn(tween(300)) + slideInVertically { it / 2 }) togetherWith
+                        (fadeOut(tween(200)) + slideOutVertically { -it / 2 })
+                    },
+                    label = "BertoStatus"
+                ) { state ->
+                    Text(
+                        text = when (state) {
+                            BertoState.TRANQUILO  -> "En línea · Privado"
+                            BertoState.PREOCUPADO -> "Aquí para ti"
+                            BertoState.CELEBRANDO -> "¡Celebrando contigo!"
+                            BertoState.CRISIS     -> "Modo de apoyo activo"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.80f)
+                    )
+                }
             }
         }
 
@@ -479,18 +507,20 @@ private fun BertoPeekZone(bertoState: BertoState, isTyping: Boolean) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(
-                if (bertoState == BertoState.CRISIS || bertoState == BertoState.PREOCUPADO)
-                    R.drawable.berto_preocupado
-                else R.drawable.berto_saludando
-            ),
-            contentDescription = "Berto",
-            modifier = Modifier
-                .size(52.dp)
-                .offset(y = floatAnim.dp),
-            contentScale = ContentScale.Fit
-        )
+        AnimatedContent(
+            targetState = bertoState,
+            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
+            label = "BertoPeekImage"
+        ) { state ->
+            Image(
+                painter      = painterResource(bertoPainterRes(state)),
+                contentDescription = "Berto",
+                modifier     = Modifier
+                    .size(52.dp)
+                    .offset(y = floatAnim.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
         Spacer(Modifier.size(12.dp))
         Column {
             Text(
@@ -544,6 +574,13 @@ private fun TypingIndicator() {
 @Composable
 private fun MessageBubble(message: ChatMessage) {
     val isUser = !message.isFromBerto
+    val bubbleShape = RoundedCornerShape(
+        topStart = 18.dp,
+        topEnd = 18.dp,
+        bottomStart = if (isUser) 18.dp else 4.dp,
+        bottomEnd = if (isUser) 4.dp else 18.dp
+    )
+    val bertoBorderColor = stateAccentColor(message.bertoState)
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
@@ -551,27 +588,14 @@ private fun MessageBubble(message: ChatMessage) {
         Box(
             modifier = Modifier
                 .widthIn(max = 280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 18.dp,
-                        topEnd = 18.dp,
-                        bottomStart = if (isUser) 18.dp else 4.dp,
-                        bottomEnd = if (isUser) 4.dp else 18.dp
-                    )
-                )
+                .clip(bubbleShape)
                 .background(
                     if (isUser) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.surface
                 )
                 .then(
-                    if (!isUser) Modifier.border(
-                        0.5.dp,
-                        MaterialTheme.colorScheme.outline,
-                        RoundedCornerShape(
-                            topStart = 18.dp, topEnd = 18.dp,
-                            bottomStart = 4.dp, bottomEnd = 18.dp
-                        )
-                    ) else Modifier
+                    if (!isUser) Modifier.border(0.8.dp, bertoBorderColor, bubbleShape)
+                    else Modifier
                 )
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
@@ -774,6 +798,56 @@ private fun ChatInputBar(
                 modifier = Modifier.size(20.dp)
             )
         }
+    }
+}
+
+// ── State helpers ────────────────────────────────────────
+
+private fun bertoPainterRes(state: BertoState): Int = when (state) {
+    BertoState.TRANQUILO  -> R.drawable.berto_saludando
+    BertoState.PREOCUPADO -> R.drawable.berto_preocupado
+    BertoState.CELEBRANDO -> R.drawable.berto_feliz
+    BertoState.CRISIS     -> R.drawable.berto_preocupado
+}
+
+@Composable
+private fun stateAccentColor(state: BertoState): Color = when (state) {
+    BertoState.TRANQUILO  -> MaterialTheme.colorScheme.outline
+    BertoState.PREOCUPADO -> Color(0xFFFF8F00)
+    BertoState.CELEBRANDO -> TealPrimary
+    BertoState.CRISIS     -> CrisisRed
+}
+
+// ── State transition banner ──────────────────────────────
+
+@Composable
+private fun BertoStateTransitionBanner(state: BertoState) {
+    data class BannerCfg(val iconRes: Int, val label: String, val bg: Color, val tint: Color)
+    val cfg = when (state) {
+        BertoState.TRANQUILO  -> BannerCfg(R.drawable.ic_check_circle, "Berto está aquí para ti",       TealLightest,                 TealPrimary)
+        BertoState.PREOCUPADO -> BannerCfg(R.drawable.ic_heart_pulse,  "Berto se preocupa por ti",       Color(0xFFFFF3E0),             Color(0xFFBF360C))
+        BertoState.CELEBRANDO -> BannerCfg(R.drawable.ic_trophy,       "¡Berto celebra este logro! 🎉",  TealLightest,                 TealPrimary)
+        BertoState.CRISIS     -> BannerCfg(R.drawable.ic_alert_triangle,"Berto activó el apoyo de crisis",CrisisRed.copy(alpha = 0.10f), CrisisRed)
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(cfg.bg)
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painter           = painterResource(cfg.iconRes),
+            contentDescription = null,
+            tint              = cfg.tint,
+            modifier          = Modifier.size(15.dp)
+        )
+        Text(
+            text  = cfg.label,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = cfg.tint
+        )
     }
 }
 
