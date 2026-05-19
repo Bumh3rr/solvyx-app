@@ -1,12 +1,19 @@
 package com.solvyx.ui.screens.plan
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,28 +75,93 @@ fun MiPlanHubScreen(
 
         GuiaPanel(modifier = Modifier.weight(1f)) {
 
-            // ── Mi meta de hoy ────────────────────────────────────────────
-            CardLabel(iconRes = R.drawable.ic_flag, text = "Mi meta de hoy")
-            Spacer(Modifier.height(8.dp))
-            BorderCard {
-                Text(
-                    text = viewModel.metaActual,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TealDark
-                )
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SolvyxButton(
-                        text = if (viewModel.metaLogradaHoy) "Logrado" else "Lo logré hoy",
-                        onClick = { viewModel.toggleMetaLograda() },
-                        modifier = Modifier.weight(1f)
+            // ── Carrusel de metas ─────────────────────────────────────────
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_flag),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp)
                     )
-                    SolvyxOutlinedButton(
-                        text = "Ver otra",
-                        onClick = { viewModel.siguienteMeta() },
-                        modifier = Modifier.weight(1f)
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        "Metas sugeridas",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = TealDark
                     )
                 }
+                Text(
+                    "${viewModel.metaIndex + 1} / ${viewModel.metasList.size}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            BorderCard {
+                AnimatedContent(
+                    targetState = viewModel.metaIndex,
+                    transitionSpec = {
+                        (slideInHorizontally { it } + fadeIn()) togetherWith
+                        (slideOutHorizontally { -it } + fadeOut())
+                    },
+                    label = "MetaPlanCarousel"
+                ) { idx ->
+                    Text(
+                        text = viewModel.metasList[idx],
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TealDark,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                Spacer(Modifier.height(14.dp))
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        viewModel.metasList.indices.forEach { i ->
+                            Box(
+                                Modifier
+                                    .size(if (i == viewModel.metaIndex) 10.dp else 7.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (i == viewModel.metaIndex)
+                                            MaterialTheme.colorScheme.primary
+                                        else
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                                    )
+                            )
+                        }
+                    }
+                    TextButton(
+                        onClick = { viewModel.siguienteMeta() },
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        Text(
+                            "Siguiente →",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+                SolvyxButton(
+                    text = if (viewModel.metaLogradaHoy) "✓ Logrado hoy" else "Lo logré hoy",
+                    onClick = { viewModel.toggleMetaLograda() },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             Spacer(Modifier.height(20.dp))
