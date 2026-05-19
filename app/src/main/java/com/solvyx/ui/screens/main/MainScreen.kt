@@ -43,7 +43,11 @@ import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
+import com.solvyx.ui.screens.home.InicioViewModel
 import com.solvyx.ui.screens.directorio.DirectorioRootScreen
 import com.solvyx.ui.screens.perfil.PerfilNavGraph
 import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
@@ -54,6 +58,7 @@ import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
@@ -63,9 +68,9 @@ fun MainScreen(
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
-    onDrawerOpened: () -> Unit = {},
-    userNickname: String = "Alex"
+    onDrawerOpened: () -> Unit = {}
 ) {
+    val inicioViewModel: InicioViewModel = hiltViewModel()
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
 
@@ -124,7 +129,7 @@ fun MainScreen(
         // ── Capa 1: drawer (fijo, debajo en z-order) ──────
         CustomDrawer(
             selectedNavigationItem = selectedItem,
-            userNickname = userNickname,
+            userNickname = inicioViewModel.apodo,
             onNavigationItemClick = { item ->
                 when (item) {
                     NavigationItem.CerrarSesion -> onLogout()

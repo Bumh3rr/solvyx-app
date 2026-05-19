@@ -57,27 +57,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.screens.red.RedApoyoViewModel
-import com.solvyx.ui.theme.SolvyxappTheme
 import com.solvyx.ui.theme.WarnAmber
 import com.solvyx.ui.theme.WarnAmberDark
 
-@Preview(name = "Inicio — Light", showSystemUi = true)
-@Composable
-private fun InicioScreenPreviewLight() {
-    SolvyxappTheme(darkTheme = false) {
-        InicioScreen(
-            onOpenDrawer = {},
-            drawerState = CustomDrawerState.Closed
-        )
-    }
-}
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InicioScreen(
     onOpenDrawer: () -> Unit,
@@ -91,6 +81,7 @@ fun InicioScreen(
     onNavigateToRegistro: () -> Unit = {},
     onNavigateToGuias: () -> Unit = {}
 ) {
+    val viewModel: InicioViewModel = hiltViewModel()
     val redApoyoViewModel: RedApoyoViewModel = hiltViewModel()
     val contactCount = redApoyoViewModel.contactos.count { it.nombre.isNotBlank() }
     var showSosDialog by remember { mutableStateOf(false) }
@@ -193,14 +184,14 @@ fun InicioScreen(
                             .padding(end = 140.dp)
                     ) {
                         Text(
-                            text = "Hola, Alex",
+                            text = "Hola, ${viewModel.apodo}",
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.ExtraBold
                             ),
                             color = Color.White
                         )
                         Text(
-                            text = "Viernes, 16 de mayo",
+                            text = viewModel.fechaHoy,
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.80f),
                             modifier = Modifier.padding(top = 2.dp)
@@ -221,7 +212,7 @@ fun InicioScreen(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = "5 días de racha",
+                                text = "${viewModel.racha} días de racha",
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),

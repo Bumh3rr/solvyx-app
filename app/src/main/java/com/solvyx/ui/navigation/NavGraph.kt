@@ -24,6 +24,7 @@ import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 
+@androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.O)
 @Composable
 fun SolvyxNavGraph(navController: NavHostController) {
     NavHost(
