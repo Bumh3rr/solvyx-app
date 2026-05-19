@@ -98,16 +98,16 @@ class ChatViewModel @Inject constructor(
         tts = TextToSpeech(appContext) { status ->
             if (status != TextToSpeech.SUCCESS) return@TextToSpeech
 
-            // Preferir voz masculina en español; si no hay, cualquier voz en español
+            // Misma voz que EjercicioGuiadoViewModel: femenina española (female / esd)
             val voice = tts?.voices?.firstOrNull { v ->
                 v.locale.language == "es" &&
-                v.name.contains("male", ignoreCase = true) &&
-                !v.name.contains("female", ignoreCase = true)
+                (v.name.contains("female", ignoreCase = true) ||
+                 v.name.contains("esd", ignoreCase = true))
             } ?: tts?.voices?.firstOrNull { v -> v.locale.language == "es" }
             voice?.let { tts?.voice = it }
 
-            tts?.setPitch(0.95f)
-            tts?.setSpeechRate(0.88f)
+            tts?.setPitch(1.15f)
+            tts?.setSpeechRate(0.85f)
 
             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(id: String?) { mainHandler.post { isSpeaking = true  } }
