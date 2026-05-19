@@ -1,5 +1,6 @@
 package com.solvyx.ui.screens.avances
 
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,21 +24,34 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,12 +62,33 @@ import com.solvyx.ui.screens.guias.components.BorderCard
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealMedium
+import com.solvyx.ui.theme.TealPrimary
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MisAvancesScreen(
     onOpenDrawer: () -> Unit,
     viewModel: AvancesViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    var showShareSheet by remember { mutableStateOf(false) }
+
+    if (showShareSheet) {
+        ShareProgressSheet(
+            racha          = viewModel.racha,
+            mejorRacha     = viewModel.mejorRacha,
+            logrosCount    = viewModel.uiLogros.count { it.unlocked },
+            onShare        = { text ->
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type    = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, text)
+                }
+                context.startActivity(Intent.createChooser(intent, "Compartir progreso"))
+            },
+            onDismiss      = { showShareSheet = false }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,7 +117,7 @@ fun MisAvancesScreen(
                 color     = Color.White,
                 textAlign = TextAlign.Center
             )
-            IconButton(onClick = { /* share */ }) {
+            IconButton(onClick = { showShareSheet = true }) {
                 Icon(
                     painter           = painterResource(R.drawable.ic_share),
                     contentDescription = "Compartir",
@@ -133,7 +168,7 @@ fun MisAvancesScreen(
                 }
             }
             Image(
-                painter           = painterResource(R.drawable.berto_feliz),
+                painter           = painterResource(R.drawable.berto_mira_izquierda),
                 contentDescription = null,
                 modifier          = Modifier
                     .size(110.dp)
@@ -452,3 +487,150 @@ private fun LogroCard(logro: AvancesViewModel.UiLogro) {
         }
     }
 }
+
+// ── Share Progress Sheet ─────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShareProgressSheet(
+    racha       : Int,
+    mejorRacha  : Int,
+    logrosCount : Int,
+    onShare     : (String) -> Unit,
+    onDismiss   : () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val shareText  = buildShareText(racha, mejorRacha, logrosCount)
+
+    ModalBottomSheet(
+        onDismissRequest    = onDismiss,
+        sheetState          = sheetState,
+        containerColor      = MaterialTheme.colorScheme.background,
+        shape               = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+    ) {
+        Column(
+            modifier            = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text  = "Compartir mi progreso",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = TealDark
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text  = "Así verán tu avance",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            // ── Preview card ─────────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(TealPrimary, TealDark)
+                        )
+                    )
+                    .padding(20.dp)
+            ) {
+                Column {
+                    Row(
+                        verticalAlignment      = Alignment.CenterVertically,
+                        horizontalArrangement  = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            painter           = painterResource(R.drawable.ic_trophy),
+                            contentDescription = null,
+                            tint              = Color.White.copy(alpha = 0.8f),
+                            modifier          = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text  = "Mi progreso en Solvyx",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color.White.copy(alpha = 0.85f)
+                        )
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier              = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        ShareStat(label = "Racha actual",  value = "$racha días")
+                        ShareStat(label = "Mejor racha",   value = "$mejorRacha días")
+                        ShareStat(label = "Logros",        value = "$logrosCount")
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        text  = "¡Cada día cuenta 💪",
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                        color = Color.White.copy(alpha = 0.75f)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick  = { onShare(shareText) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape    = RoundedCornerShape(16.dp),
+                colors   = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Icon(
+                    painter           = painterResource(R.drawable.ic_share),
+                    contentDescription = null,
+                    modifier          = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text  = "Compartir ahora",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun ShareStat(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text  = value,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+            color = Color.White
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text  = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White.copy(alpha = 0.75f)
+        )
+    }
+}
+
+private fun buildShareText(racha: Int, mejorRacha: Int, logros: Int): String = """
+    🌱 Mi progreso en Solvyx
+
+    🔥 Racha actual: $racha días sin consumo
+    🏆 Mejor racha: $mejorRacha días
+    ⭐ Logros desbloqueados: $logros
+
+    ¡Cada día cuenta! 💪
+""".trimIndent()
