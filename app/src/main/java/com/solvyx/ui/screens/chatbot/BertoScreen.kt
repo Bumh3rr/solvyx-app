@@ -133,8 +133,16 @@ fun BertoScreen(
         }
     }
 
+    // Scroll index: sentinel lives at messages.size, past all items.
+    // Re-scroll after chip animation delay so FlowRow height is already laid out.
     LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size)
+            if (messages.lastOrNull()?.quickReplies?.isNotEmpty() == true) {
+                delay(450)
+                listState.animateScrollToItem(messages.size)
+            }
+        }
     }
 
     // ── Diálogos / sheets ─────────────────────────────
@@ -215,6 +223,10 @@ fun BertoScreen(
                         )
                     }
                 }
+            }
+            // Sentinel: scrolling to this index guarantees chips above are fully visible
+            item(key = "bottom_sentinel") {
+                Spacer(Modifier.height(1.dp))
             }
         }
 
