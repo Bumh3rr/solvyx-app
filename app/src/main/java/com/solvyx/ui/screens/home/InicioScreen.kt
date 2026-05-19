@@ -1,10 +1,14 @@
 package com.solvyx.ui.screens.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -264,7 +269,15 @@ fun InicioScreen(
                     }
                     Spacer(Modifier.height(16.dp))
 
-                    // ── Mi meta de hoy card ───────────
+                    // ── Carrusel de sugerencias ──────────
+                    val sugerencias = listOf(
+                        "Antes de consumir, toma agua y come algo primero.",
+                        "Si sientes ganas de consumir, espera 15 minutos antes de decidir.",
+                        "Habla con alguien de confianza antes de consumir.",
+                        "Reduce la dosis a la mitad respecto a la última vez."
+                    )
+                    var sugerenciaIndex by remember { mutableIntStateOf(0) }
+
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
@@ -293,7 +306,7 @@ fun InicioScreen(
                                     )
                                 }
                                 Text(
-                                    "Mi meta de hoy",
+                                    "Sugerencia del día",
                                     Modifier
                                         .weight(1f)
                                         .padding(start = 10.dp),
@@ -302,80 +315,63 @@ fun InicioScreen(
                                     ),
                                     color = Color.White
                                 )
-                                TextButton(
-                                    onClick = { },
-                                    contentPadding = PaddingValues(horizontal = 4.dp)
-                                ) {
-                                    Text(
-                                        "Ver plan >",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = Color.White.copy(alpha = 0.8f)
-                                    )
-                                }
+                                Text(
+                                    "${sugerenciaIndex + 1} / ${sugerencias.size}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.55f)
+                                )
                             }
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 12.dp),
                                 color = Color.White.copy(alpha = 0.2f),
                                 thickness = 0.5.dp
                             )
-                            Text(
-                                text = "Antes de consumir, toma agua y come algo primero.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.92f)
-                            )
+                            AnimatedContent(
+                                targetState = sugerenciaIndex,
+                                transitionSpec = {
+                                    (slideInHorizontally { it } + fadeIn()) togetherWith
+                                    (slideOutHorizontally { -it } + fadeOut())
+                                },
+                                label = "SugerenciaCarousel"
+                            ) { idx ->
+                                Text(
+                                    text = sugerencias[idx],
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.92f),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                             Spacer(Modifier.height(16.dp))
                             Row(
                                 Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(Modifier.weight(1f)) {
-                                    Text(
-                                        "PROGRESO SEMANAL",
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            letterSpacing = 0.8.sp
-                                        ),
-                                        color = Color.White.copy(alpha = 0.7f)
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        repeat(7) { i ->
-                                            Box(
-                                                Modifier
-                                                    .size(10.dp)
-                                                    .clip(CircleShape)
-                                                    .background(
-                                                        when {
-                                                            i < 3  -> Color.White
-                                                            i == 3 -> Color.White.copy(alpha = 0.5f)
-                                                            else   -> Color.White.copy(alpha = 0.2f)
-                                                        }
-                                                    )
-                                            )
-                                        }
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    sugerencias.indices.forEach { i ->
+                                        Box(
+                                            Modifier
+                                                .size(if (i == sugerenciaIndex) 10.dp else 7.dp)
+                                                .clip(CircleShape)
+                                                .background(
+                                                    if (i == sugerenciaIndex) Color.White
+                                                    else Color.White.copy(alpha = 0.30f)
+                                                )
+                                        )
                                     }
                                 }
-                                Button(
-                                    onClick = { },
-                                    shape = RoundedCornerShape(50.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.White
-                                    ),
-                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                                TextButton(
+                                    onClick = {
+                                        sugerenciaIndex = (sugerenciaIndex + 1) % sugerencias.size
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 8.dp)
                                 ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_check),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                    Spacer(Modifier.width(4.dp))
                                     Text(
-                                        "Logrado",
+                                        "Siguiente →",
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             fontWeight = FontWeight.Bold
                                         ),
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = Color.White
                                     )
                                 }
                             }
@@ -557,52 +553,6 @@ fun InicioScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(20.dp))
-
-                    // ── Actividad reciente ────────────
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Actividad reciente",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
-                        )
-                        TextButton(onClick = { }) {
-                            Text(
-                                "Ver todo",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Card(
-                        Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        val actividades = listOf(
-                            Triple(R.drawable.ic_check_circle, "Completaste tu meta de ayer", "Ayer"),
-                            Triple(R.drawable.ic_chart_bar, "Registraste ansiedad moderada", "Hace 2 días"),
-                            Triple(R.drawable.ic_chat, "Conversación con Berto", "Hace 3 días")
-                        )
-                        actividades.forEachIndexed { idx, (icono, texto, tiempo) ->
-                            ActividadRow(icono, texto, tiempo)
-                            if (idx < actividades.lastIndex) {
-                                HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                    thickness = 0.5.dp,
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                )
-                            }
-                        }
-                    }
                 }
             }
     }
@@ -824,51 +774,3 @@ private fun EmocionSugerenciaCard(
     }
 }
 
-@Composable
-private fun ActividadRow(iconRes: Int, texto: String, tiempo: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-        Column(
-            Modifier
-                .weight(1f)
-                .padding(horizontal = 12.dp)
-        ) {
-            Text(
-                texto,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                tiempo,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
-        Icon(
-            painter = painterResource(R.drawable.ic_arrow_right),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.size(16.dp)
-        )
-    }
-}
