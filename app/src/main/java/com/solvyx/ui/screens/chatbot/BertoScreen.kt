@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
@@ -34,6 +35,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -170,11 +172,14 @@ fun BertoScreen(
     ) {
 
         ChatTopBar(
-            bertoState = viewModel.currentBertoState,
-            onBack = onBack,
-            onClearMessages = { viewModel.clearMessages() },
+            bertoState        = viewModel.currentBertoState,
+            isTtsMuted        = viewModel.isTtsMuted,
+            isSpeaking        = viewModel.isSpeaking,
+            onToggleMute      = { viewModel.toggleMute() },
+            onBack            = onBack,
+            onClearMessages   = { viewModel.clearMessages() },
             onShowCapabilities = { showBertoCapabilities = true },
-            onSosClick = { viewModel.toggleSosDialog() }
+            onSosClick        = { viewModel.toggleSosDialog() }
         )
 
         AnimatedVisibility(
@@ -270,11 +275,14 @@ private fun buildSpeechIntent() = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEEC
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChatTopBar(
-    bertoState: BertoState,
-    onBack: () -> Unit,
-    onClearMessages: () -> Unit,
+    bertoState        : BertoState,
+    isTtsMuted        : Boolean,
+    isSpeaking        : Boolean,
+    onToggleMute      : () -> Unit,
+    onBack            : () -> Unit,
+    onClearMessages   : () -> Unit,
     onShowCapabilities: () -> Unit,
-    onSosClick: () -> Unit
+    onSosClick        : () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -394,6 +402,24 @@ private fun ChatTopBar(
                         color = Color.White
                     )
                 }
+            }
+        }
+
+        // Botón de voz + ecualizador animado cuando habla
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AnimatedVisibility(visible = isSpeaking && !isTtsMuted) {
+                SoundWaveIndicator(modifier = Modifier.padding(end = 2.dp))
+            }
+            IconButton(onClick = onToggleMute) {
+                Icon(
+                    painter           = painterResource(
+                        if (isTtsMuted) R.drawable.ic_volume_off else R.drawable.ic_volume_on
+                    ),
+                    contentDescription = if (isTtsMuted) "Activar voz" else "Silenciar voz",
+                    tint              = if (isSpeaking && !isTtsMuted) Color.White
+                                        else Color.White.copy(alpha = 0.65f),
+                    modifier          = Modifier.size(20.dp)
+                )
             }
         }
 
@@ -799,6 +825,38 @@ private fun ChatInputBar(
                 contentDescription = "Enviar",
                 tint = if (isSendEnabled) Color.White else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+// ── Sound wave indicator ─────────────────────────────────
+
+@Composable
+private fun SoundWaveIndicator(modifier: Modifier = Modifier) {
+    val inf = rememberInfiniteTransition(label = "SoundWave")
+    Row(
+        modifier              = modifier,
+        verticalAlignment     = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        val heights = listOf(6f, 13f, 8f)   // alturas base distintas → look orgánico
+        heights.forEachIndexed { i, base ->
+            val h by inf.animateFloat(
+                initialValue = base,
+                targetValue  = base + 7f,
+                animationSpec = infiniteRepeatable(
+                    animation  = tween(300 + i * 90, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "Bar$i"
+            )
+            Box(
+                Modifier
+                    .width(2.5.dp)
+                    .height(h.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Color.White)
             )
         }
     }
