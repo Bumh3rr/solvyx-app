@@ -1,5 +1,10 @@
 package com.solvyx.ui.screens.chatbot
 
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +16,7 @@ import com.solvyx.backend.decisiontree.model.DecisionTree
 import com.solvyx.backend.decisiontree.model.NodeType
 import com.solvyx.backend.decisiontree.repository.DecisionTreeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,7 +50,8 @@ private val POSITIVE_KEYWORDS = listOf(
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val treeRepository: DecisionTreeRepository
+    private val treeRepository: DecisionTreeRepository,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var messages by mutableStateOf<List<ChatMessage>>(emptyList())
@@ -63,6 +70,15 @@ class ChatViewModel @Inject constructor(
     var showSosDialog by mutableStateOf(false)
         private set
 
+    // ── TTS ──────────────────────────────────────────────────────────────────
+    var isTtsMuted  by mutableStateOf(false); private set
+    var isSpeaking  by mutableStateOf(false); private set
+    var isTtsReady  by mutableStateOf(false); private set
+
+    private var tts: TextToSpeech?   = null
+    private val mainHandler          = Handler(Looper.getMainLooper())
+    private var pendingTtsText: String? = null
+
     // Control del flujo actual
     private var currentTree: DecisionTree? = null
     private var currentNode: DecisionNode? = null
@@ -73,6 +89,61 @@ class ChatViewModel @Inject constructor(
 
     init {
         loadMainMenu()
+        initTts()
+    }
+
+    // ── TTS helpers ──────────────────────────────────────────────────────────
+
+    private fun initTts() {
+        tts = TextToSpeech(appContext) { status ->
+            if (status != TextToSpeech.SUCCESS) return@TextToSpeech
+
+            // Misma voz que EjercicioGuiadoViewModel: femenina española (female / esd)
+            val voice = tts?.voices?.firstOrNull { v ->
+                v.locale.language == "es" &&
+                (v.name.contains("female", ignoreCase = true) ||
+                 v.name.contains("esd", ignoreCase = true))
+            } ?: tts?.voices?.firstOrNull { v -> v.locale.language == "es" }
+            voice?.let { tts?.voice = it }
+
+            tts?.setPitch(1.15f)
+            tts?.setSpeechRate(0.85f)
+
+            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(id: String?) { mainHandler.post { isSpeaking = true  } }
+                override fun onDone(id: String?)  { mainHandler.post { isSpeaking = false } }
+                @Deprecated("Deprecated in Java")
+                override fun onError(id: String?) { mainHandler.post { isSpeaking = false } }
+            })
+
+            mainHandler.post {
+                isTtsReady = true
+                pendingTtsText?.let { text ->
+                    pendingTtsText = null
+                    if (!isTtsMuted) doSpeak(text)
+                }
+            }
+        }
+    }
+
+    private fun doSpeak(text: String) {
+        val clean = text.trim()
+            .replace(Regex("\n+"), ". ")
+            .replace(Regex(" +"), " ")
+        tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "berto_tts")
+    }
+
+    private fun speakBertoMessage(text: String) {
+        if (isTtsMuted) return
+        if (isTtsReady) doSpeak(text) else pendingTtsText = text
+    }
+
+    fun toggleMute() {
+        isTtsMuted = !isTtsMuted
+        if (isTtsMuted) {
+            tts?.stop()
+            isSpeaking = false
+        }
     }
 
     //Carga de Arboles
@@ -300,15 +371,25 @@ class ChatViewModel @Inject constructor(
             quickReplies = quickReplies,
             bertoState = state
         )
+        speakBertoMessage(content)
     }
 
     fun clearMessages() {
+        tts?.stop()
+        isSpeaking = false
         messages = emptyList()
         currentBertoState = BertoState.TRANQUILO
         loadMainMenu()
     }
 
     fun toggleSosDialog() { showSosDialog = !showSosDialog }
+
+    override fun onCleared() {
+        tts?.stop()
+        tts?.shutdown()
+        tts = null
+        super.onCleared()
+    }
 
     private fun now(): String {
         val c = Calendar.getInstance()
