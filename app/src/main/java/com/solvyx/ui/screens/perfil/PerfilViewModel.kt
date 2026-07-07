@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.data.local.entity.UserEntity
 import com.solvyx.backend.repository.AssistRepository
+import com.solvyx.backend.repository.AuthRepository
 import com.solvyx.backend.repository.BitacoraRepository
 import com.solvyx.backend.repository.ContactoSosRepository
 import com.solvyx.backend.repository.UserRepository
@@ -28,7 +29,8 @@ class PerfilViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
     private val bitacoraRepository: BitacoraRepository,
-    private val contactoRepository: ContactoSosRepository
+    private val contactoRepository: ContactoSosRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     var apodo by mutableStateOf("")
@@ -85,13 +87,12 @@ class PerfilViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            assistRepository.observar().collect { resultados ->
-                diagnosticosCompletados = resultados.size
-                val latest = resultados.maxByOrNull { it.fecha }
-                if (latest != null) {
-                    nivelRiesgo = latest.nivel
-                    puntajeAssist = latest.puntaje
-                    fechaUltimoAssist = fmtAssist.format(Date(latest.fecha))
+            assistRepository.observarUltimo().collect { ultimo ->
+                diagnosticosCompletados = ultimo?.totalCompletados ?: 0
+                if (ultimo != null) {
+                    nivelRiesgo = ultimo.nivel
+                    puntajeAssist = ultimo.puntaje
+                    fechaUltimoAssist = fmtAssist.format(Date(ultimo.fecha))
                         .replaceFirstChar { it.uppercase() }
                 } else {
                     nivelRiesgo = "BAJO"
@@ -174,6 +175,7 @@ class PerfilViewModel @Inject constructor(
             userRepository.guardar(
                 current.copy(sustanciasJson = sustanciasSeleccionadas.joinToString(","))
             )
+            authRepository.actualizarSustancias(sustanciasSeleccionadas)
         }
         showEditarSustancias = false
     }
@@ -181,6 +183,10 @@ class PerfilViewModel @Inject constructor(
     fun toggleNotificaciones() { notificacionesActivas = !notificacionesActivas }
     fun abrirLogoutDialog() { showLogoutDialog = true }
     fun cerrarLogoutDialog() { showLogoutDialog = false }
+    fun confirmarLogout() {
+        authRepository.cerrarSesion()
+        cerrarLogoutDialog()
+    }
 
     fun progresoRiesgo(): Float = when (nivelRiesgo) {
         "BAJO"     -> puntajeAssist / 27f * 0.40f

@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.repository.AuthRepository
 import com.solvyx.backend.repository.BitacoraRepository
 import com.solvyx.backend.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,13 +25,20 @@ import javax.inject.Inject
 @HiltViewModel
 class InicioViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val bitacoraRepository: BitacoraRepository
+    private val bitacoraRepository: BitacoraRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     var apodo by mutableStateOf("Usuario")
         private set
 
     var racha by mutableIntStateOf(0)
+        private set
+
+    var assistCompletado by mutableStateOf(true)
+        private set
+
+    var esAnonimo by mutableStateOf(false)
         private set
 
     val fechaHoy: String = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "MX"))
@@ -43,6 +51,15 @@ class InicioViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.observar().collect { user ->
                 apodo = user?.apodo?.ifBlank { "Usuario" } ?: "Usuario"
+                esAnonimo = user?.esAnonimo ?: false
+            }
+        }
+        viewModelScope.launch {
+            val user = authRepository.usuarioActual()
+            assistCompletado = when {
+                user == null -> true
+                user.isAnonymous -> false
+                else -> authRepository.assistCompletado(user.uid)
             }
         }
         viewModelScope.launch {
@@ -62,5 +79,9 @@ class InicioViewModel @Inject constructor(
                 racha = streak
             }
         }
+    }
+
+    fun cerrarSesion() {
+        authRepository.cerrarSesion()
     }
 }

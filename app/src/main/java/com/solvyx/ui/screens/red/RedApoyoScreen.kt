@@ -85,6 +85,7 @@ fun RedApoyoScreen(
     onBack: () -> Unit,
     onOpenDrawer: () -> Unit,
     onFinishSetup: () -> Unit,
+    esOmitible: Boolean = false,
     viewModel: RedApoyoViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -372,6 +373,22 @@ fun RedApoyoScreen(
                             fontSize = 15.sp
                         ),
                         color = Color.White
+                    )
+                }
+            }
+
+            if (isSetupMode && esOmitible) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onFinishSetup() }
+                        .padding(top = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Más tarde",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                        color = primary
                     )
                 }
             }

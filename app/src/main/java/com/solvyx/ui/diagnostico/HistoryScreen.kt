@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.solvyx.backend.data.local.entity.ResultadoAssistEntity
+import com.solvyx.backend.models.ResultadoDiagnostico
 import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 import com.solvyx.ui.components.common.SolvyxBackButton
 import java.text.SimpleDateFormat
@@ -46,6 +46,10 @@ fun HistoryScreen(
     onBack: () -> Unit
 ) {
     val historial by viewModel.historial.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarHistorial()
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
@@ -104,7 +108,7 @@ fun HistoryScreen(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(historial, key = { it.id }) { item ->
+                items(historial, key = { it.fecha }) { item ->
                     HistoryItemCard(item)
                 }
             }
@@ -113,7 +117,7 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun HistoryItemCard(resultado: ResultadoAssistEntity) {
+private fun HistoryItemCard(resultado: ResultadoDiagnostico) {
     val nombreSustancia = when (resultado.sustanciaId) {
         "cigarro" -> "Tabaco"
         else      -> resultado.sustanciaId.replaceFirstChar { it.uppercase() }
@@ -122,7 +126,7 @@ private fun HistoryItemCard(resultado: ResultadoAssistEntity) {
         SimpleDateFormat("dd MMM yyyy · HH:mm", Locale("es"))
             .format(Date(resultado.fecha))
     }
-    val nivelColor = when (resultado.nivel) {
+    val nivelColor = when (resultado.nivel.name) {
         "BAJO"     -> null  // use primary from theme
         "MODERADO" -> Color(0xFFd97706)
         "ALTO"     -> Color(0xFFE24B4A)
@@ -177,7 +181,7 @@ private fun HistoryItemCard(resultado: ResultadoAssistEntity) {
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = resultado.nivel,
+                        text = resultado.nivel.name,
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),

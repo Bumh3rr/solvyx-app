@@ -2,12 +2,14 @@ package com.solvyx.di
 
 import android.content.Context
 import androidx.room.Room
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.solvyx.backend.data.local.dao.BitacoraDao
 import com.solvyx.backend.data.local.dao.ContactoSosDao
 import com.solvyx.backend.data.local.dao.LogroDao
 import com.solvyx.backend.data.local.dao.PlanDao
-import com.solvyx.backend.data.local.dao.ResultadoAssistDao
 import com.solvyx.backend.data.local.dao.SosEventDao
+import com.solvyx.backend.data.local.dao.UltimoAssistDao
 import com.solvyx.backend.data.local.dao.UserDao
 import com.solvyx.backend.data.local.database.AppDatabase
 import dagger.Module
@@ -20,6 +22,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Provides @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
     @Provides @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
@@ -35,7 +43,7 @@ object AppModule {
     fun provideContactoSosDao(db: AppDatabase): ContactoSosDao = db.contactoSosDao()
 
     @Provides @Singleton
-    fun provideResultadoAssistDao(db: AppDatabase): ResultadoAssistDao = db.resultadoAssistDao()
+    fun provideUltimoAssistDao(db: AppDatabase): UltimoAssistDao = db.ultimoAssistDao()
 
     @Provides @Singleton
     fun provideBitacoraDao(db: AppDatabase): BitacoraDao = db.bitacoraDao()

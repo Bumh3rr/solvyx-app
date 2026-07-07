@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.router.Destino
+import com.solvyx.backend.router.PostAuthRouter
 import com.solvyx.solvyxDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,13 +19,14 @@ private val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val postAuthRouter: PostAuthRouter
 ) : ViewModel() {
 
     sealed class Destination {
         object Loading : Destination()
         object Onboarding : Destination()
-        object Login : Destination()
+        data class PostAuth(val destino: Destino) : Destination()
     }
 
     private val _destination = MutableStateFlow<Destination>(Destination.Loading)
@@ -32,10 +35,12 @@ class SplashViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val prefs = context.solvyxDataStore.data.first()
-            //val done = prefs[ONBOARDING_DONE] ?: false
-            val done = false
-
-            _destination.value = if (done) Destination.Login else Destination.Onboarding
+            val onboardingDone = prefs[ONBOARDING_DONE] ?: false
+            _destination.value = if (!onboardingDone) {
+                Destination.Onboarding
+            } else {
+                Destination.PostAuth(postAuthRouter.resolver())
+            }
         }
     }
 }

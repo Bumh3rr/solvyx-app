@@ -84,12 +84,17 @@ fun InicioScreen(
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToPlan: () -> Unit = {},
     onNavigateToRegistro: () -> Unit = {},
-    onNavigateToGuias: () -> Unit = {}
+    onNavigateToGuias: () -> Unit = {},
+    onNavigateToAssist: () -> Unit = {},
+    onNavigateToCrearCuenta: () -> Unit = {}
 ) {
     val viewModel: InicioViewModel = hiltViewModel()
     val redApoyoViewModel: RedApoyoViewModel = hiltViewModel()
     val contactCount = redApoyoViewModel.contactos.count { it.nombre.isNotBlank() }
     var showSosDialog by remember { mutableStateOf(false) }
+    var sosBannerDescartado by remember { mutableStateOf(false) }
+    var assistBannerDescartado by remember { mutableStateOf(false) }
+    var registroBannerDescartado by remember { mutableStateOf(false) }
     if (showSosDialog) {
         SosConfirmationDialog(
             onConfirm = { showSosDialog = false; onNavigateToSos() },
@@ -239,12 +244,51 @@ fun InicioScreen(
                 ) {
                     // ── SOS warning banner ────────────
                     AnimatedVisibility(
-                        visible = contactCount == 0,
+                        visible = contactCount == 0 && !sosBannerDescartado,
                         enter = fadeIn() + expandVertically(),
                         exit  = fadeOut() + shrinkVertically()
                     ) {
                         Column {
-                            SosWarningBanner(onConfigClick = onNavigateToRedApoyo)
+                            SosWarningBanner(
+                                onConfigClick = onNavigateToRedApoyo,
+                                onDismiss = { sosBannerDescartado = true }
+                            )
+                            Spacer(Modifier.height(16.dp))
+                        }
+                    }
+
+                    // ── ASSIST pendiente banner ───────
+                    AnimatedVisibility(
+                        visible = !viewModel.assistCompletado && !assistBannerDescartado,
+                        enter = fadeIn() + expandVertically(),
+                        exit  = fadeOut() + shrinkVertically()
+                    ) {
+                        Column {
+                            InfoBanner(
+                                titulo = "Completa tu diagnóstico",
+                                subtitulo = "El ASSIST ayuda a Berto a darte mejores recomendaciones.",
+                                accion = "Completar →",
+                                onAccionClick = onNavigateToAssist,
+                                onDismiss = { assistBannerDescartado = true }
+                            )
+                            Spacer(Modifier.height(16.dp))
+                        }
+                    }
+
+                    // ── Registro banner (solo anónimo) ─
+                    AnimatedVisibility(
+                        visible = viewModel.esAnonimo && !registroBannerDescartado,
+                        enter = fadeIn() + expandVertically(),
+                        exit  = fadeOut() + shrinkVertically()
+                    ) {
+                        Column {
+                            InfoBanner(
+                                titulo = "Crea una cuenta",
+                                subtitulo = "Guarda tu bitácora, metas y avances para no perderlos.",
+                                accion = "Crear cuenta →",
+                                onAccionClick = onNavigateToCrearCuenta,
+                                onDismiss = { registroBannerDescartado = true }
+                            )
                             Spacer(Modifier.height(16.dp))
                         }
                     }
@@ -559,7 +603,7 @@ fun InicioScreen(
 }
 
 @Composable
-private fun SosWarningBanner(onConfigClick: () -> Unit) {
+private fun SosWarningBanner(onConfigClick: () -> Unit, onDismiss: () -> Unit) {
     val amberStroke = Color(0xFFd97706)
     Row(
         modifier = Modifier
@@ -617,6 +661,100 @@ private fun SosWarningBanner(onConfigClick: () -> Unit) {
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { onConfigClick() }
+            )
+            Spacer(Modifier.width(10.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_circle_x),
+                contentDescription = "Descartar",
+                tint = amberStroke,
+                modifier = Modifier
+                    .size(16.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { onDismiss() }
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoBanner(
+    titulo: String,
+    subtitulo: String,
+    accion: String,
+    onAccionClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .clip(RoundedCornerShape(12.dp))
+            .border(0.5.dp, primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(
+            modifier = Modifier
+                .width(4.dp)
+                .fillMaxHeight()
+                .background(primary)
+        )
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_flag),
+                contentDescription = null,
+                tint = primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = subtitulo,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+            Text(
+                text = accion,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = primary,
+                modifier = Modifier.clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onAccionClick() }
+            )
+            Spacer(Modifier.width(10.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_circle_x),
+                contentDescription = "Descartar",
+                tint = primary,
+                modifier = Modifier
+                    .size(16.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { onDismiss() }
             )
         }
     }

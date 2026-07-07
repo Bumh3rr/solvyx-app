@@ -8,6 +8,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,11 +27,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
+import com.solvyx.ui.components.common.SolvyxTextButton
 import com.solvyx.ui.navigation.Routes
+import com.solvyx.ui.navigation.aRuta
 import com.solvyx.ui.theme.SolvyxappTheme
 
 @Preview(name = "Login — Light", showSystemUi = true)
@@ -48,7 +54,32 @@ private fun AuthChoiceScreenPreviewDark() {
 }
 
 @Composable
-fun AuthChoiceScreen(nav: NavHostController) {
+fun AuthChoiceScreen(
+    nav: NavHostController,
+    viewModel: AuthChoiceViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.destino) {
+        uiState.destino?.let { destino ->
+            nav.navigate(destino.aRuta()) {
+                popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
+            }
+        }
+    }
+
+    if (uiState.mostrarSheet) {
+        AnonimoConfirmSheet(
+            isLoading = uiState.isLoading,
+            error = uiState.error,
+            onEntrarSinCuenta = { viewModel.entrarComoAnonimo() },
+            onCrearCuenta = {
+                viewModel.cerrarSheet()
+                nav.navigate(Routes.REGISTER)
+            },
+            onDismiss = { viewModel.cerrarSheet() }
+        )
+    }
 
     // ── ROOT: Box permite overlap entre hero y card ──────
     Box(modifier = Modifier.fillMaxSize()) {
@@ -178,17 +209,35 @@ fun AuthChoiceScreen(nav: NavHostController) {
                 }
             )
 
+            Spacer(Modifier.height(12.dp))
+
+            SolvyxTextButton(
+                text = "Entrar sin cuenta",
+                onClick = { viewModel.abrirSheet() },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(Modifier.weight(1f))
 
             // Términos
             Text(
                 text = buildAnnotatedString {
                     append("Al continuar aceptas nuestros ")
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
                         append("Términos de uso")
                     }
                     append(" y ")
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
                         append("Política de privacidad")
                     }
                     append(".")

@@ -403,7 +403,7 @@ fun QuestionsScreen(
                 )
             }
             Text(
-                text = "Esta info nunca sale de tu teléfono",
+                text = "Tus respuestas se guardan de forma privada en tu cuenta",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),

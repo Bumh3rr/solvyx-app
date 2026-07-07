@@ -22,6 +22,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +70,14 @@ fun ForgotPasswordScreen(
     nav: NavHostController,
     viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.emailSent) {
+        if (uiState.emailSent) {
+            nav.navigateUp()
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         // ── HERO ──────────────────────────────────────────
@@ -165,8 +176,9 @@ fun ForgotPasswordScreen(
             Spacer(Modifier.height(20.dp))
 
             SolvyxButton(
-                text = "Enviar enlace de recuperación",
-                onClick = { viewModel.sendRecoveryEmail { nav.navigateUp() } },
+                text = if (uiState.isLoading) "Enviando…" else "Enviar enlace de recuperación",
+                onClick = { viewModel.sendRecoveryEmail() },
+                enabled = !uiState.isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
@@ -177,6 +189,16 @@ fun ForgotPasswordScreen(
                     )
                 }
             )
+            uiState.error?.let { error ->
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Spacer(Modifier.height(8.dp))
 
             SolvyxTextButton(

@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.crashlytics)
 }
 
 android {
@@ -45,11 +47,23 @@ android {
 
 dependencies {
 
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.config)
+
+    // BlurView
+    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
+    implementation("androidx.compose.ui:ui:1.7.0-beta06")
+
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Coroutines dependencies
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Lifecycle dependencies
     implementation(libs.lifecycle.runtime.compose)

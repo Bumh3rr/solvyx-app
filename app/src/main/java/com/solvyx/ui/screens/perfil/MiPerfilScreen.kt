@@ -92,7 +92,7 @@ fun MiPerfilScreen(
     if (viewModel.showLogoutDialog) {
         LogoutConfirmDialog(
             onConfirm = {
-                viewModel.cerrarLogoutDialog()
+                viewModel.confirmarLogout()
                 onLogout()
             },
             onDismiss = { viewModel.cerrarLogoutDialog() }

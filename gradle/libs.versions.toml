@@ -27,6 +27,9 @@ lifecycle = "2.7.0"
 page = "0.36.0"
 lottie = "6.6.7"
 lifecycleViewmodelKtx = "2.10.0"
+firebaseBom = "33.11.0"
+services = "4.4.2"
+crashlytics = "3.0.2"
 
 [libraries]
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
@@ -48,6 +51,13 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+# Firebase dependencies
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = {module = "com.google.firebase:firebase-crashlytics" }
+firebase-auth = {module = "com.google.firebase:firebase-auth-ktx" }
+firebase-firestore = {module= "com.google.firebase:firebase-firestore"}
+firebase-config = {module = "com.google.firebase:firebase-config-ktx"}
 
 # Hilt dependencies
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -85,6 +95,7 @@ ui = { group = "androidx.compose.ui", name = "ui", version = "1.7.0-beta06" }
 # Coroutines dependencies
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
 
 # Lifecycle dependencies
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
@@ -102,3 +113,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "services"}
+crashlytics = {id= "com.google.firebase.crashlytics", version.ref = "crashlytics"}

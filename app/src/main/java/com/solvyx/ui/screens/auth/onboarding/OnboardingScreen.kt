@@ -47,22 +47,22 @@ private val pages = listOf(
     OnboardingPage(
         imageRes = R.drawable.berto_saludando,
         title = "¡Hola, soy Berto!",
-        description = "Tu compañero de bolsillo. Estoy aquí para escucharte sin juzgarte, a cualquier hora, aunque no tengas internet."
+        description = "Soy tu compañero de bolsillo. Estoy aquí para escucharte sin juzgarte, a cualquier hora."
     ),
     OnboardingPage(
         imageRes = R.drawable.berto_tranquilo,
-        title = "Tu espacio seguro",
-        description = "Crea tu cuenta para guardar tu progreso. Tu información está protegida y nunca la compartimos con nadie."
-    ),
-    OnboardingPage(
-        imageRes = R.drawable.berto_mira_moriposa,
-        title = "Siempre aquí para ti",
-        description = "Habla con Berto cuando algo no esté bien, registra cómo te sientes y activa ayuda si la necesitas."
+        title = "Tu privacidad, primero",
+        description = "Puedes usar Solvyx sin crear una cuenta. Con cuenta desbloqueas tu bitácora, metas y avances — todo protegido, nunca compartido."
     ),
     OnboardingPage(
         imageRes = R.drawable.berto_sin_internet,
-        title = "Sin internet,\nsin problema",
-        description = "Solvyx funciona aunque no tengas datos ni WiFi. Berto siempre está disponible."
+        title = "Siempre contigo",
+        description = "Sin internet: habla con Berto, activa el SOS y accede a las guías. Con internet: registra tu progreso y revisa tus avances."
+    ),
+    OnboardingPage(
+        imageRes = R.drawable.berto_mira_moriposa,
+        title = "Un paso a la vez",
+        description = "No estás solo en esto. Solvyx no te pide que dejes de consumir de un día para otro — solo que te conozcas mejor."
     )
 )
 
@@ -76,7 +76,7 @@ fun OnboardingScreen(
 
     val onFinish = {
         viewModel.markDone()
-        nav.navigate(Routes.LOGIN) {
+        nav.navigate(Routes.AUTH_CHOICE) {
             popUpTo(Routes.ONBOARDING) { inclusive = true }
         }
     }

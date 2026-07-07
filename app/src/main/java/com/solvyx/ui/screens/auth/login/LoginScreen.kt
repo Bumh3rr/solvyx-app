@@ -25,6 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,7 @@ import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxTextField
 import com.solvyx.ui.components.common.SolvyxTextButton
 import com.solvyx.ui.navigation.Routes
+import com.solvyx.ui.navigation.aRuta
 import com.solvyx.ui.theme.SolvyxappTheme
 
 @Preview(name = "Login — Light", showSystemUi = true)
@@ -70,6 +74,16 @@ fun LoginScreen(
     nav: NavHostController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.destino) {
+        uiState.destino?.let { destino ->
+            nav.navigate(destino.aRuta()) {
+                popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         // ── HERO ──────────────────────────────────────────
@@ -207,14 +221,9 @@ fun LoginScreen(
             Spacer(Modifier.height(20.dp))
 
             SolvyxButton(
-                text = "Iniciar sesión",
-                onClick = {
-                    viewModel.login {
-                        nav.navigate(Routes.HOME) {
-                            popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
-                        }
-                    }
-                },
+                text = if (uiState.isLoading) "Iniciando sesión…" else "Iniciar sesión",
+                onClick = { viewModel.login() },
+                enabled = !uiState.isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
@@ -225,6 +234,16 @@ fun LoginScreen(
                     )
                 }
             )
+            uiState.error?.let { error ->
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Spacer(Modifier.height(8.dp))
 
             SolvyxTextButton(

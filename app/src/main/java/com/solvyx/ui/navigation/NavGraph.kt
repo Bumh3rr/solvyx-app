@@ -23,6 +23,14 @@ import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.screens.splash.SplashScreen
+import com.solvyx.backend.router.Destino
+
+fun Destino.aRuta(): String = when (this) {
+    is Destino.AuthChoice -> Routes.AUTH_CHOICE
+    is Destino.HomeDirecto -> Routes.HOME
+    is Destino.AssistPendiente -> Routes.DIAGNOSTICO
+    is Destino.RedApoyoSetupOmitible -> "${Routes.RED_APOYO_SETUP}?omitible=true"
+}
 
 @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.O)
 @Composable
@@ -67,9 +75,14 @@ fun SolvyxNavGraph(navController: NavHostController) {
             )
         }
 
-        composable(Routes.RED_APOYO_SETUP) {
+        composable(
+            route = "${Routes.RED_APOYO_SETUP}?omitible={omitible}",
+            arguments = listOf(navArgument("omitible") { type = NavType.BoolType; defaultValue = false })
+        ) { backStackEntry ->
+            val omitible = backStackEntry.arguments?.getBoolean("omitible") ?: false
             RedApoyoScreen(
                 isSetupMode = true,
+                esOmitible = omitible,
                 onBack = { navController.navigateUp() },
                 onOpenDrawer = {},
                 onFinishSetup = {
@@ -107,6 +120,9 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 },
                 onNavigateToEjercicio = {
                     navController.navigate(Routes.EJERCICIO_GUIADO)
+                },
+                onNavigateToCrearCuenta = {
+                    navController.navigate(Routes.REGISTER)
                 }
             )
         }

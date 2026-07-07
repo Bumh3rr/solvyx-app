@@ -5,17 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.solvyx.backend.data.local.entity.ResultadoAssistEntity
 import com.solvyx.backend.models.Pregunta
 import com.solvyx.backend.models.ResultadoDiagnostico
 import com.solvyx.backend.repository.AssistRepository
 import com.solvyx.backend.repository.DiagnosticoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,12 +25,8 @@ class DiagnosticoViewModel @Inject constructor(
     private val _preguntas = MutableStateFlow<List<Pregunta>>(emptyList())
     val preguntas: StateFlow<List<Pregunta>> = _preguntas.asStateFlow()
 
-    private val _resultado = MutableStateFlow<ResultadoDiagnostico?>(null)
-    val resultado: StateFlow<ResultadoDiagnostico?> = _resultado.asStateFlow()
-
-    val historial: StateFlow<List<ResultadoAssistEntity>> =
-        assistRepository.observar()
-            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    private val _historial = MutableStateFlow<List<ResultadoDiagnostico>>(emptyList())
+    val historial: StateFlow<List<ResultadoDiagnostico>> = _historial.asStateFlow()
 
     var sustanciasSeleccionadas by mutableStateOf<List<String>>(emptyList())
         private set
@@ -70,14 +63,7 @@ class DiagnosticoViewModel @Inject constructor(
         viewModelScope.launch {
             val resultado = repository.evaluar(sustanciaGuardada, answers)
             _resultados.value = _resultados.value + resultado
-            assistRepository.guardar(
-                ResultadoAssistEntity(
-                    sustanciaId = resultado.sustanciaId,
-                    puntaje = resultado.puntaje,
-                    nivel = resultado.nivel.name,
-                    recomendacion = resultado.recomendacion
-                )
-            )
+            assistRepository.guardarResultado(resultado)
         }
         return if (esUltimaSustancia) false
         else { sustanciaActualIndex++; cargarPreguntas(sustanciaActual); true }
@@ -87,18 +73,9 @@ class DiagnosticoViewModel @Inject constructor(
         _preguntas.value = repository.obtenerPreguntas(sustancia)
     }
 
-    fun evaluarRespuestas(respuestas: List<Int>) {
+    fun cargarHistorial() {
         viewModelScope.launch {
-            val resultado = repository.evaluar(sustanciaActual, respuestas)
-            _resultado.value = resultado
-            assistRepository.guardar(
-                ResultadoAssistEntity(
-                    sustanciaId = resultado.sustanciaId,
-                    puntaje = resultado.puntaje,
-                    nivel = resultado.nivel.name,
-                    recomendacion = resultado.recomendacion
-                )
-            )
+            _historial.value = assistRepository.obtenerHistorial()
         }
     }
 }

@@ -67,6 +67,7 @@ fun MainScreen(
     onNavigateToSos: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToCrearCuenta: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {}
 ) {
@@ -132,7 +133,10 @@ fun MainScreen(
             userNickname = inicioViewModel.apodo,
             onNavigationItemClick = { item ->
                 when (item) {
-                    NavigationItem.CerrarSesion -> onLogout()
+                    NavigationItem.CerrarSesion -> {
+                        inicioViewModel.cerrarSesion()
+                        onLogout()
+                    }
                     NavigationItem.Berto -> {
                         drawerState = CustomDrawerState.Closed
                         (onNavigateToChatFromDrawer ?: onNavigateToChat)()
@@ -175,6 +179,7 @@ fun MainScreen(
             onNavigateToSos = onNavigateToSos,
             onNavigateToAssist = onNavigateToAssist,
             onNavigateToEjercicio = onNavigateToEjercicio,
+            onNavigateToCrearCuenta = onNavigateToCrearCuenta,
             onBottomNavNavigate = { item -> selectedItem = item },
             onLogout = onLogout
         )
@@ -191,6 +196,7 @@ private fun SolvyxMainContent(
     onNavigateToSos: () -> Unit,
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToCrearCuenta: () -> Unit = {},
     onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
@@ -255,7 +261,9 @@ private fun SolvyxMainContent(
                         onNavigateToEjercicio = onNavigateToEjercicio,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
                         onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.RegistroEmocional) },
-                        onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) }
+                        onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) },
+                        onNavigateToAssist    = onNavigateToAssist,
+                        onNavigateToCrearCuenta = onNavigateToCrearCuenta
                     )
                 NavigationItem.Plan ->
                     PlanNavGraph(

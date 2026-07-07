@@ -8,7 +8,7 @@ val TealMedium        = Color(0xFF5DCAA5)  // Textos secundarios, bordes
 val TealLight         = Color(0xFF9FE1CB)  // Bordes suaves, placeholders
 val TealLightest      = Color(0xFFE1F5EE)  // Fondos de cards, chips activos
 val TealDark          = Color(0xFF085041)  // Textos principales, outlines de Berto
-val BackgroundApp     = Color(0xFFF8F6F1)  // Fondo general de la app
+val BackgroundApp     = Color(0xFFFFFFFF)  // Fondo general de la app
 
 // ── Crisis / SOS ────────────────────────────────────
 val CrisisRed         = Color(0xFFE24B4A)  // Botón SOS, estados de crisis
