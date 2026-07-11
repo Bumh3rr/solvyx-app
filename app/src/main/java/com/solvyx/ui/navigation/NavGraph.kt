@@ -21,6 +21,8 @@ import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
 import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
+import com.solvyx.ui.screens.perfil.PrivacidadDatosScreen
+import com.solvyx.ui.screens.perfil.TerminosCondicionesScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 import com.solvyx.backend.router.Destino
@@ -56,6 +58,12 @@ fun SolvyxNavGraph(navController: NavHostController) {
         }
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
+        }
+        composable(Routes.TERMINOS) {
+            TerminosCondicionesScreen(onBack = { navController.navigateUp() })
+        }
+        composable(Routes.PRIVACIDAD) {
+            PrivacidadDatosScreen(onBack = { navController.navigateUp() })
         }
 
         composable(Routes.DIAGNOSTICO) {

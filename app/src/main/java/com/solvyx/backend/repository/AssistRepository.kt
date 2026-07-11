@@ -75,6 +75,24 @@ class AssistRepository @Inject constructor(
             emptyList()
         }
     }
+
+    suspend fun hidratarDesdeServidor() {
+        val user = firebaseAuth.currentUser ?: return
+        if (user.isAnonymous) return
+        val historial = obtenerHistorial()
+        val masReciente = historial.firstOrNull() ?: return
+        val actual = ultimoAssistDao.observar().first()
+        if ((actual?.totalCompletados ?: 0) >= historial.size) return
+        ultimoAssistDao.upsert(
+            UltimoAssistEntity(
+                sustanciaId = masReciente.sustanciaId,
+                puntaje = masReciente.puntaje,
+                nivel = masReciente.nivel.name,
+                fecha = masReciente.fecha,
+                totalCompletados = historial.size
+            )
+        )
+    }
 }
 
 private fun DocumentSnapshot.toResultadoDiagnostico(): ResultadoDiagnostico? {

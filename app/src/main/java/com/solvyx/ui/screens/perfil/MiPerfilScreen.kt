@@ -64,8 +64,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
 import com.solvyx.R
+import com.solvyx.backend.validation.Validadores
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.common.SolvyxDateField
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
+import com.solvyx.ui.components.common.SolvyxTextField
 import com.solvyx.ui.screens.guias.components.BorderCard
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
@@ -628,7 +631,7 @@ private fun SustanciasChips(viewModel: PerfilViewModel) {
         "alcohol" to "Alcohol",
         "vape"    to "Vape",
         "cristal" to "Cristal",
-        "tabaco"  to "Tabaco"
+        "cigarro" to "Tabaco"
     )
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -827,28 +830,19 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 color = TealDark,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
-            OutlinedTextField(
+            SolvyxTextField(
                 value = viewModel.apodoEditando,
                 onValueChange = { viewModel.onApodoChange(it) },
-                placeholder = { Text("Ej: Alex, Mia, Riku…") },
-                singleLine = true,
+                placeholder = "Ej: Alex, Mia, Riku…",
+                leadingIconRes = R.drawable.ic_person,
+                filtro = Validadores::filtrarNombre
+            )
+            Text(
+                text = "${viewModel.apodoEditando.length}/30",
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background
-                ),
-                supportingText = {
-                    Text(
-                        text = "${viewModel.apodoEditando.length}/30",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TealMedium
-                    )
-                }
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.labelSmall,
+                color = TealMedium
             )
 
             Spacer(Modifier.height(14.dp))
@@ -859,28 +853,11 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 color = TealDark,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
-            OutlinedTextField(
+            SolvyxDateField(
                 value = viewModel.fechaNacimientoEditando,
-                onValueChange = { viewModel.onFechaNacimientoChange(it) },
-                placeholder = { Text("DD/MM/AAAA") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background
-                ),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_calendar),
-                        contentDescription = null,
-                        tint = TealMedium,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+                onDateSelected = { viewModel.onFechaNacimientoChange(it) },
+                placeholder = "DD/MM/AAAA",
+                leadingIconRes = R.drawable.ic_calendar
             )
 
             Spacer(Modifier.height(24.dp))
@@ -889,7 +866,7 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 text = "Guardar cambios",
                 onClick = { viewModel.guardarPerfil() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = viewModel.apodoEditando.isNotBlank()
+                enabled = Validadores.esNombreValido(viewModel.apodoEditando)
             )
         }
     }
@@ -940,7 +917,7 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
                 "alcohol" to "Alcohol",
                 "vape"    to "Vape",
                 "cristal" to "Cristal",
-                "tabaco"  to "Tabaco"
+                "cigarro" to "Tabaco"
             )
             sustancias.chunked(2).forEach { row ->
                 Row(

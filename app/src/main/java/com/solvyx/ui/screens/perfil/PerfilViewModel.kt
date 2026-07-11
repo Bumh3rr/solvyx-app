@@ -13,6 +13,7 @@ import com.solvyx.backend.repository.AuthRepository
 import com.solvyx.backend.repository.BitacoraRepository
 import com.solvyx.backend.repository.ContactoSosRepository
 import com.solvyx.backend.repository.UserRepository
+import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -148,7 +149,7 @@ class PerfilViewModel @Inject constructor(
     fun onApodoChange(v: String) { if (v.length <= 30) apodoEditando = v }
     fun onFechaNacimientoChange(v: String) { fechaNacimientoEditando = v }
     fun guardarPerfil() {
-        if (apodoEditando.isBlank()) return
+        if (!Validadores.esNombreValido(apodoEditando)) return
         viewModelScope.launch {
             val current = cachedUser ?: UserEntity()
             userRepository.guardar(
@@ -158,27 +159,25 @@ class PerfilViewModel @Inject constructor(
                     sustanciasJson = sustanciasSeleccionadas.joinToString(",")
                 )
             )
+            authRepository.actualizarPerfil(apodoEditando.trim(), fechaNacimientoEditando)
         }
         showEditarPerfil = false
     }
 
     fun toggleSustancia(id: String) {
-        sustanciasSeleccionadas = if (sustanciasSeleccionadas.contains(id))
+        val nuevas = if (sustanciasSeleccionadas.contains(id))
             sustanciasSeleccionadas - id
         else
             sustanciasSeleccionadas + id
-    }
-    fun abrirEditarSustancias() { showEditarSustancias = true }
-    fun cerrarEditarSustancias() {
+        sustanciasSeleccionadas = nuevas
         viewModelScope.launch {
             val current = cachedUser ?: UserEntity()
-            userRepository.guardar(
-                current.copy(sustanciasJson = sustanciasSeleccionadas.joinToString(","))
-            )
-            authRepository.actualizarSustancias(sustanciasSeleccionadas)
+            userRepository.guardar(current.copy(sustanciasJson = nuevas.joinToString(",")))
+            authRepository.actualizarSustancias(nuevas)
         }
-        showEditarSustancias = false
     }
+    fun abrirEditarSustancias() { showEditarSustancias = true }
+    fun cerrarEditarSustancias() { showEditarSustancias = false }
 
     fun toggleNotificaciones() { notificacionesActivas = !notificacionesActivas }
     fun abrirLogoutDialog() { showLogoutDialog = true }

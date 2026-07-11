@@ -29,7 +29,7 @@ fun SustanciaBottomSheet(
         Triple("alcohol", "Alcohol",  R.drawable.ic_bottle),
         Triple("cristal", "Cristal",  R.drawable.ic_gem),
         Triple("vape",    "Vape",     R.drawable.ic_vape),
-        Triple("tabaco",  "Tabaco",   R.drawable.ic_cigarette)
+        Triple("cigarro", "Tabaco",   R.drawable.ic_cigarette)
     )
 
     ModalBottomSheet(

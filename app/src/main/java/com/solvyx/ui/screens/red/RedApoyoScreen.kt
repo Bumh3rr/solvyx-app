@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.backend.data.local.entity.ContactoSosEntity
+import com.solvyx.backend.validation.Validadores
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealLightest
@@ -559,7 +560,7 @@ private fun ContactCard(
                 iconRes = R.drawable.ic_person,
                 placeholder = "Nombre completo",
                 value = contacto.nombre,
-                onValueChange = { onContactoChange(contacto.copy(nombre = it)) },
+                onValueChange = { onContactoChange(contacto.copy(nombre = Validadores.filtrarNombre(it))) },
                 keyboardType = KeyboardType.Text
             )
 
@@ -569,7 +570,7 @@ private fun ContactCard(
                 iconRes = R.drawable.ic_phone,
                 placeholder = "Número de teléfono",
                 value = contacto.telefono,
-                onValueChange = { onContactoChange(contacto.copy(telefono = it)) },
+                onValueChange = { onContactoChange(contacto.copy(telefono = Validadores.filtrarTelefono(it))) },
                 keyboardType = KeyboardType.Phone
             )
         }

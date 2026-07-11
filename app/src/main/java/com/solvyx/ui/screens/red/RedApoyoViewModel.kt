@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.data.local.entity.ContactoSosEntity
 import com.solvyx.backend.repository.ContactoSosRepository
+import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,11 +35,11 @@ class RedApoyoViewModel @Inject constructor(
     }
 
     fun phoneValido(telefono: String): Boolean =
-        telefono.filter { it.isDigit() }.length >= 7
+        Validadores.esTelefonoValido(telefono)
 
     fun canSave(): Boolean {
         val c0 = contactos.firstOrNull() ?: return false
-        return c0.nombre.trim().length >= 2 && phoneValido(c0.telefono)
+        return Validadores.esNombreValido(c0.nombre) && phoneValido(c0.telefono)
     }
 
     fun setContacto(index: Int, contacto: ContactoSosEntity) {

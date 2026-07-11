@@ -24,7 +24,8 @@ import javax.inject.Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val assistRepository: AssistRepository
 ) {
 
     suspend fun registrarConEmail(
@@ -57,13 +58,17 @@ class AuthRepository @Inject constructor(
         val fechaNacimientoRemota = doc.getTimestamp("fecha_nacimiento")?.let {
             SimpleDateFormat("dd/MM/yyyy", Locale("es", "MX")).format(it.toDate())
         }
+        @Suppress("UNCHECKED_CAST")
+        val sustanciasRemotas = doc.get("sustancias_seleccionadas") as? List<String> ?: emptyList()
         actualizarSesionLocal(
             serverId = user.uid,
             apodo = doc.getString("apodo"),
             email = user.email,
             esAnonimo = false,
-            fechaNacimiento = fechaNacimientoRemota
+            fechaNacimiento = fechaNacimientoRemota,
+            sustancias = sustanciasRemotas
         )
+        assistRepository.hidratarDesdeServidor()
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
@@ -100,11 +105,22 @@ class AuthRepository @Inject constructor(
     ): Result<FirebaseUser> = try {
         val currentUser = firebaseAuth.currentUser
             ?: return Result.failure(Exception("No hay una sesión anónima activa."))
+        val sustanciasLocales = userRepository.observar().first()
+            ?.sustanciasJson?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
+        val ultimoAssistLocal = assistRepository.observarUltimo().first()
+        val assistCompletadoLocal = (ultimoAssistLocal?.totalCompletados ?: 0) > 0
         val credential = EmailAuthProvider.getCredential(email, password)
         val result = currentUser.linkWithCredential(credential).await()
         val user = result.user
             ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
-        crearPerfilFirestore(user.uid, apodo, email, fechaNacimiento)
+        crearPerfilFirestore(
+            uid = user.uid,
+            apodo = apodo,
+            email = email,
+            fechaNacimiento = fechaNacimiento,
+            sustanciasIniciales = sustanciasLocales,
+            assistCompletadoInicial = assistCompletadoLocal
+        )
         actualizarSesionLocal(
             serverId = user.uid,
             apodo = apodo,
@@ -137,19 +153,39 @@ class AuthRepository @Inject constructor(
         Result.failure(Exception(mapAuthError(e)))
     }
 
+    suspend fun actualizarPerfil(apodo: String, fechaNacimiento: String): Result<Unit> = try {
+        val user = firebaseAuth.currentUser
+            ?: return Result.failure(Exception("No hay sesión activa."))
+        if (!user.isAnonymous) {
+            firestore.collection("users").document(user.uid)
+                .set(
+                    mapOf(
+                        "apodo" to apodo,
+                        "fecha_nacimiento" to parseFechaNacimiento(fechaNacimiento)
+                    ),
+                    SetOptions.merge()
+                ).await()
+        }
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(Exception(mapAuthError(e)))
+    }
+
     private suspend fun crearPerfilFirestore(
         uid: String,
         apodo: String,
         email: String,
-        fechaNacimiento: String
+        fechaNacimiento: String,
+        sustanciasIniciales: List<String> = emptyList(),
+        assistCompletadoInicial: Boolean = false
     ) {
         firestore.collection("users").document(uid).set(
             hashMapOf(
                 "apodo" to apodo,
                 "email" to email,
                 "fecha_nacimiento" to parseFechaNacimiento(fechaNacimiento),
-                "sustancias_seleccionadas" to emptyList<String>(),
-                "assist_completado" to false,
+                "sustancias_seleccionadas" to sustanciasIniciales,
+                "assist_completado" to assistCompletadoInicial,
                 "es_anonimo" to false,
                 "racha_actual" to 0,
                 "mejor_racha" to 0,
@@ -170,7 +206,8 @@ class AuthRepository @Inject constructor(
         esAnonimo: Boolean,
         apodo: String? = null,
         email: String? = null,
-        fechaNacimiento: String? = null
+        fechaNacimiento: String? = null,
+        sustancias: List<String>? = null
     ) {
         val actual = userRepository.observar().first() ?: UserEntity()
         userRepository.guardar(
@@ -179,7 +216,8 @@ class AuthRepository @Inject constructor(
                 apodo = apodo ?: actual.apodo,
                 email = email ?: actual.email,
                 esAnonimo = esAnonimo,
-                fechaNacimiento = fechaNacimiento ?: actual.fechaNacimiento
+                fechaNacimiento = fechaNacimiento ?: actual.fechaNacimiento,
+                sustanciasJson = sustancias?.joinToString(",") ?: actual.sustanciasJson
             )
         )
     }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.repository.AuthRepository
 import com.solvyx.backend.router.Destino
 import com.solvyx.backend.router.PostAuthRouter
+import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,8 +53,8 @@ class RegisterViewModel @Inject constructor(
     fun onTermsChange(value: Boolean) { acceptedTerms = value }
 
     private fun validar(): String? {
-        if (nickname.trim().isBlank()) return "Ingresa un apodo."
-        if (email.trim().isBlank()) return "Ingresa un correo."
+        if (!Validadores.esNombreValido(nickname)) return "Ingresa un apodo de al menos 2 caracteres."
+        if (!Validadores.esEmailValido(email)) return "Ingresa un correo válido."
         if (birthdate.trim().isBlank()) return "Ingresa tu fecha de nacimiento."
         if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres."
         if (password != confirmPassword) return "Las contraseñas no coinciden."

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.repository.AuthRepository
+import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,10 @@ class ForgotPasswordViewModel @Inject constructor(
 
     fun sendRecoveryEmail() {
         if (_uiState.value.isLoading) return
+        if (!Validadores.esEmailValido(email)) {
+            _uiState.update { it.copy(error = "Ingresa un correo válido.") }
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             authRepository.enviarRecuperacionContrasena(email.trim())

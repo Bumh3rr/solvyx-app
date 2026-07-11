@@ -13,4 +13,6 @@ object Routes {
     const val RED_APOYO_SETUP = "red_apoyo_setup"
     const val SOS_OVERLAY = "sos_overlay"
     const val EJERCICIO_GUIADO = "ejercicio_guiado"
+    const val TERMINOS = "terminos"
+    const val PRIVACIDAD = "privacidad"
 }

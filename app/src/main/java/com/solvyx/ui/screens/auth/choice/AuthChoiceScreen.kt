@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -220,32 +221,44 @@ fun AuthChoiceScreen(
             Spacer(Modifier.weight(1f))
 
             // Términos
-            Text(
-                text = buildAnnotatedString {
-                    append("Al continuar aceptas nuestros ")
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        append("Términos de uso")
-                    }
-                    append(" y ")
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        append("Política de privacidad")
-                    }
-                    append(".")
-                },
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 8.dp)
+            val terminosPrivacidadTexto = buildAnnotatedString {
+                append("Al continuar aceptas nuestros ")
+                pushStringAnnotation(tag = "terminos", annotation = Routes.TERMINOS)
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    append("Términos de uso")
+                }
+                pop()
+                append(" y ")
+                pushStringAnnotation(tag = "privacidad", annotation = Routes.PRIVACIDAD)
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    append("Política de privacidad")
+                }
+                pop()
+                append(".")
+            }
+            ClickableText(
+                text = terminosPrivacidadTexto,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.padding(horizontal = 8.dp),
+                onClick = { offset ->
+                    terminosPrivacidadTexto.getStringAnnotations(tag = "terminos", start = offset, end = offset)
+                        .firstOrNull()?.let { nav.navigate(it.item) }
+                    terminosPrivacidadTexto.getStringAnnotations(tag = "privacidad", start = offset, end = offset)
+                        .firstOrNull()?.let { nav.navigate(it.item) }
+                }
             )
         }
     }

@@ -53,6 +53,8 @@ import androidx.navigation.NavHostController
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.backend.validation.Validadores
+import com.solvyx.ui.components.common.SolvyxDateField
 import com.solvyx.ui.components.common.SolvyxTextField
 import com.solvyx.ui.navigation.Routes
 import com.solvyx.ui.navigation.aRuta
@@ -200,7 +202,8 @@ fun RegisterScreen(
                 onValueChange = viewModel::onNicknameChange,
                 placeholder = "Apodo",
                 leadingIconRes = R.drawable.ic_person,
-                imeAction = ImeAction.Next
+                imeAction = ImeAction.Next,
+                filtro = Validadores::filtrarNombre
             )
             Spacer(Modifier.height(12.dp))
 
@@ -214,13 +217,11 @@ fun RegisterScreen(
             )
             Spacer(Modifier.height(12.dp))
 
-            SolvyxTextField(
+            SolvyxDateField(
                 value = viewModel.birthdate,
-                onValueChange = viewModel::onBirthdateChange,
+                onDateSelected = viewModel::onBirthdateChange,
                 placeholder = "Fecha de nacimiento",
-                leadingIconRes = R.drawable.ic_birthday,
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
+                leadingIconRes = R.drawable.ic_birthday
             )
             Spacer(Modifier.height(12.dp))
 

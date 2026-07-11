@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,7 +45,6 @@ import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxTextField
 import com.solvyx.ui.components.common.SolvyxTextButton
-import com.solvyx.ui.screens.auth.register.RegisterScreen
 import com.solvyx.ui.theme.SolvyxappTheme
 
 @Preview(name = "Login — Light", showSystemUi = true)
@@ -71,12 +69,6 @@ fun ForgotPasswordScreen(
     viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(uiState.emailSent) {
-        if (uiState.emailSent) {
-            nav.navigateUp()
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -195,6 +187,16 @@ fun ForgotPasswordScreen(
                     text = error,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            if (uiState.emailSent) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Revisa tu correo: te enviamos un enlace para restablecer tu contraseña.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
