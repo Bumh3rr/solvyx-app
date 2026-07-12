@@ -1,0 +1,400 @@
+{
+  "_format": "solvyx-seed-guias-extendidas",
+  "_schema_version": 1,
+  "_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_reviewed_by": "psicologo-solvyx 2026-07-12 v2 (post-fix): CIJ/DIF/UNICEF corregidos; craving-extremo y violencia-sexual consolidados a 5 pasos; volver-de-fiesta y despues-de-consumir-de-nuevo consolidados a 5 pasos + SAPTEL agregado donde faltaba.",
+  "items": [
+    {
+      "slug": "desregulacion-flashback",
+      "titulo": "Desregulación: flashbacks e imágenes intrusivas",
+      "categoria": "crisis",
+      "descripcionCorta": "Si te llegó una imagen, recuerdo o sensación intensa sin causa clara, aquí hay un plan paso a paso.",
+      "contenido": {
+        "introduccion": "Un flashback es una respuesta de tu cuerpo y mente: como si el momento estuviera pasando otra vez. No es que estés perdiendo el control; es una forma en que tu sistema nervioso procesa. Estos pasos pueden ayudarte a regresar al presente.",
+        "pasos": [
+          {
+            "titulo": "Reconoce dónde estás",
+            "descripcion": "Mira a tu alrededor y nombra en voz alta o mentalmente: estoy en (lugar), hoy es (día), son las (hora). Repite hasta sentir que vuelves."
+          },
+          {
+            "titulo": "Contacta con tu cuerpo",
+            "descripcion": "Pon los pies firmes en el suelo. Aprieta y suelta los puños varias veces. Siente una textura con las manos. Cualquier sensación concreta ayuda."
+          },
+          {
+            "titulo": "Respira lento",
+            "descripcion": "Inhala en 4, exhala en 6 o 8. El exhale largo activa el nervio vago y baja la activación. Repite 6 ciclos."
+          },
+          {
+            "titulo": "Habla con tu voz interior",
+            "descripcion": "Dite: 'eso fue antes, ahora estoy aquí'. Tu cerebro a veces necesita escucharlo en tus propias palabras."
+          },
+          {
+            "titulo": "Considera avisar a alguien",
+            "descripcion": "Si tienes a alguien de confianza cerca, un mensaje breve basta: 'necesito compañía un rato'. No tienes que explicar todo."
+          }
+        ],
+        "senalesAlerta": [
+          "Sientes que vas a hacerte daño o quieres dejar de sentir a toda costa.",
+          "La desregulación dura más de 30 minutos sin bajar.",
+          "Aparecen imágenes de lastimarte o de morir."
+        ],
+        "cuandoLlamar911": [
+          "Pérdida de consciencia o convulsiones.",
+          "Ideas concretas de hacerte daño con plan o medios.",
+          "Atragantamiento o dificultad seria para respirar."
+        ],
+        "lineasAyuda": [
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"},
+          {"nombre": "911", "telefono": "911", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_heart",
+      "orden": 1
+    },
+    {
+      "slug": "intoxicacion-alcohol-esperando",
+      "titulo": "Acompañamiento mientras se baja una intoxicación",
+      "categoria": "consumo",
+      "descripcionCorta": "Si tú o alguien cercano tomó de más, aquí hay pasos para esperar a que baje la borrachera con menos riesgo.",
+      "contenido": {
+        "introduccion": "Si una persona tomó más de la cuenta, lo más importante es cuidarla mientras su cuerpo procesa el alcohol. No hay forma de acelerar eso: solo esperar con cuidado. Estos pasos reducen riesgos.",
+        "pasos": [
+          {
+            "titulo": "Acompaña sin dejar sola a la persona",
+            "descripcion": "Permanece cerca. Si tiene vómito, ayúdala a sentarse o recostarse de lado para que no aspire vómito."
+          },
+          {
+            "titulo": "Ofrece agua en sorbos pequeños",
+            "descripcion": "La deshidratación es uno de los principales riesgos. Si tolera, dale agua a sorbos cortos."
+          },
+          {
+            "titulo": "Mantén la temperatura corporal",
+            "descripcion": "Cubre a la persona con una manta ligera. El alcohol baja la temperatura corporal aunque la persona sienta calor."
+          },
+          {
+            "titulo": "No ofrezcas más alcohol, café ni comida forzada",
+            "descripcion": "Más alcohol sube la intoxicación. El café no la baja. Forzar comida puede causar vómito o atragantamiento."
+          },
+          {
+            "titulo": "Monitorea signos cada 15 minutos",
+            "descripcion": "Verifica que respire, responda a su nombre y no esté perdiendo color. Anota la hora en que empezó a beber si la sabes."
+          }
+        ],
+        "senalesAlerta": [
+          "Vómito que no para o con sangre.",
+          "Respiración lenta, irregular o ruidosa.",
+          "Piel azulada, fría o sudorosa.",
+          "Pérdida de consciencia que no se recupera.",
+          "Convulsiones."
+        ],
+        "cuandoLlamar911": [
+          "Persona inconsciente y no se despierta.",
+          "Respiración muy lenta o ausente.",
+          "Convulsiones.",
+          "Vómito con sangre o que no para.",
+          "Temperatura corporal muy baja."
+        ],
+        "lineasAyuda": [
+          {"nombre": "911", "telefono": "911", "horario": "24/7"},
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "CIJ (Centros de Integración Juvenil)", "telefono": "800 400 2700", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_heart",
+      "orden": 2
+    },
+    {
+      "slug": "craving-extremo",
+      "titulo": "Craving muy intenso (cuando ya consumiste)",
+      "categoria": "craving",
+      "descripcionCorta": "Si ya consumiste y necesitas volver a cuidarte sin culpas, aquí hay un plan concreto para las próximas horas.",
+      "contenido": {
+        "introduccion": "Si ya consumiste y sientes que la racha se rompió, respira. Este momento no borra tu proceso. Aquí hay pasos concretos para cuidarte ahora y en las próximas horas.",
+        "pasos": [
+          {
+            "titulo": "Reconoce sin culparte",
+            "descripcion": "Nombrar lo que pasó sin juzgarte baja la carga emocional. 'Consumí hoy, ahora puedo decidir qué necesito.' No es volver a empezar de cero."
+          },
+          {
+            "titulo": "Hidrátate y come algo",
+            "descripcion": "Tu cuerpo necesita agua y alimento. Agua natural, fruta, pan, sopa. Lo que tengas a mano. Pequeñas cantidades ya ayudan."
+          },
+          {
+            "titulo": "Habla con alguien y registra",
+            "descripcion": "Un mensaje breve a alguien de confianza: 'consumí, estoy bien, quería que supieras'. Después, en la bitácora: qué sentiste antes, qué lo facilitó. No es evidencia en tu contra."
+          },
+          {
+            "titulo": "Evita compensar con más consumo",
+            "descripcion": "Un consumo no se 'arregla' con otro. El cuerpo necesita tiempo para procesar, no más carga."
+          },
+          {
+            "titulo": "Define tu siguiente paso con honestidad",
+            "descripcion": "Puedes seguir tu plan como estaba, ajustar la meta, o pedir apoyo profesional. Cualquiera es válido. Lo importante es decidir, no autoimponerte."
+          }
+        ],
+        "senalesAlerta": [
+          "Ganas intensas de seguir consumiendo por muchas horas.",
+          "Síntomas físicos: taquicardia, temblor, sudoración, insomnio severo.",
+          "Pensamientos de hacerte daño o de no querer seguir."
+        ],
+        "cuandoLlamar911": [
+          "Sospecha de intoxicación con riesgo vital.",
+          "Convulsiones o desmayo.",
+          "Pensamientos claros de hacerte daño con plan."
+        ],
+        "lineasAyuda": [
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"},
+          {"nombre": "911", "telefono": "911", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_heart",
+      "orden": 3
+    },
+    {
+      "slug": "noche-dificil",
+      "titulo": "Noche difícil: qué hacer a las 3am cuando no puedes dormir",
+      "categoria": "noches",
+      "descripcionCorta": "Una guía breve para las madrugadas en que la mente no se apaga. Sin reglas rígidas, solo opciones.",
+      "contenido": {
+        "introduccion": "Las madrugadas suelen ser más silenciosas por fuera y más ruidosas por dentro. Si no puedes dormir, no tienes que obligarte. Aquí hay opciones suaves para pasar la noche sin agregar más presión.",
+        "pasos": [
+          {
+            "titulo": "Baja la luz y las pantallas",
+            "descripcion": "Si llevas tiempo en el celular, dejarlo 15 minutos ya marca diferencia. Bájale al brillo si necesitas mantenerlo cerca."
+          },
+          {
+            "titulo": "Haz una respiración larga",
+            "descripcion": "Inhala en 4, exhala en 8. Cinco o seis ciclos. No para dormir, solo para que el cuerpo registre que es seguro soltar."
+          },
+          {
+            "titulo": "Escribe o dicta a Berto",
+            "descripcion": "Sacar lo que tu mente repite en voz alta o por escrito baja la ruminación. No tiene que tener forma, solo salir."
+          },
+          {
+            "titulo": "Permítete no dormir un rato más",
+            "descripcion": "Hay noches en que el cuerpo no va a dormir. Forzarlo genera más ansiedad. Puedes levantarte, tomar agua, sentarte en otro lugar."
+          },
+          {
+            "titulo": "Programa una alarma realista",
+            "descripcion": "Define a qué hora sí necesitas levantarte. Saber que no tienes que dormir 'todo lo que falta' reduce la presión."
+          }
+        ],
+        "senalesAlerta": [
+          "Insomnio de varios días seguidos.",
+          "Pensamientos recurrentes de hacerte daño durante la noche.",
+          "Síntomas físicos que aparecen solo en la madrugada."
+        ],
+        "cuandoLlamar911": [
+          "Pensamientos claros de hacerte daño ahora mismo.",
+          "Crisis emocional intensa que no disminuye en 20 minutos."
+        ],
+        "lineasAyuda": [
+          {"nombre": "911", "telefono": "911", "horario": "24/7"},
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_moon",
+      "orden": 4
+    },
+    {
+      "slug": "conflicto-familia",
+      "titulo": "Conflicto con familia por el consumo",
+      "categoria": "familia",
+      "descripcionCorta": "Cómo preparar una conversación con padres, madres o hermanos cuando hay tensión por tu consumo.",
+      "contenido": {
+        "introduccion": "Hablar de consumo con familia suele cargar mucha historia. No tienes que contar todo ni resolverlo en una sola conversación. Aquí hay ideas para preparar el momento si tú decides hacerlo.",
+        "pasos": [
+          {
+            "titulo": "Elige un momento neutro",
+            "descripcion": "Evita el momento de la discusión. Busca un espacio tranquilo, sin prisa, sin pantallas de por medio. Puede ser caminando o comiendo."
+          },
+          {
+            "titulo": "Empieza por cómo te sientes tú",
+            "descripcion": "'Llevo un tiempo sintiéndome...' evita que la otra persona se ponga a la defensiva. Tu experiencia es válida aunque ellos reaccionen."
+          },
+          {
+            "titulo": "Pon un límite claro al inicio",
+            "descripcion": "Puedes decir: 'necesito hablar de algo, pero si se vuelve pelea paramos y lo retomamos'. Tener un límite claro protege la conversación."
+          },
+          {
+            "titulo": "No tienes que convencer",
+            "descripcion": "Si solo quieres ser escuchadx, dilo. Pedir que te escuchen sin que te arreglen es válido. 'No busco que me soluciones, busco que me escuches'."
+          },
+          {
+            "titulo": "Ten un plan B si se sale de control",
+            "descripcion": "Si la conversación se vuelve agresiva, puedes pausar: 'mejor lo seguimos en otro momento'. Salir no es rendirse."
+          }
+        ],
+        "senalesAlerta": [
+          "Violencia física o amenazas en casa.",
+          "Insultos constantes o intento de controlarte.",
+          "Si eres menor de edad y sientes riesgo, hablar con un adulto de fuera de la familia puede ayudar."
+        ],
+        "cuandoLlamar911": [
+          "Violencia física en curso.",
+          "Amenazas de daño inmediato."
+        ],
+        "lineasAyuda": [
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"},
+          {"nombre": "Línea sin Violencia (federal)", "telefono": "800 422 3000", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_family",
+      "orden": 5
+    },
+    {
+      "slug": "violencia-sexual-reciente",
+      "titulo": "Primeros auxilios tras violencia o acoso sexual",
+      "categoria": "violencia",
+      "descripcionCorta": "Pasos inmediatos para cuidarte si viviste una situación de acoso, abuso o violencia sexual reciente.",
+      "contenido": {
+        "introduccion": "Si pasaste por una situación de acoso, abuso o violencia sexual, lo que sientes es una respuesta normal a algo que no debió pasar. No estás solx. Estos pasos son para cuidarte en las próximas horas, no para resolverlo solo/a.",
+        "pasos": [
+          {
+            "titulo": "Pon tu cuerpo a salvo primero",
+            "descripcion": "Si todavía estás en el lugar, aléjate. Si puedes, ve a un sitio seguro: casa de alguien de confianza, un espacio público, una comisaría."
+          },
+          {
+            "titulo": "No tienes que decidir nada ahora",
+            "descripcion": "No tienes que denunciar, no tienes que contarlo, no tienes que 'superarlo' en este momento. Solo cuidar el ahora."
+          },
+          {
+            "titulo": "Considera atención médica si hubo contacto físico",
+            "descripcion": "Dentro de las primeras 72 horas hay profilaxis y estudios que pueden ayudar. Centros de salud y hospitales públicos atienden sin condicionarte a denunciar."
+          },
+          {
+            "titulo": "Habla con alguien de tu red y, si quieres, conserva evidencia",
+            "descripcion": "Una persona de tu confianza que pueda escucharte sin presionar. No es obligación conservar pruebas, pero si te sientes con fuerzas, ropa sin lavar o capturas de mensajes pueden servir. Tú decides."
+          },
+          {
+            "titulo": "Apóyate en acompañamiento profesional",
+            "descripcion": "Psicólogas y psicólogos especializados en violencia sexual existen. No es terapia 'por estar mal': es cuidado profesional gratuito en muchos centros."
+          }
+        ],
+        "senalesAlerta": [
+          "Pensamientos de hacerte daño.",
+          "Síntomas físicos intensos: taquicardia, dolor de pecho, sensación de irrealidad que no baja.",
+          "Disociación severa o desmayo."
+        ],
+        "cuandoLlamar911": [
+          "Peligro inmediato de quien te agredió.",
+          "Heridas que requieren atención urgente.",
+          "Pensamientos claros de hacerte daño."
+        ],
+        "lineasAyuda": [
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"},
+          {"nombre": "911", "telefono": "911", "horario": "24/7"},
+          {"nombre": "Línea sin Violencia (INDESOL)", "telefono": "800 422 3000", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_shield",
+      "orden": 6
+    },
+    {
+      "slug": "volver-de-fiesta",
+      "titulo": "Volver de fiesta: cómo cuidarte al llegar",
+      "categoria": "post_consumo",
+      "descripcionCorta": "Pasos prácticos para las horas siguientes a una fiesta intensa: hidratación, comida, sueño, seguridad.",
+      "contenido": {
+        "introduccion": "Después de una fiesta intensa tu cuerpo necesita tiempo para reequilibrarse. No hay que 'curar' la resaca, solo apoyar al cuerpo en lo que viene haciendo. Estos pasos son concretos para las próximas 12 horas.",
+        "pasos": [
+          {
+            "titulo": "Confirma que estás a salvo",
+            "descripcion": "Revisa dónde estás, con quién, si hay forma de volver seguro a casa. Si tienes dudas, llama a alguien de tu red antes de dormirte."
+          },
+          {
+            "titulo": "Hidrátate y come algo real",
+            "descripcion": "Vaso de agua grande antes de dormir. Pan, fruta, huevo, arroz, caldo. Cualquier alimento con sal y azúcar natural ayuda a recuperar electrolitos."
+          },
+          {
+            "titulo": "Date permiso de descanso real",
+            "descripcion": "Si tomaste alcohol, tu cuerpo sigue procesándolo aunque te sientas bien (aprox. 10-15 ml por hora). Si consumiste otras sustancias, observa mareo, taquicardia o paranoia sin esperar a que 'pase'."
+          },
+          {
+            "titulo": "Busca señales físicas fuera de lo normal",
+            "descripcion": "Dolor en pecho, dificultad para respirar, fiebre alta, vómito con sangre o pérdida de consciencia. Si aparecen, no esperes: pide ayuda."
+          },
+          {
+            "titulo": "No te juzgues en las próximas 24 horas",
+            "descripcion": "Las decisiones que tomaste no necesitan defensa ni condena ahora. Cuando estés más descansadx podrás evaluarlas con más claridad."
+          }
+        ],
+        "senalesAlerta": [
+          "Dolor en el pecho o dificultad para respirar.",
+          "Fiebre alta o sudoración extrema.",
+          "Vómito con sangre o que no para.",
+          "Pérdida de consciencia intermitente.",
+          "Pensamientos de hacerte daño."
+        ],
+        "cuandoLlamar911": [
+          "Dolor en pecho intenso con dificultad para respirar.",
+          "Pérdida de consciencia que no se recupera.",
+          "Convulsiones.",
+          "Pensamientos concretos de hacerte daño con plan."
+        ],
+        "lineasAyuda": [
+          {"nombre": "911", "telefono": "911", "horario": "24/7"},
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_drink",
+      "orden": 7
+    },
+    {
+      "slug": "despues-de-consumir-de-nuevo",
+      "titulo": "Después de consumir de nuevo (sin culpas)",
+      "categoria": "consumo_no_planeado",
+      "descripcionCorta": "Si volviste a consumir y no estaba en tu plan, aquí hay pasos para las próximas horas y días.",
+      "contenido": {
+        "introduccion": "Volver a consumir no borra lo que avanzaste ni te regresa al día uno. Las personas que dejan o reducen un consumo a veces lo intentan varias veces antes de sostenerlo. Eso no es debilidad, es el patrón más común. Aquí hay pasos para cuidarte ahora.",
+        "pasos": [
+          {
+            "titulo": "Detente antes de decidir nada más",
+            "descripcion": "Después de consumir hay una ventana de pocas horas donde todo se siente más intenso. Evita tomar decisiones grandes (plan, ruptura, posteos) en las siguientes 12 horas si puedes."
+          },
+          {
+            "titulo": "Cuida tu cuerpo primero",
+            "descripcion": "Lo más urgente es físico: agua, comida ligera, sueño. Tu cuerpo es el primero que necesita cuidado ahora. Pequeñas cantidades ya ayudan."
+          },
+          {
+            "titulo": "Evita la espiral de 'ya qué'",
+            "descripcion": "Un consumo no se 'arregla' con más, ni se 'compensa' con restricción severa al día siguiente. Ambas respuestas suelen empeorar el patrón."
+          },
+          {
+            "titulo": "Registra y habla con alguien, sin juzgarte",
+            "descripcion": "En la bitácora o con Berto: qué sentiste antes, dónde estabas, con quién, qué lo facilitó. Y un mensaje a alguien de tu red: 'consumí hoy, no es emergencia'. Tener quien lo sabe baja ansiedad."
+          },
+          {
+            "titulo": "Revisa tu plan y pide apoyo si hace falta",
+            "descripcion": "Pregúntate: ¿el plan era realista? ¿Faltó algo? A veces el plan necesita cambios, no más voluntad. Si sientes que el patrón volvió a intensificarse, no esperes al fondo: acompañamiento profesional funciona mejor cuando se pide antes."
+          }
+        ],
+        "senalesAlerta": [
+          "Ganas de seguir consumiendo por más de 24 horas.",
+          "Síntomas físicos de abstinencia o de intoxicación.",
+          "Pensamientos de hacerte daño.",
+          "Descuido serio en alimentación o sueño por varios días."
+        ],
+        "cuandoLlamar911": [
+          "Intoxicación con riesgo vital.",
+          "Pensamientos claros de hacerte daño con plan.",
+          "Síntomas físicos graves (taquicardia, convulsiones, dolor torácico)."
+        ],
+        "lineasAyuda": [
+          {"nombre": "Línea de la Vida", "telefono": "800 911 2000", "horario": "24/7"},
+          {"nombre": "SAPTEL", "telefono": "55 5259 8121", "horario": "24/7"},
+          {"nombre": "911", "telefono": "911", "horario": "24/7"}
+        ]
+      },
+      "iconAsset": "ic_heart",
+      "orden": 8
+    }
+  ]
+}

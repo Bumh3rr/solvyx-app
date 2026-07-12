@@ -1,0 +1,73 @@
+{
+  "_format": "solvyx-seed-rutina-pasos",
+  "_schema_version": 1,
+  "_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_reviewed_by": "psicologo-solvyx 2026-07-12 v2 (re-auditoría): 0 críticos, 1 importante (accionabilidad paso 1 matutina: 'tres ciclos' no llena los 180 s), 4 mejora (validación emocional paso 1; consistencia sobre consumo entre matutina/2 y nocturna/2; ambigüedad en nocturna/2 sobre rol del consumo; pseudo-imperativo neuro en nocturna/3).",
+  "items": [
+    {
+      "rutinaSlug": "matutina",
+      "orden": 1,
+      "titulo": "Respiración de 3 minutos",
+      "descripcion": "Respiración cuadrada: inhala, sostén, exhala y sostén, cuatro tiempos cada uno. Tres minutos, a tu ritmo. Si solo tienes un minuto, dos ciclos ya cuentan. Si prefieres, 4-7-8 también funciona (inhala 4, sostén 7, exhala 8).",
+      "duracionSegundos": 180,
+      "iconAsset": "ic_wind"
+    },
+    {
+      "rutinaSlug": "matutina",
+      "orden": 2,
+      "titulo": "Registrar cómo amaneces",
+      "descripcion": "Una línea en la bitácora: cómo dormiste, cómo está tu ánimo, si quieres anotar algo físico o registrar consumo. Sin obligación de escribir todo.",
+      "duracionSegundos": 90,
+      "iconAsset": "ic_journal"
+    },
+    {
+      "rutinaSlug": "matutina",
+      "orden": 3,
+      "titulo": "Tu mini objetivo del día",
+      "descripcion": "Una sola cosa que quieres lograr hoy. Puede ser concreta (entregar un trabajo) o de cuidado (salir a caminar 15 minutos).",
+      "duracionSegundos": 60,
+      "iconAsset": "ic_target"
+    },
+    {
+      "rutinaSlug": "matutina",
+      "orden": 4,
+      "titulo": "Frase del día",
+      "descripcion": "Una frase que elijas tú o que Berto te sugiera. Puede ser algo que te recuerde cómo quieres estar hoy.",
+      "duracionSegundos": 30,
+      "iconAsset": "ic_sparkle"
+    },
+    {
+      "rutinaSlug": "nocturna",
+      "orden": 1,
+      "titulo": "Body scan o respiración de cierre",
+      "descripcion": "Un escaneo corporal corto o una respiración 4-7-8 para bajar la activación antes de dormir. Si ya estás muy cansada o cansado, solo tres respiraciones profundas bastan.",
+      "duracionSegundos": 300,
+      "iconAsset": "ic_body"
+    },
+    {
+      "rutinaSlug": "nocturna",
+      "orden": 2,
+      "titulo": "Registrar el día",
+      "descripcion": "Una línea en la bitácora: cómo te fue hoy, si dormiste bien, lo que quieras dejar (si te sirve, hay un campo opcional para consumo). Sin detalle obligatorio, solo lo que quieras registrar.",
+      "duracionSegundos": 120,
+      "iconAsset": "ic_journal"
+    },
+    {
+      "rutinaSlug": "nocturna",
+      "orden": 3,
+      "titulo": "Tres logros del día",
+      "descripcion": "Tres cosas que lograste hoy. Pueden ser mínimas: levantarte, hablar con alguien, avanzar en algo, descansar. Registrar lo que sí salió ayuda a tu cerebro a equilibrar la mirada del día.",
+      "duracionSegundos": 120,
+      "iconAsset": "ic_check"
+    },
+    {
+      "rutinaSlug": "nocturna",
+      "orden": 4,
+      "titulo": "Frase de cierre",
+      "descripcion": "Una frase que elijas para cerrar el día. Puede ser tuya o que Berto te proponga. Lo importante es que sea un cierre amable, no un juicio.",
+      "duracionSegundos": 30,
+      "iconAsset": "ic_moon"
+    }
+  ]
+}

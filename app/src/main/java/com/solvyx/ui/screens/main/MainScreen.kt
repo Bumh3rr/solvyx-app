@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.backend.data.local.connectivity.SolvyxOfflineBanner
 import com.solvyx.ui.components.navigation.SolvyxBottomNavigationBar
 import com.solvyx.ui.components.navigation.SolvyxBottomTab
 import com.solvyx.ui.components.dialog.SosConfirmationDialog
@@ -46,15 +47,21 @@ import com.solvyx.ui.components.drawer.model.opposite
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
-import com.solvyx.ui.screens.home.InicioViewModel
-import com.solvyx.ui.screens.directorio.DirectorioRootScreen
-import com.solvyx.ui.screens.perfil.PerfilNavGraph
-import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
-import com.solvyx.ui.screens.home.InicioScreen
-import com.solvyx.ui.screens.plan.PlanNavGraph
 import com.solvyx.ui.screens.avances.MisAvancesScreen
+import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
+import com.solvyx.ui.screens.directorio.DirectorioRootScreen
+import com.solvyx.ui.screens.ejercicios.EjerciciosScreen
+import com.solvyx.ui.screens.guias_extendidas.GuiasExtendidasScreen
+import com.solvyx.ui.screens.home.InicioScreen
+import com.solvyx.ui.screens.home.InicioViewModel
+import com.solvyx.ui.screens.insights.InsightsScreen
+import com.solvyx.ui.screens.journaling.JournalingScreen
+import com.solvyx.ui.screens.lecciones.LeccionesScreen
+import com.solvyx.ui.screens.perfil.PerfilNavGraph
+import com.solvyx.ui.screens.plan.PlanNavGraph
 import com.solvyx.ui.screens.red.RedApoyoScreen
+import com.solvyx.ui.screens.rutinas.RutinasScreen
+import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
 
@@ -67,6 +74,14 @@ fun MainScreen(
     onNavigateToSos: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToDetalleEjercicio: (String) -> Unit = {},
+    onNavigateToActivoEjercicio: (String) -> Unit = {},
+    onNavigateToDetalleGuia: (String) -> Unit = {},
+    onNavigateToGuiasExtendidas: () -> Unit = {},
+    onNavigateToDetalleLeccion: (String, String) -> Unit = { _, _ -> },
+    onNavigateToJournalingEditor: (String?, String?) -> Unit = { _, _ -> },
+    onNavigateToDetalleRutina: (String) -> Unit = {},
+    onNavigateToDescubrir: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {}
 ) {
@@ -137,6 +152,10 @@ fun MainScreen(
                         drawerState = CustomDrawerState.Closed
                         (onNavigateToChatFromDrawer ?: onNavigateToChat)()
                     }
+                    NavigationItem.Descubrir -> {
+                        drawerState = CustomDrawerState.Closed
+                        onNavigateToDescubrir()
+                    }
                     else -> {
                         selectedItem = item
                         drawerState = CustomDrawerState.Closed
@@ -147,6 +166,14 @@ fun MainScreen(
             onProfileClick = {
                 selectedItem = NavigationItem.MiPerfil
                 drawerState = CustomDrawerState.Closed
+            },
+            onGuiaOriginalClick = { slug ->
+                drawerState = CustomDrawerState.Closed
+                onNavigateToDetalleGuia(slug)
+            },
+            onGuiaExtendidaClick = { slug ->
+                drawerState = CustomDrawerState.Closed
+                onNavigateToDetalleGuia(slug)
             }
         )
 
@@ -169,14 +196,31 @@ fun MainScreen(
                     drawerState = CustomDrawerState.Closed
                 },
             selectedItem = selectedItem,
+            onSelectInicio = { selectedItem = NavigationItem.Inicio },
             drawerState = drawerState,
             onDrawerClick = { drawerState = drawerState.opposite() },
             onNavigateToChat = onNavigateToChat,
             onNavigateToSos = onNavigateToSos,
             onNavigateToAssist = onNavigateToAssist,
             onNavigateToEjercicio = onNavigateToEjercicio,
+            onNavigateToDetalleEjercicio = onNavigateToDetalleEjercicio,
+            onNavigateToActivoEjercicio = onNavigateToActivoEjercicio,
+            onNavigateToDetalleGuia = onNavigateToDetalleGuia,
+            onNavigateToGuiasExtendidas = onNavigateToGuiasExtendidas,
+            onNavigateToDetalleLeccion = onNavigateToDetalleLeccion,
+            onNavigateToJournalingEditor = onNavigateToJournalingEditor,
+            onNavigateToDetalleRutina = onNavigateToDetalleRutina,
             onBottomNavNavigate = { item -> selectedItem = item },
             onLogout = onLogout
+        )
+
+        // Capa 3: banner global "sin red" (modulado por ConnectivityRepository).
+        // Sólo aparece cuando la red validada es null/false. No bloquea
+        // ninguna interacción: el slider sigue siendo informativa.
+        SolvyxOfflineBanner(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
         )
     }
 }
@@ -185,12 +229,20 @@ fun MainScreen(
 private fun SolvyxMainContent(
     modifier: Modifier = Modifier,
     selectedItem: NavigationItem,
+    onSelectInicio: () -> Unit,
     drawerState: CustomDrawerState,
     onDrawerClick: () -> Unit,
     onNavigateToChat: () -> Unit,
     onNavigateToSos: () -> Unit,
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToDetalleEjercicio: (String) -> Unit = {},
+    onNavigateToActivoEjercicio: (String) -> Unit = {},
+    onNavigateToDetalleGuia: (String) -> Unit = {},
+    onNavigateToGuiasExtendidas: () -> Unit = {},
+    onNavigateToDetalleLeccion: (String, String) -> Unit = { _, _ -> },
+    onNavigateToJournalingEditor: (String?, String?) -> Unit = { _, _ -> },
+    onNavigateToDetalleRutina: (String) -> Unit = {},
     onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
 ) {
@@ -255,7 +307,13 @@ private fun SolvyxMainContent(
                         onNavigateToEjercicio = onNavigateToEjercicio,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
                         onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.RegistroEmocional) },
-                        onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) }
+                        onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) },
+                        onNavigateToPsicoeducacion = { onBottomNavNavigate(NavigationItem.Psicoeducacion) },
+                        onNavigateToJournaling = { onBottomNavNavigate(NavigationItem.Journaling) },
+                        onNavigateToRutinas   = { onBottomNavNavigate(NavigationItem.Rutinas) },
+                        onNavigateToInsights  = { onBottomNavNavigate(NavigationItem.Insights) },
+                        onNavigateToGuiasExtendidas = onNavigateToGuiasExtendidas,
+                        onNavigateToDescubrir = { onBottomNavNavigate(NavigationItem.Descubrir) }
                     )
                 NavigationItem.Plan ->
                     PlanNavGraph(
@@ -293,6 +351,38 @@ private fun SolvyxMainContent(
                         onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) },
                         onLogout = onLogout
                     )
+
+                // ── Nuevas pantallas (Fase 1) ──────────────────
+                NavigationItem.Rutinas ->
+                    RutinasScreen(
+                        onNavigateToDetalle = onNavigateToDetalleRutina,
+                        onNavigateBack = onSelectInicio
+                    )
+                NavigationItem.Psicoeducacion ->
+                    LeccionesScreen(
+                        onNavigateToDetalle = onNavigateToDetalleLeccion,
+                        onNavigateBack = onSelectInicio
+                    )
+                NavigationItem.Journaling ->
+                    JournalingScreen(
+                        onNavigateToEditor = onNavigateToJournalingEditor,
+                        onNavigateBack = onSelectInicio
+                    )
+                NavigationItem.Insights ->
+                    InsightsScreen(
+                        onNavigateBack = onSelectInicio
+                    )
+                NavigationItem.Ejercicios ->
+                    EjerciciosScreen(
+                        onNavigateToDetalle = onNavigateToDetalleEjercicio,
+                        onNavigateBack = onSelectInicio
+                    )
+                NavigationItem.Descubrir -> {
+                    // No se llega aquí; el callback onNavigateToDescubrir
+                    // se dispara desde CustomDrawer y navega fuera de MainScreen.
+                    onSelectInicio()
+                }
+
                 NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }
                 NavigationItem.CerrarSesion -> { /* manejado en MainScreen */ }
             }

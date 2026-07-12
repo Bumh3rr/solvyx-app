@@ -41,6 +41,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -81,7 +84,7 @@ fun GuiaTopBar(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_menu),
-                    contentDescription = "Menú",
+                    contentDescription = stringResource(R.string.action_open_menu),
                     tint = Color.White,
                     modifier = Modifier.size(22.dp)
                 )
@@ -250,7 +253,13 @@ fun CardLabel(
     @DrawableRes iconRes: Int,
     text: String,
     color: Color? = null,
-    size: Int = 14
+    size: Int = 14,
+    /**
+     * Si `true`, el Text se marca como heading para que TalkBack anuncie
+     * "Encabezado" y permita navegar por encabezados. Usar en títulos
+     * de sección.
+     */
+    headingSemantics: Boolean = false
 ) {
     val c = color ?: MaterialTheme.colorScheme.primary
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -265,7 +274,8 @@ fun CardLabel(
             text = text,
             fontSize = size.sp,
             fontWeight = FontWeight.Bold,
-            color = TealDark
+            color = TealDark,
+            modifier = if (headingSemantics) Modifier.semantics { heading() } else Modifier
         )
     }
 }

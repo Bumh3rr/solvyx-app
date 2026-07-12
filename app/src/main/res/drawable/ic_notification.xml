@@ -1,0 +1,22 @@
+<!--
+  Icono de notificación genérico para Solvyx.
+  Reutilizable por todos los NotificationChannels (bitácora, rutinas,
+  insights). Es una "B" estilizada que coincide con la marca Berto.
+
+  Con requisitos del sistema:
+  - Tinta: debe ser blanco puro (#FFFFFF). El sistema lo colorea
+    automáticamente según el tema (oscuro/claro) en barra de estado.
+  - Fondo: transparente (Android rellena el fondo en runtime).
+  - Tamaño: vector 24dp, estándar de status bar.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Silueta de campana + "B" para mantener vínculo con Berto/Solvyx.
+         La campana respeta la guía de Material; la "B" refuerza identidad. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,2C7.58,2 4,5.58 4,10v5l-2,2v1h20v-1l-2,-2v-5C20,5.58 16.42,2 12,2zM12,22c1.1,0 2,-0.9 2,-2h-4c0,1.1 0.9,2 2,2z" />
+</vector>

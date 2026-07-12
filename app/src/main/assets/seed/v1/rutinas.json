@@ -1,0 +1,25 @@
+{
+  "_format": "solvyx-seed-rutinas",
+  "_schema_version": 1,
+  "_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_reviewed_by": "psicologo-solvyx 2026-07-12 v2 (auditoría completa)",
+  "items": [
+    {
+      "slug": "matutina",
+      "nombre": "Rutina matutina",
+      "descripcion": "Tu mañana, a tu ritmo. Un momento breve para aterrizar, registrar cómo llegas y plantear un mini objetivo. Si hoy no puedes con todo, con un paso es suficiente.",
+      "horaSugerida": 8,
+      "iconAsset": "ic_sun",
+      "activo": true
+    },
+    {
+      "slug": "nocturna",
+      "nombre": "Rutina nocturna",
+      "descripcion": "Antes de descansar, un espacio para bajar el cuerpo, registrar lo que pasó y elegir una frase de cierre. Si el día fue pesado, también cuenta — y este momento es para ti.",
+      "horaSugerida": 22,
+      "iconAsset": "ic_moon",
+      "activo": true
+    }
+  ]
+}

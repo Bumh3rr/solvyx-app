@@ -1,0 +1,873 @@
+{
+  "_format": "solvyx-seed-lecciones",
+  "_schema_version": 1,
+  "_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_reviewed_by": "psicologo-solvyx 2026-07-12 v2 (re-auditoría + datos científicos marcados)",
+  "items": [
+    {
+      "slug": "alcohol-efectos-cuerpo",
+      "sustancia": "alcohol",
+      "tema": "efectos_cuerpo",
+      "titulo": "Qué le hace el alcohol a tu cuerpo",
+      "contenido": {
+        "introduccion": "El alcohol llega a tu sangre en minutos y afecta casi todos los órganos. No todas las personas reaccionan igual: peso, sexo, genética, comida previa y sueño cambian el efecto. Aquí lo que pasa y por qué.",
+        "secciones": [
+          {
+            "titulo": "Cerebro",
+            "texto": "El alcohol potencia un neurotransmisor inhibitorio (GABA) y bloquea uno excitatorio (glutamato). Por eso al principio sientes calma; después, con la caída del efecto, aparece ansiedad, irritabilidad e insomnio. El hipocampo, que forma recuerdos, se afecta con dosis altas: por eso hay lagunas."
+          },
+          {
+            "titulo": "Hígado",
+            "texto": "El hígado procesa el alcohol a una velocidad fija: [dato no verificado: el hígado metaboliza alcohol a ~10–15 ml/hora en personas adultas, con variación individual]. Una copa estándar [dato no verificado: equivalencias usadas 355 ml de cerveza, 150 ml de vino y 45 ml de destilado, asumiendo graduaciones de 4–5 %, 12 % y 40 % respectivamente; la \"copa estándar\" varía por país] toma cerca de una hora en procesarse. Si bebes más rápido de lo que el hígado puede, se acumula en sangre."
+          },
+          {
+            "titulo": "Corazón y presión",
+            "texto": "A corto plazo, el alcohol dilata vasos y baja la presión; luego el corazón se acelera para compensarlo. Con consumo frecuente, la presión tiende a subir y el ritmo cardíaco se altera. Dormir mal y la deshidratación suman al cuadro."
+          },
+          {
+            "titulo": "Estómago e intestino",
+            "texto": "El alcohol irrita la mucosa gástrica. Por eso ardor, náusea y vómito cuando se toma en exceso o en ayunas. También modifica la absorción de nutrientes como la tiamina (B1), cuya deficiencia sostenida daña nervios."
+          },
+          {
+            "titulo": "Piel y temperatura",
+            "texto": "Aunque sientas calor, el alcohol dilata vasos en la piel y en realidad baja tu temperatura central. Por eso en una fiesta al frío se combinan dos riesgos: calor subjetivo y pérdida de calor real."
+          }
+        ],
+        "conclusion": "Conocer cómo responde tu cuerpo es información para decidir, no para asustarte. Si quieres, podemos revisar estrategias para reducir algunos de estos efectos."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 1
+    },
+    {
+      "slug": "alcohol-engancha",
+      "sustancia": "alcohol",
+      "tema": "engancha",
+      "titulo": "Por qué el alcohol engancha (y a quién le pasa)",
+      "contenido": {
+        "introduccion": "El alcohol no engancha a todas las personas por igual. Hay factores biológicos (genética, edad, sexo), psicológicos (cómo aprendiste a usarlo) y sociales (contexto). Entender el mecanismo te ayuda a ubicarte en el espectro, no a etiquetarte.",
+        "secciones": [
+          {
+            "titulo": "El sistema de recompensa",
+            "texto": "El alcohol libera dopamina en el sistema de recompensa. La dopamina no causa placer directamente: marca que algo merece repetirse. Con el tiempo, el cerebro aprende a anticipar esa señal antes de beber."
+          },
+          {
+            "titulo": "Tolerancia",
+            "texto": "Con consumo repetido, el cuerpo se adapta: necesitas más para sentir el mismo efecto. La tolerancia es un cambio fisiológico, no 'aguantar más'. Si sube, tu cuerpo está avisando."
+          },
+          {
+            "titulo": "Aprendizaje por contexto",
+            "texto": "El cerebro asocia lugares, personas y emociones con el consumo. Por eso un viernes en la noche o una discusión activan antojos intensos aunque no haya estímulo físico. Son señales aprendidas."
+          },
+          {
+            "titulo": "Edad de inicio",
+            "texto": "El cerebro sigue desarrollándose hasta cerca de los 25 años. Iniciar el consumo antes de los 18 se asocia con mayor probabilidad de patrones problemáticos en la adultez. No es determinista, sí es un factor conocido."
+          },
+          {
+            "titulo": "Función que cumple",
+            "texto": "Muchas personas usan el alcohol para regular emociones: bajar ansiedad, dormir, desinhibirse socialmente, manejar tristeza. Reconocer la función, no solo el daño, ayuda a buscar alternativas reales."
+          }
+        ],
+        "conclusion": "El enganche no es un defecto moral. Es un proceso biológico y aprendido. Si quieres revisarlo, hay caminos; reducir, pausar o dejar son opciones igualmente válidas."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 2
+    },
+    {
+      "slug": "alcohol-notar-craving",
+      "sustancia": "alcohol",
+      "tema": "notar_craving",
+      "titulo": "Cómo notar el craving de alcohol",
+      "contenido": {
+        "introduccion": "El craving es una urgencia intensa de consumir. Aparece como una ola: sube rápido, llega a un pico y [dato no verificado: la ola de craving suele alcanzar su pico en pocos minutos y bajar en ~15–20 minutos si no se alimenta]. Reconocerlo es el primer paso para decidir qué hacer con él.",
+        "secciones": [
+          {
+            "titulo": "Dónde se siente",
+            "texto": "En el pecho, en la garganta, en las manos. A veces como vacío en el estómago. No es solo un pensamiento: es una señal corporal. Identificar dónde la sientes te ayuda a no confundirla con hambre o cansancio."
+          },
+          {
+            "titulo": "Pensamientos típicos",
+            "texto": "'Una no hace daño', 'hoy fue un día especial', 'mando un mensaje y ya'. Son frases que aparecen con velocidad. Identificarlas como parte del craving, no como decisiones, cambia tu relación con ellas."
+          },
+          {
+            "titulo": "Desencadenantes",
+            "texto": "Ciertos contextos disparan el craving: estar con personas con las que acostumbrabas beber, el fin de semana, un mal día, una celebración. Llevar un registro breve ayuda a mapearlos."
+          },
+          {
+            "titulo": "La ola sube y baja",
+            "texto": "Aunque la urgencia se sienta eterna, suele tener pico en pocos minutos y bajar en [dato no verificado: ~15–20 minutos si no se alimenta]. Resistir un poco al inicio hace la ola más manejable. Si esperas, pasa aunque no lo creas."
+          },
+          {
+            "titulo": "Qué hacer mientras pasa",
+            "texto": "Respirar lento, caminar, hablar con alguien, tomar agua, escuchar una canción. Cualquier acción incompatible con el primer trago durante esos [dato no verificado: ~15–20 minutos] ya cuenta."
+          }
+        ],
+        "conclusion": "Notar el craving es una habilidad que se entrena. Cada vez que lo identificas sin actuar automáticamente, reduces su poder sobre ti."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 3
+    },
+    {
+      "slug": "alcohol-reducir",
+      "sustancia": "alcohol",
+      "tema": "reducir",
+      "titulo": "Estrategias para reducir el consumo de alcohol",
+      "contenido": {
+        "introduccion": "Reducir no es lo mismo que dejar, y ambas son opciones válidas. Aquí hay estrategias concretas probadas en programas de reducción de daños. Elige las que tengan sentido para tu vida real, no las 'ideales'.",
+        "secciones": [
+          {
+            "titulo": "Marca un número máximo por ocasión",
+            "texto": "Por ejemplo: máximo 3 tragos por salida. Define con un número concreto y revísalo al final. No como regla moral, como experimento. Si no se cumple, ajustas, no fallas."
+          },
+          {
+            "titulo": "Espacia con agua o bebida sin alcohol",
+            "texto": "Un vaso de agua entre cada copa reduce la deshidratación, baja el ritmo y prolonga la sensación social sin perder el momento."
+          },
+          {
+            "titulo": "Come antes y durante",
+            "texto": "Beber en ayunas multiplica la velocidad de absorción. Una comida con proteínas y grasas reduce el pico de alcoholemia."
+          },
+          {
+            "titulo": "Elige días sin alcohol",
+            "texto": "Empezar con uno o dos días sin alcohol por semana ayuda a que tu cuerpo se reequilibre. No como meta rígida, como exploración."
+          },
+          {
+            "titulo": "Evita consumir sola o solo o en estados emocionales intensos",
+            "texto": "Beber sola o solo, o cuando estás muy triste o muy enojada/enojado, suele disparar más consumo. Si vas a hacerlo, procura estar en compañía y en un estado emocional más estable."
+          },
+          {
+            "titulo": "Lleva un registro breve",
+            "texto": "Anotar qué tomaste y cómo te sentiste después te da información real sobre tu patrón. No es para juzgarte, es para entenderte."
+          }
+        ],
+        "conclusion": "Reducir es una meta legítima. Si después de probar decides que quieres dejarlo, ese camino también existe. Lo importante es que la decisión sea tuya y tengas información para hacerla."
+      },
+      "duracionLecturaMinutos": 5,
+      "orden": 4
+    },
+    {
+      "slug": "alcohol-senales-ayuda",
+      "sustancia": "alcohol",
+      "tema": "senales_ayuda",
+      "titulo": "Señales de que vale la pena pedir apoyo",
+      "contenido": {
+        "introduccion": "Pedir ayuda no es admitir un fracaso: es usar una herramienta que existe para ti. Hay señales que indican que el acompañamiento profesional hace una diferencia real. Aquí las más comunes.",
+        "secciones": [
+          {
+            "titulo": "No puedes parar una vez que empiezas",
+            "texto": "Si planeas uno o dos y terminaste mucho más, varias veces seguidas, es una señal común de patrón problemático. No es cuestión de fuerza de voluntad."
+          },
+          {
+            "titulo": "Necesitas más para sentir lo mismo",
+            "texto": "Si la cantidad que tomabas hace un año ya no te hace efecto, tu cuerpo se adaptó. La tolerancia creciente es una señal fisiológica de alerta."
+          },
+          {
+            "titulo": "Afecta sueño, estudio o relaciones",
+            "texto": "Cuando el consumo empieza a chocar con cosas que te importan, el patrón pide atención. No es culpa tuya: es información útil para decidir."
+          },
+          {
+            "titulo": "Has intentado reducir y no has podido",
+            "texto": "Varios intentos sin sostener el cambio es una de las señales más claras. [dato no verificado: el acompañamiento profesional se asocia con mejores resultados al sostener cambios de consumo.] Pedir ayuda no es fallar, es usar una herramienta disponible."
+          },
+          {
+            "titulo": "Aparecen síntomas físicos al bajar",
+            "texto": "Temblor, sudoración, ansiedad intensa o insomnio al dejar de tomar son señales de que tu cuerpo se acostumbró. No intentes dejarlo solo de golpe si esto pasa."
+          }
+        ],
+        "conclusion": "Si te reconoces en alguna de estas señales, no estás sola o solo. Línea de la Vida 800 911 2000, SAPTEL 55 5259 8121 y los Centros de Integración Juvenil atienden de forma gratuita y confidencial."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 5
+    },
+    {
+      "slug": "alcohol-mitos",
+      "sustancia": "alcohol",
+      "tema": "mitos",
+      "titulo": "Mitos frecuentes sobre el alcohol",
+      "contenido": {
+        "introduccion": "Hay ideas muy repetidas sobre el alcohol que no se sostienen con la evidencia. Identificarlas te ayuda a tomar decisiones con información real, no con creencias heredadas.",
+        "secciones": [
+          {
+            "titulo": "'Un trago relaja'",
+            "texto": "El alcohol tiene un efecto inicial ansiolítico, pero horas después genera el efecto contrario: más ansiedad, irritabilidad y alteración del sueño. La 'relajación' es prestada, no real."
+          },
+          {
+            "titulo": "'La cerveza no cuenta'",
+            "texto": "Una cerveza de 355 ml [dato no verificado: 355 ml de cerveza (≈4–5 %) ≈ 45 ml de destilado (≈40 %) en etanol puro, varía con la graduación] tiene una cantidad similar de alcohol puro que un trago de destilado. Lo que cambia es el volumen, no el efecto final."
+          },
+          {
+            "titulo": "'Si como mucho, no me emborracho'",
+            "texto": "Comer antes y durante reduce la velocidad de absorción, pero no elimina el efecto. La alcoholemia final depende de cuánto alcohol entró, no solo de la velocidad."
+          },
+          {
+            "titulo": "'El café te baja la borrachera'",
+            "texto": "El café no acelera el metabolismo del alcohol. Te mantiene despierto, pero el alcohol sigue en sangre y sigue afectando reflejos, juicio y coordinación."
+          },
+          {
+            "titulo": "'Si no me acuerdo, no pasó'",
+            "texto": "Las lagunas mentales ('blackouts') son señal de que el hipocampo no consolidó memorias. El cuerpo sí registró todo. Negar el evento no te protege de sus consecuencias."
+          },
+          {
+            "titulo": "'Solo los alcohólicos necesitan ayuda'",
+            "texto": "Cualquiera que sienta que su consumo le está generando problemas puede pedir acompañamiento. No necesitas una etiqueta para merecer apoyo."
+          }
+        ],
+        "conclusion": "Separar mito de evidencia te empodera para decidir con más claridad. Si quieres profundizar, en la biblioteca de Berto hay más información sobre cada sustancia."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 6
+    },
+    {
+      "slug": "vape-efectos-cuerpo",
+      "sustancia": "vape",
+      "tema": "efectos_cuerpo",
+      "titulo": "Qué le hace el vapeo a tu cuerpo",
+      "contenido": {
+        "introduccion": "Vapear no es 'solo vapor de agua'. El aerosol contiene nicotina, partículas ultrafinas, propilenglicol, glicerina vegetal y saborizantes. Tu cuerpo recibe una mezcla compleja que afecta varios sistemas, sobre todo a edad temprana.",
+        "secciones": [
+          {
+            "titulo": "Pulmones",
+            "texto": "El aerosol irrita las vías respiratorias. Tos persistente, falta de aire y dolor torácico son señales comunes. Lesiones pulmonares asociadas al vapeo (EVALI) se han documentado en usuarios, sobre todo con líquidos adulterados o de fuentes no reguladas."
+          },
+          {
+            "titulo": "Corazón",
+            "texto": "La nicotina sube la frecuencia cardíaca y la presión arterial. Con el tiempo, mantener estos picos frecuentes se asocia con mayor riesgo cardiovascular, incluso en personas jóvenes."
+          },
+          {
+            "titulo": "Cerebro",
+            "texto": "El cerebro sigue desarrollándose hasta los 25 años. La nicotina en esta etapa puede afectar atención, aprendizaje y control de impulsos. Es un factor de riesgo conocido, no un destino fijo."
+          },
+          {
+            "titulo": "Boca y garganta",
+            "texto": "Sequedad bucal, irritación de garganta y encías inflamadas son efectos frecuentes. Los saborizantes pueden contener sustancias que irritan la mucosa con el tiempo."
+          },
+          {
+            "titulo": "Piel",
+            "texto": "Vapear puede empeorar acné y resecar la piel. El efecto es variable, pero si notas cambios cutáneos al vapear, vale la pena registrarlo."
+          }
+        ],
+        "conclusion": "Vapear tiene efectos en todo el cuerpo, no solo en los pulmones. Si decides vapear o dejarlo, la información concreta es tu aliada. Si aparecen tos persistente, falta de aire o dolor torácico, busca atención médica."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 7
+    },
+    {
+      "slug": "vape-engancha",
+      "sustancia": "vape",
+      "tema": "engancha",
+      "titulo": "Por qué el vape engancha tan rápido",
+      "contenido": {
+        "introduccion": "La mayoría de vapes contienen nicotina, una de las sustancias con mayor potencial adictivo que se conocen. La velocidad de llegada al cerebro y la forma de uso hacen que el enganche pueda aparecer en semanas.",
+        "secciones": [
+          {
+            "titulo": "La nicotina llega rápido",
+            "texto": "Inhalada, la nicotina llega al cerebro en [dato no verificado: ≈10–20 segundos]. Es más rápida que fumada en cigarrillo, en parte por la forma del aerosol y la profundidad de la inhalación."
+          },
+          {
+            "titulo": "Sales de nicotina",
+            "texto": "Muchos dispositivos usan sales de nicotina, que permiten concentraciones altas [dato no verificado: en algunos mercados hasta 50 mg/ml; la regulación mexicana y de la UE limita a 20 mg/ml] sin sensación de aspereza. Eso facilita inhalar más veces sin darte cuenta."
+          },
+          {
+            "titulo": "Picos repetidos",
+            "texto": "Cada calada es un pequeño pico de nicotina. Repetir decenas o cientos de veces al día mantiene al cerebro en un estado constante de estimulación. El cerebro se adapta."
+          },
+          {
+            "titulo": "Aprendizaje por contexto",
+            "texto": "El cerebro asocia vapeo con estudio, redes sociales, pausas, ansiedad social. Pronto el contexto dispara el deseo aunque no haya necesidad fisiológica."
+          },
+          {
+            "titulo": "Síndrome de abstinencia",
+            "texto": "Irritabilidad, dificultad de concentración, ansiedad, antojos intensos y sueño alterado aparecen al dejar de vapear. Saberlo reduce el susto: es esperable y pasa."
+          }
+        ],
+        "conclusion": "El enganche es rápido y silencioso. Si vapeas hace poco, todavía estás a tiempo de revisar el patrón sin sentirte en falta. Si ya enganchó, reducir o dejarlo es posible con apoyo."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 8
+    },
+    {
+      "slug": "vape-notar-craving",
+      "sustancia": "vape",
+      "tema": "notar_craving",
+      "titulo": "Cómo notar el craving de vape",
+      "contenido": {
+        "introduccion": "El craving de vape es muy asociado a acciones cotidianas: tomar café, estudiar, manejar, esperar el camión. Identificar los disparadores cambia la relación con el antojo.",
+        "secciones": [
+          {
+            "titulo": "Disparadores conductuales",
+            "texto": "Tomar café, abrir el celular, esperar, aburrimiento, manejar, después de comer, al socializar. Son patrones aprendidos. Registrarlos en la bitácora te ayuda a verlos con distancia."
+          },
+          {
+            "titulo": "Disparadores emocionales",
+            "texto": "Estrés, ansiedad social, aburrimiento, tristeza. El vapeo aparece como regulador emocional. Reconocerlo te permite buscar reguladores alternativos."
+          },
+          {
+            "titulo": "El antojo físico",
+            "texto": "Hormigueo en labios, movimientos repetidos de la mano hacia donde solía estar el vape, búsqueda automática en bolsillo o mochila. Es el cuerpo pidiendo el pico de nicotina."
+          },
+          {
+            "titulo": "La ola",
+            "texto": "Como otros cravings, sube, llega a un pico y baja. Si resistes sin vapear entre [dato no verificado: 10 y 20 minutos], la intensidad baja de manera notable."
+          },
+          {
+            "titulo": "Alternativas en el momento",
+            "texto": "Respiración lenta, agua en sorbos, masticar chicle sin nicotina, caminar 5 minutos, escuchar una canción. Cualquier acción incompatible con el primer disparo ayuda."
+          }
+        ],
+        "conclusion": "Notar el craving no es solo 'aguantar'. Es aprender a leer una señal de tu cuerpo y responder distinto. Cada vez que lo haces, el patrón pierde fuerza."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 9
+    },
+    {
+      "slug": "vape-reducir",
+      "sustancia": "vape",
+      "tema": "reducir",
+      "titulo": "Estrategias para reducir o dejar el vape",
+      "contenido": {
+        "introduccion": "Reducir o dejar el vape son opciones igualmente válidas. Aquí hay estrategias concretas. Si has intentado antes, no es fracaso: es información para ajustar el próximo intento.",
+        "secciones": [
+          {
+            "titulo": "Cuenta caladas por día",
+            "texto": "Durante una semana, anota cuántas caladas haces. El número te sorprenderá. Tener un dato real es el primer paso para reducirlo."
+          },
+          {
+            "titulo": "Define horarios sin vape",
+            "texto": "Empieza por uno: las primeras dos horas del día sin vapear, o la hora de comida. Expandir gradualmente funciona mejor que el corte total de golpe para muchas personas."
+          },
+          {
+            "titulo": "Reduce la concentración de nicotina",
+            "texto": "Si tu dispositivo permite elegir concentración, bajar de a poco [dato no verificado: ejemplo de reducción gradual 50 → 30 → 20 mg/ml; verificar disponibilidad local] reduce los picos sin cortar de golpe."
+          },
+          {
+            "titulo": "Cambia el contexto primero",
+            "texto": "Identifica la actividad con la que más vapeas y reemplázala por otra durante unas semanas: caminar en lugar de vapear al esperar, té en lugar de vape con café."
+          },
+          {
+            "titulo": "Aleja el dispositivo",
+            "texto": "Dejar el vape fuera de tu alcance inmediato (otro cuarto, mochila cerrada) sube la barrera para una calada impulsiva."
+          },
+          {
+            "titulo": "Busca apoyo si sientes que no puedes",
+            "texto": "CIJ (Centros de Integración Juvenil) y clínicas de cesación tabáquica ofrecen programas para dejar de vapear, gratuitos y confidenciales. Si en el proceso aparecen malestar emocional intenso o ideas de hacerte daño, Línea de la Vida 800 911 2000 está disponible 24/7."
+          }
+        ],
+        "conclusion": "Reducir es legítimo. Si en algún momento decides dejarlo por completo, ese camino también es válido. Lo importante es avanzar hacia donde tú quieres estar."
+      },
+      "duracionLecturaMinutos": 5,
+      "orden": 10
+    },
+    {
+      "slug": "vape-senales-ayuda",
+      "sustancia": "vape",
+      "tema": "senales_ayuda",
+      "titulo": "Señales para pedir apoyo profesional",
+      "contenido": {
+        "introduccion": "Vapear se normaliza rápido, y eso dificulta ver cuándo dejó de ser manejo personal y se volvió un patrón que pide atención. Aquí hay señales concretas.",
+        "secciones": [
+          {
+            "titulo": "Vapear al despertar es lo primero",
+            "texto": "Si lo primero que haces al abrir los ojos es vapear, tu cerebro ya instaló la dependencia como necesidad basal. Es una señal común de enganche establecido."
+          },
+          {
+            "titulo": "Síntomas físicos que aparecen",
+            "texto": "Tos persistente, falta de aire con esfuerzo cotidiano, dolor en pecho, ronquera crónica. Estos síntomas necesitan atención médica, no solo reducción del vapeo."
+          },
+          {
+            "titulo": "Vapear en contextos donde antes no lo hacías",
+            "texto": "En la escuela, en el trabajo, mientras conduces. La expansión del contexto es señal de que el patrón se generalizó."
+          },
+          {
+            "titulo": "No puedes parar más de 24 horas",
+            "texto": "Si lo intentas y vuelves, no es cuestión de fuerza. [dato no verificado: usar como umbral orientativo \"más de 24 horas sin poder parar\" es arbitrario; útil como disparador de atención.] Es dependencia fisiológica sumada a aprendizaje conductual. Acompañamiento profesional funciona."
+          },
+          {
+            "titulo": "Vapear para manejar ansiedad o tristeza",
+            "texto": "Si el vapeo se volvió tu regulador emocional principal, hay otras formas más efectivas y menos riesgosas. Un profesional puede ayudarte a encontrarlas."
+          }
+        ],
+        "conclusion": "Si te reconoces en alguna señal, no esperes a 'tocar fondo'. Línea de la Vida 800 911 2000 y CIJ atienden gratis y confidencialmente."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 11
+    },
+    {
+      "slug": "vape-mitos",
+      "sustancia": "vape",
+      "tema": "mitos",
+      "titulo": "Mitos frecuentes sobre el vape",
+      "contenido": {
+        "introduccion": "El vapeo se comercializa como alternativa 'menos dañina', pero menos dañina no es inocua. Identificar los mitos más comunes te permite decidir con información real.",
+        "secciones": [
+          {
+            "titulo": "'Solo es vapor de agua'",
+            "texto": "No es vapor de agua. Es un aerosol con nicotina, partículas ultrafinas y saborizantes que pueden generar compuestos tóxicos al calentarse."
+          },
+          {
+            "titulo": "'Sin nicotina no engancha'",
+            "texto": "Vapes sin nicotina no generan dependencia química, pero el gesto, el sabor y el contexto siguen reforzando un hábito. Eso también cuenta."
+          },
+          {
+            "titulo": "'Es más seguro que el cigarro'",
+            "texto": "Es probablemente menos dañino que cigarros combustibles, pero no es seguro. Lo 'menos dañino' sigue siendo dañino, sobre todo para el cerebro en desarrollo."
+          },
+          {
+            "titulo": "'No afecta a quienes están alrededor'",
+            "texto": "El aerosol pasivo contiene nicotina y partículas finas. Vapear en espacios cerrados compartidos expone a otras personas, incluidos niños y embarazadas."
+          },
+          {
+            "titulo": "'Como no huele, no se nota'",
+            "texto": "Aunque el olor es más leve, sí queda en ropa, manos y aliento. Y el dispositivo, los líquidos y los residuos son señales visibles para quien busca detectar."
+          },
+          {
+            "titulo": "'Una calada no hace nada'",
+            "texto": "Una calada es un pico pequeño. Repetida decenas o cientos de veces al día, el efecto acumulativo es el que sostiene la dependencia."
+          }
+        ],
+        "conclusion": "Desmontar los mitos del vapeo no es alarmismo: es información para decidir. Si quieres profundizar, la biblioteca de Berto tiene más sobre cada sustancia."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 12
+    },
+    {
+      "slug": "cristal-efectos-cuerpo",
+      "sustancia": "cristal",
+      "tema": "efectos_cuerpo",
+      "titulo": "Qué le hace el cristal a tu cuerpo",
+      "contenido": {
+        "introduccion": "El cristal (metanfetamina) es un estimulante potente. Actúa rápido y sus efectos pueden durar muchas horas. Conocer lo que pasa en tu cuerpo al consumirlo, y al bajar el efecto, es información esencial para cuidarte.",
+        "secciones": [
+          {
+            "titulo": "Cerebro",
+            "texto": "El cristal libera dopamina, noradrenalina y serotonina en cantidades muy altas. Eso explica la euforia inicial, la energía y la hiperfocalización. Al bajar, el cerebro queda con déficit de estos neurotransmisores, lo que genera agotamiento extremo, tristeza e irritabilidad."
+          },
+          {
+            "titulo": "Corazón",
+            "texto": "Sube la frecuencia cardíaca y la presión arterial de forma marcada. Hay riesgo de arritmias, dolor torácico y, en casos extremos, eventos cardiovasculares serios, sobre todo con uso prolongado o en personas con condiciones preexistentes."
+          },
+          {
+            "titulo": "Temperatura",
+            "texto": "El cristal sube la temperatura corporal. Combinado con actividad física intensa o ambientes calurosos, puede llevar a hipertermia, que es una urgencia médica."
+          },
+          {
+            "titulo": "Apetito y sueño",
+            "texto": "Durante el efecto, el apetito desaparece y el sueño se retrasa o se evita. En episodios largos pueden pasar días sin comer ni dormir, lo que deteriora el cuerpo rápidamente."
+          },
+          {
+            "titulo": "Dientes y boca",
+            "texto": "El uso crónico se asocia con desgaste dental acelerado, bruxismo y sequedad bucal. No es solo estético: afecta la nutrición y la calidad de vida."
+          },
+          {
+            "titulo": "Piel",
+            "texto": "Picor, rascado repetido y sensación de insectos en la piel son síntomas reportados. Pueden dejar marcas visibles y puertas de entrada a infecciones si se rasca intensamente."
+          }
+        ],
+        "conclusion": "El cristal tiene efectos físicos intensos. Si consumes o conoces a alguien que consume, la información sobre señales de alerta y dónde pedir ayuda es parte del cuidado."
+      },
+      "duracionLecturaMinutos": 5,
+      "orden": 13
+    },
+    {
+      "slug": "cristal-engancha",
+      "sustancia": "cristal",
+      "tema": "engancha",
+      "titulo": "Por qué el cristal engancha tan fuerte",
+      "contenido": {
+        "introduccion": "El cristal tiene uno de los potenciales adictivos más altos entre las sustancias. La combinación de efecto intenso, corta duración y caída brusca favorece el uso repetido en pocas horas.",
+        "secciones": [
+          {
+            "titulo": "Pico de dopamina extremo",
+            "texto": "El cristal libera dopamina de manera mucho más intensa que muchas otras sustancias. Tu cerebro registra ese pico como una señal importante y aprende a buscarla de nuevo."
+          },
+          {
+            "titulo": "La caída es dura",
+            "texto": "Cuando el efecto baja, aparece agotamiento, tristeza, irritabilidad y craving intenso. Eso empuja a volver a consumir para aliviar la caída, no solo por placer."
+          },
+          {
+            "titulo": "Tolerancia rápida",
+            "texto": "El cuerpo se adapta rápido. Lo que al inicio generaba efecto marcado, después requiere más cantidad. Esto no significa que seas 'más fuerte' o 'más débil'; es fisiología."
+          },
+          {
+            "titulo": "Aprendizaje por contexto",
+            "texto": "Ciertas personas, lugares y momentos del día disparan el craving aunque no haya estímulo físico. Identificarlos te ayuda aplanar la curva."
+          },
+          {
+            "titulo": "Compromiso del sistema de recompensa",
+            "texto": "Con el tiempo, otras fuentes de placer (comida, socialización, música) pierden atractivo frente al pico del cristal. Esto es reversible, pero toma tiempo."
+          }
+        ],
+        "conclusion": "El enganche al cristal es biológico, psicológico y social. Reconocerlo sin culpa te permite pensar mejor cómo salir o reducir. Si quieres, podemos revisar opciones."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 14
+    },
+    {
+      "slug": "cristal-notar-craving",
+      "sustancia": "cristal",
+      "tema": "notar_craving",
+      "titulo": "Cómo notar el craving de cristal",
+      "contenido": {
+        "introduccion": "El craving de cristal puede ser muy intenso y aparecer rápido, sobre todo si el patrón de uso ya está instalado. Identificarlo es el primer paso para no responder automáticamente.",
+        "secciones": [
+          {
+            "titulo": "Señales en el cuerpo",
+            "texto": "Boca seca, mandíbula apretada, inquietud en las piernas, manos que se mueven buscando el gesto. Es el cuerpo pidiendo el estímulo que ya conoce."
+          },
+          {
+            "titulo": "Pensamientos acelerados",
+            "texto": "'Una calada no hace daño', 'solo un rato', 'esta vez es diferente'. Son frases que el craving instala para justificar la decisión. Identificarlas como parte del craving cambia la relación."
+          },
+          {
+            "titulo": "Disparadores emocionales",
+            "texto": "Tristeza profunda, vacío, ansiedad, aburrimiento extremo. Son emociones que el cristal alivió antes y que ahora tu cerebro asocia con la sustancia."
+          },
+          {
+            "titulo": "Disparadores contextuales",
+            "texto": "Personas con las que consumías, ciertos lugares, ciertas horas del día, ciertos objetos a la vista. Cambiar la ruta por unos días o evitar temporalmente esos contextos puede ayudar."
+          },
+          {
+            "titulo": "Plan para esperar la ola",
+            "texto": "Avisar a alguien, alejarte del contexto, hacer una actividad incompatible (caminar, ducharse con agua fría, llamar a un amigo). Definir el plan antes del craving facilita mucho la respuesta."
+          }
+        ],
+        "conclusion": "El craving intenso del cristal puede sentirse como una emergencia, pero es una ola. Si tienes un plan y a alguien a quien llamar, las probabilidades de no actuar automáticamente suben mucho."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 15
+    },
+    {
+      "slug": "cristal-reducir",
+      "sustancia": "cristal",
+      "tema": "reducir",
+      "titulo": "Estrategias para reducir o dejar el cristal",
+      "contenido": {
+        "introduccion": "Reducir los daños del consumo de cristal es posible y válido. Aquí hay estrategias concretas que han funcionado para otras personas. No reemplazan acompañamiento profesional, pero son un piso realista.",
+        "secciones": [
+          {
+            "titulo": "Hidrátate con frecuencia",
+            "texto": "El cristal sube la temperatura corporal y seca la boca. Beber agua en sorbos pequeños [dato no verificado: recomendación práctica de hidratación cada 15–20 minutos para reducir riesgo de hipertermia y deshidratación] reduce riesgos físicos. Lleva siempre agua contigo."
+          },
+          {
+            "titulo": "Come aunque no tengas hambre",
+            "texto": "El apetito se apaga. Forzar pequeñas comidas (fruta, pan, sopa) cada pocas horas protege tu cuerpo y estabiliza el ánimo a mediano plazo."
+          },
+          {
+            "titulo": "Establece límites de tiempo",
+            "texto": "Antes de empezar, decide una duración máxima. Poner alarma y respetarla es una forma de cuidado. A veces es solo 30 minutos menos."
+          },
+          {
+            "titulo": "No compartas pipa ni boquilla",
+            "texto": "Si se comparte, hay riesgo de transmisión de infecciones. Si no hay opción, limpia con alcohol antes de cada uso. Llevar tu propia pipa reduce el riesgo."
+          },
+          {
+            "titulo": "Ten preservativos a mano",
+            "texto": "El cristal puede aumentar conductas de riesgo sexual. Tener protección disponible, aunque no la uses, facilita decidir en el momento."
+          },
+          {
+            "titulo": "Descansa aunque no tengas sueño",
+            "texto": "Cada cierto tiempo, aléjate un momento. Recostarte 15 minutos, aunque no duermas, baja la activación del sistema nervioso."
+          },
+          {
+            "titulo": "Considera acompañamiento profesional",
+            "texto": "Reducción o cesación con apoyo profesional tienen mejores resultados que intentarlo solo. CIJ y Línea de la Vida atienden gratis."
+          }
+        ],
+        "conclusion": "Reducir el daño es una meta legítima. Cada paso cuenta, incluso si todavía consumes. Tu cuerpo y tu cerebro se benefician de cualquier cambio en la dirección del cuidado."
+      },
+      "duracionLecturaMinutos": 5,
+      "orden": 16
+    },
+    {
+      "slug": "cristal-senales-ayuda",
+      "sustancia": "cristal",
+      "tema": "senales_ayuda",
+      "titulo": "Señales de alerta que piden ayuda urgente",
+      "contenido": {
+        "introduccion": "El consumo de cristal puede generar situaciones que requieren atención inmediata. Reconocer estas señales salva vidas. Aquí las más importantes.",
+        "secciones": [
+          {
+            "titulo": "Dolor en el pecho o dificultad para respirar",
+            "texto": "El cristal sube la frecuencia cardíaca y la presión. Dolor torácico intenso, falta de aire o sensación de opresión pueden ser eventos cardiovasculares. Es una urgencia médica."
+          },
+          {
+            "titulo": "Fiebre muy alta",
+            "texto": "La temperatura corporal puede subir mucho. [dato no verificado: fiebre ≥39 °C combinada con confusión, agitación o piel muy caliente es umbral clínico habitual de urgencia]. Requiere atención inmediata."
+          },
+          {
+            "titulo": "Agitación extrema o psicosis",
+            "texto": "Ideas delirantes, voces que te hablan, miedo extremo o agresividad no manejada. La psicosis por estimulantes es tratable y reversible, pero necesita atención profesional."
+          },
+          {
+            "titulo": "Pérdida de consciencia o convulsiones",
+            "texto": "Si la persona no responde o tiene convulsiones, es una emergencia. 911 o urgencias hospitalarias."
+          },
+          {
+            "titulo": "Pensamientos de hacerte daño",
+            "texto": "Después de varios días sin dormir o después de un consumo intenso, pueden aparecer ideas suicidas o de hacerte daño. Línea de la Vida 800 911 2000 está disponible 24/7."
+          },
+          {
+            "titulo": "Deshidratación severa",
+            "texto": "Vómito que no para, no orinar por muchas horas, boca y piel extremadamente secas. Hospital para hidratación."
+          }
+        ],
+        "conclusion": "Ante cualquiera de estas señales, no esperes. 911, urgencias o Línea de la Vida 800 911 2000. Pedir ayuda rápido cambia el desenlace."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 17
+    },
+    {
+      "slug": "cristal-mitos",
+      "sustancia": "cristal",
+      "tema": "mitos",
+      "titulo": "Mitos frecuentes sobre el cristal",
+      "contenido": {
+        "introduccion": "Hay muchas creencias circulando sobre el cristal. Identificarlas te ayuda a cuidarte mejor, sobre todo si consumes o alguien cercano lo hace.",
+        "secciones": [
+          {
+            "titulo": "'Una vez no hace daño'",
+            "texto": "El cristal tiene potencial adictivo alto desde los primeros consumos en personas susceptibles. Una sola vez puede generar el primer eslabón de un patrón; no siempre, pero sí es un riesgo real."
+          },
+          {
+            "titulo": "'Es solo energía, no engancha'",
+            "texto": "Es estimulante potente y tiene uno de los potenciales adictivos más altos conocidos. La euforia inicial no es indicador de seguridad."
+          },
+          {
+            "titulo": "'Si duermo, ya se bajó'",
+            "texto": "Dormir después del consumo baja parte del efecto, pero el cuerpo sigue bajo estrés: frecuencia cardíaca elevada, temperatura arriba, neurotransmisores alterados."
+          },
+          {
+            "titulo": "'Conoces a alguien que lo usa hace años y está bien'",
+            "texto": "Hay personas que mantienen consumo sin escalada visible, pero no es lo más común. Los daños acumulados suelen ser silenciosos hasta que aparecen."
+          },
+          {
+            "titulo": "'Si dejo de golpe, no pasa nada'",
+            "texto": "El síndrome de abstinencia del cristal incluye agotamiento extremo, depresión, craving y, en algunos casos, ideas de hacerte daño o suicidas. Dejarlo de golpe sin apoyo puede ser riesgoso. Si esto aparece, Línea de la Vida 800 911 2000 está disponible 24/7, es gratuita y confidencial."
+          },
+          {
+            "titulo": "'Solo te metes en problemas si lo consumes en la calle'",
+            "texto": "El cristal consumido en casa, solo o en contextos seguros, también genera dependencia y daños físicos. El contexto social no anula el riesgo."
+          }
+        ],
+        "conclusion": "Desmontar los mitos es cuidarte. Si consumes o estás pensando en hacerlo, tener información clara cambia la decisión. Si aparecen ideas de hacerte daño, Línea de la Vida 800 911 2000 atienden 24/7."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 18
+    },
+    {
+      "slug": "tabaco-efectos-cuerpo",
+      "sustancia": "tabaco",
+      "tema": "efectos_cuerpo",
+      "titulo": "Qué le hace el tabaco a tu cuerpo",
+      "contenido": {
+        "introduccion": "El tabaco contiene nicotina, que es adictiva, y muchos otros compuestos que se generan al combustionarse. Tu cuerpo registra los efectos desde el primer cigarrillo.",
+        "secciones": [
+          {
+            "titulo": "Pulmones",
+            "texto": "El humo irrita las vías respiratorias y los alvéolos. Tos crónica, producción de flema y, con el tiempo, mayor riesgo de enfermedad pulmonar obstructiva crónica (EPOC) y cáncer de pulmón."
+          },
+          {
+            "titulo": "Corazón",
+            "texto": "La nicotina sube la frecuencia cardíaca y la presión. Los compuestos del humo dañan la pared de los vasos sanguíneos. Combinado con el tiempo, sube el riesgo cardiovascular."
+          },
+          {
+            "titulo": "Piel y envejecimiento",
+            "texto": "Fumar acelera el envejecimiento de la piel: arrugas más tempranas, tono desparejo, pérdida de firmeza. Es uno de los efectos más visibles y, a la vez, reversibles parcialmente al dejar de fumar."
+          },
+          {
+            "titulo": "Encías y dientes",
+            "texto": "Manchas en dientes, encías inflamadas y mayor riesgo de enfermedad periodontal. La boca es una de las zonas donde el efecto se nota más rápido."
+          },
+          {
+            "titulo": "Sistema inmune",
+            "texto": "Fumar debilita defensas. Las infecciones respiratorias son más frecuentes y tardan más en resolverse."
+          },
+          {
+            "titulo": "Fertilidad y embarazo",
+            "texto": "En personas que menstrúan, fumar se asocia con ciclos más irregulares. En embarazadas, el riesgo para el feto es serio y bien documentado."
+          }
+        ],
+        "conclusion": "El tabaco afecta múltiples sistemas. Dejarlo, aunque sea después de años, empieza a revertir daños desde las primeras semanas."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 19
+    },
+    {
+      "slug": "tabaco-engancha",
+      "sustancia": "tabaco",
+      "tema": "engancha",
+      "titulo": "Por qué el tabaco engancha",
+      "contenido": {
+        "introduccion": "La nicotina es una de las sustancias con mayor potencial adictivo que existen. Fumar un cigarrillo al día ya genera dependencia en muchas personas, sobre todo si empezó en la adolescencia.",
+        "secciones": [
+          {
+            "titulo": "La nicotina en el cerebro",
+            "texto": "Llega al cerebro en segundos y libera dopamina. El cerebro registra la señal y la busca de nuevo. Con repetición, instala la dependencia en pocas semanas."
+          },
+          {
+            "titulo": "Edad de inicio",
+            "texto": "Iniciar antes de los 18 multiplica la probabilidad de dependencia sostenida en la adultez. El cerebro adolescente es más vulnerable a la adicción por su etapa de desarrollo."
+          },
+          {
+            "titulo": "Asociación con actividades",
+            "texto": "Café, alcohol, después de comer, manejar, esperar, socializar. Cada cigarrillo se asocia con un contexto, y el cerebro dispara el craving cuando aparece ese contexto."
+          },
+          {
+            "titulo": "Síndrome de abstinencia",
+            "texto": "Irritabilidad, dificultad de concentración, ansiedad, antojo y hambre aumentada aparecen al dejar de fumar. Son temporales y tratables, pero sin apoyo pueden ser muy incómodos."
+          },
+          {
+            "titulo": "Ventana de oportunidad",
+            "texto": "Si fumas hace poco, todavía estás a tiempo de evitar la dependencia sostenida. Si ya enganchó, dejar es posible y cada día sin fumar suma beneficios."
+          }
+        ],
+        "conclusion": "Entender cómo engancha el tabaco no es para etiquetarte, es para diseñar mejores estrategias si quieres reducir o dejarlo."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 20
+    },
+    {
+      "slug": "tabaco-notar-craving",
+      "sustancia": "tabaco",
+      "tema": "notar_craving",
+      "titulo": "Cómo notar el craving de tabaco",
+      "contenido": {
+        "introduccion": "El craving de tabaco suele estar muy automatizado. Muchas personas fuman sin haber decidido fumar. Identificar el craving es volver a poner la decisión en tus manos.",
+        "secciones": [
+          {
+            "titulo": "El gesto que se adelanta",
+            "texto": "Sacar el cigarro, encenderlo, dar la primera calada: a veces el cuerpo lo inicia antes de que decidas. Eso es craving, no decisión."
+          },
+          {
+            "titulo": "Disparadores",
+            "texto": "Estrés, socializar con personas que fuman, café, alcohol, después de comer, manejar, esperar. Reconocerlos permite anticipar."
+          },
+          {
+            "titulo": "El vacío en la boca",
+            "texto": "Sensación en labios, lengua, manos. La necesidad de tener algo en la boca es real y se puede sustituir con chicles, agua, semillas."
+          },
+          {
+            "titulo": "La ola",
+            "texto": "Como otros cravings, sube, llega a un pico y baja. Si esperas [dato no verificado: 10–15 minutos] con una alternativa, suele pasar."
+          },
+          {
+            "titulo": "Plan para el momento",
+            "texto": "Tener chicle de nicotina, una botella de agua, una rutina sustituta (caminar 5 minutos, respirar lento). Definir el plan antes facilita la respuesta."
+          }
+        ],
+        "conclusion": "Cada vez que identificas un craving sin actuar automáticamente, tu cerebro aprende que hay opciones. Es un entrenamiento, no fuerza de voluntad."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 21
+    },
+    {
+      "slug": "tabaco-reducir",
+      "sustancia": "tabaco",
+      "tema": "reducir",
+      "titulo": "Estrategias para reducir o dejar el tabaco",
+      "contenido": {
+        "introduccion": "Reducir o dejar el tabaco son opciones válidas. Aquí hay estrategias concretas. Si intentaste antes sin sostenerlo, cada intento dejó aprendizaje útil.",
+        "secciones": [
+          {
+            "titulo": "Establece un número máximo diario",
+            "texto": "Define cuántos cigarrillos al día y respétalo. Si no lo cumples, ajustas el plan, no te juzgas. La idea es avanzar, no perfeccionar."
+          },
+          {
+            "titulo": "Identifica el cigarrillo 'menos necesario'",
+            "texto": "Cada persona tiene cigarrillos más por costumbre que por necesidad. Empezar por ese cigarrillo es más fácil que por el 'más importante'."
+          },
+          {
+            "titulo": "Sustitutos de nicotina",
+            "texto": "Chicles, parches, inhaladores de nicotina. Funcionan: liberan nicotina sin los compuestos del humo. Un profesional puede ayudarte a elegir el esquema."
+          },
+          {
+            "titulo": "Cambia el contexto",
+            "texto": "Tomar el café en otro lugar, evitar la pausa con quienes fuman, manejar sin fumar. Cambiar el contexto rompe la asociación automática."
+          },
+          {
+            "titulo": "Apóyate en líneas de ayuda",
+            "texto": "Línea de la Vida 800 911 2000 tiene programas de cesación tabáquica gratuitos. [dato no verificado: el apoyo profesional se asocia con mayores probabilidades de sostener el cambio.] Pedir ayuda profesional es una decisión con información, no una derrota."
+          },
+          {
+            "titulo": "Sé amable contigo en el proceso",
+            "texto": "Cada día sin fumar es un logro, aunque al día siguiente fumes. La medida no es la perfección, es la dirección."
+          }
+        ],
+        "conclusion": "Reducir es válido. Si decides dejarlo por completo, hay caminos probados. Lo que importa es avanzar hacia donde tú quieres estar."
+      },
+      "duracionLecturaMinutos": 5,
+      "orden": 22
+    },
+    {
+      "slug": "tabaco-senales-ayuda",
+      "sustancia": "tabaco",
+      "tema": "senales_ayuda",
+      "titulo": "Señales para pedir apoyo profesional",
+      "contenido": {
+        "introduccion": "Aunque el tabaco está muy normalizado, hay señales que indican que pedir apoyo profesional marca una diferencia real.",
+        "secciones": [
+          {
+            "titulo": "Síntomas respiratorios nuevos",
+            "texto": "Tos persistente, falta de aire con esfuerzo cotidiano, sibilancias (silbidos al respirar). Estos síntomas requieren atención médica, no solo dejar de fumar."
+          },
+          {
+            "titulo": "Intentos previos sin sostener",
+            "texto": "Si has intentado dejarlo varias veces y vuelves, no es que no puedas. Es que el patrón aprendido necesita un plan con más apoyo. Profesionales de cesación tabáquica existen para esto."
+          },
+          {
+            "titulo": "Fumar para manejar ansiedad",
+            "texto": "Si el cigarro es tu regulador emocional principal, hay otras formas más efectivas. Acompañamiento profesional ayuda a construir alternativas."
+          },
+          {
+            "titulo": "Fumar en contextos donde antes no",
+            "texto": "En el trabajo, en la escuela, dentro del coche con menores presentes. La expansión del contexto señala dependencia instalada."
+          },
+          {
+            "titulo": "Más de 10 cigarrillos al día",
+            "texto": "Aunque no hay umbral 'seguro', [dato no verificado: fumar más de 10 cigarrillos diarios se asocia con mayor carga de daño; no existe un nivel \"seguro\" de consumo]. Acompañamiento profesional tiene mejores resultados con consumo elevado."
+          }
+        ],
+        "conclusion": "Si te reconoces en alguna de estas señales, Línea de la Vida 800 911 2000 y CIJ atienden gratis y confidencialmente. Pedir ayuda es una decisión con información, no una derrota."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 23
+    },
+    {
+      "slug": "tabaco-mitos",
+      "sustancia": "tabaco",
+      "tema": "mitos",
+      "titulo": "Mitos frecuentes sobre el tabaco",
+      "contenido": {
+        "introduccion": "Sobre el tabaco circulan muchas creencias heredadas. Identificarlas te ayuda a tomar decisiones informadas, sobre todo si quieres reducir o dejarlo.",
+        "secciones": [
+          {
+            "titulo": "'Fumar poco no hace daño'",
+            "texto": "No hay umbral seguro de consumo de tabaco. Desde pocos cigarrillos por día ya hay aumento de riesgo cardiovascular y respiratorio. Menos es mejor que más, pero 'cero' es mejor que 'poco'."
+          },
+          {
+            "titulo": "'Los cigarros light son menos dañinos'",
+            "texto": "Los cigarros 'light' o 'bajo alquitrán' suelen fumarse con inhalaciones más profundas y frecuentes para compensar, manteniendo o subiendo la exposición."
+          },
+          {
+            "titulo": "'Dejarlo de golpe es mejor'",
+            "texto": "Algunas personas lo dejan así y funciona. Otras se benefician de una reducción gradual con apoyo de sustitutos de nicotina. No hay una sola forma correcta."
+          },
+          {
+            "titulo": "'Fumar solo un poco en fiestas no engancha'",
+            "texto": "El cerebro registra la nicotina rápido. Si el cerebro adolescente es más vulnerable, el patrón festivo puede consolidarse en consumo regular."
+          },
+          {
+            "titulo": "'El daño ya está hecho, no tiene sentido dejarlo'",
+            "texto": "El cuerpo empieza a repararse desde las primeras semanas sin fumar. [dato no verificado: tras ≈10–15 años sin fumar, el riesgo cardiovascular se aproxima al de nunca fumadores]. El cuerpo siempre agradece dejarlo."
+          },
+          {
+            "titulo": "'Si vapeo, ya no fumo cigarros'",
+            "texto": "Vapear puede ser una estrategia de reducción para algunas personas, pero no es inocuo. Si vapeas para no fumar cigarros, vale revisar la dependencia global."
+          }
+        ],
+        "conclusion": "Desmontar los mitos es información para decidir. Si quieres profundizar, en la biblioteca de Berto hay más sobre cada sustancia."
+      },
+      "duracionLecturaMinutos": 4,
+      "orden": 24
+    }
+  ]
+}

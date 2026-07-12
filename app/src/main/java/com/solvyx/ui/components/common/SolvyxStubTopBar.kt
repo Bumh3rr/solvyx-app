@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,7 +38,7 @@ fun SolvyxStubTopBar(
         IconButton(onClick = onOpenDrawer, modifier = Modifier.size(48.dp)) {
             Icon(
                 painter = painterResource(R.drawable.ic_menu),
-                contentDescription = "Abrir menú",
+                contentDescription = stringResource(R.string.action_open_menu),
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )

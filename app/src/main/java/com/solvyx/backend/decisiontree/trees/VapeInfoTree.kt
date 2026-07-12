@@ -2,30 +2,26 @@ package com.solvyx.backend.decisiontree.trees
 
 import com.solvyx.backend.decisiontree.model.*
 
+// Auditado por psicologo-solvyx 2026-07-12 v2 (conversacional + RD)
+
 val vapeInfoTree = DecisionTree(
     id = "vape_info",
     nombre = "Información Vapeo",
     nodoInicialId = "inicio",
     nodos = mapOf(
 
-        // =========================
-        // INICIO
-        // =========================
         "inicio" to DecisionNode(
             id = "inicio",
-            texto = "¿Quieres que te cuente, sin juicio, los efectos del vape en tu cuerpo y tu mente?",
-            mensaje =
-                """
-                Te lo explico claro y sin reganos.
-                """.trimIndent(),
+            texto = "¿Quieres saber, sin rollo, los efectos del vape en tu cuerpo y mente?",
+            mensaje = "Te lo cuento claro y sin regañar.",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Si, quiero entenderlo bien",
-                    siguienteNodoId = "evaluar_riesgo"
+                    texto = "Sí, quiero entenderlo",
+                    siguienteNodoId = "efectos_vape"
                 ),
                 DecisionOption(
-                    texto = "No del todo / Tengo dudas",
+                    texto = "Tengo dudas / No del todo",
                     siguienteNodoId = "efectos_vape"
                 )
             )
@@ -33,18 +29,12 @@ val vapeInfoTree = DecisionTree(
 
         "efectos_vape" to DecisionNode(
             id = "efectos_vape",
-            texto = "El aerosol del vape no es vapor de agua; puede contener sustancias irritantes y toxicas:",
-            mensaje =
-                """
-                • Nicotina (muchos liquidos la contienen y genera dependencia).
-                • Metales que pueden desprenderse de la resistencia al calentarse.
-                • Compuestos organicos volatiles que irritan vias respiratorias.
-                • Saborizantes que, al inhalarse, pueden danar el tejido pulmonar.
-                """.trimIndent(),
+            texto = "El aerosol del vape no es vapor de agua. Puede contener sustancias irritantes:",
+            mensaje = "Nicotina, que muchos líquidos traen y genera dependencia. Metales que pueden desprenderse al calentarse la resistencia. Compuestos orgánicos volátiles que irritan vías respiratorias. Saborizantes que, al inhalarse, pueden dañar el tejido pulmonar.",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir explorando",
                     siguienteNodoId = "impacto_vida"
                 )
             )
@@ -52,53 +42,29 @@ val vapeInfoTree = DecisionTree(
 
         "impacto_vida" to DecisionNode(
             id = "impacto_vida",
-            texto = "¿Sabias que el uso frecuente puede afectar tu rendimiento, tu condicion fisica y tus relaciones?",
-            mensaje =
-                """
-                No solo es el momento de vapear: tambien cambia rutinas, energia y decisiones.
-                """.trimIndent(),
+            texto = "¿Te interesa saber cómo impacta tu día a día?",
+            mensaje = "Tos, falta de aire con esfuerzo cotidiano, irritación de garganta, mal aliento y manchas en dientes. Gasto que se acumula. Aerosol de segunda mano que afecta a quien vive contigo.",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Si",
-                    siguienteNodoId = "abstinencia"
+                    texto = "Sí",
+                    siguienteNodoId = "abstinencia_vape"
                 ),
                 DecisionOption(
                     texto = "No",
-                    siguienteNodoId = "problemas_sociales"
+                    siguienteNodoId = "abstinencia_vape"
                 )
             )
         ),
 
-        "problemas_sociales" to DecisionNode(
-            id = "problemas_sociales",
-            texto = "El vapeo frecuente puede meterse en tu rutina sin que lo notes:",
-            mensaje =
-                """
-                • Aislarte para vapear a escondidas.
-                • Gasto constante que se acumula.
-                • Menos aire al hacer ejercicio o subir escaleras.
-                """.trimIndent(),
+        "abstinencia_vape" to DecisionNode(
+            id = "abstinencia_vape",
+            texto = "¿Sabías que al vapear con frecuencia aparece tolerancia y al dejarlo hay malestar?",
+            mensaje = "No significa que sea imposible dejarlo. Tu cuerpo se está ajustando.",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Continuar",
-                    siguienteNodoId = "abstinencia"
-                )
-            )
-        ),
-
-        "abstinencia" to DecisionNode(
-            id = "abstinencia",
-            texto = "¿Sabias que pasar unas horas sin nicotina puede cambiar tu estado de animo?",
-            mensaje =
-                """
-                No significa debilidad; es el cuerpo ajustandose.
-                """.trimIndent(),
-            tipo = NodeType.QUESTION,
-            opciones = listOf(
-                DecisionOption(
-                    texto = "Si",
+                    texto = "Sí",
                     siguienteNodoId = "final"
                 ),
                 DecisionOption(
@@ -110,38 +76,26 @@ val vapeInfoTree = DecisionTree(
 
         "info_abstinencia" to DecisionNode(
             id = "info_abstinencia",
-            texto = "La abstinencia de nicotina puede incluir:",
-            mensaje =
-                """
-                • Ansiedad o inquietud que sube y baja.
-                • Irritabilidad o cambios de humor.
-                • Dolor de cabeza y dificultad para concentrarte.
-                • Problemas para dormir los primeros dias.
-                """.trimIndent(),
+            texto = "La abstinencia de vapeo puede incluir:",
+            mensaje = "Craving que sube y baja, irritabilidad o ansiedad leve, dificultad para dormir los primeros días y antojo cuando ves a alguien vapeando.",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir",
                     siguienteNodoId = "final"
                 )
             )
         ),
 
-        // =========================
-        // EVALUACIÓN DE RIESGO
-        // =========================
-        "evaluar_riesgo" to DecisionNode(
-            id = "evaluar_riesgo",
-            texto = "¿Te gustaria identificar cuando el vapeo se vuelve de riesgo?",
-            mensaje =
-                """
-                Saberlo ayuda a pedir apoyo a tiempo.
-                """.trimIndent(),
+        "riesgo" to DecisionNode(
+            id = "riesgo",
+            texto = "¿Quieres saber qué señales te avisan de que el vapeo ya está ganando espacio?",
+            mensaje = "Te ayuda a decidir si necesitas apoyo extra antes de que escale.",
             tipo = NodeType.QUESTION,
             opciones = listOf(
                 DecisionOption(
-                    texto = "Si",
-                    siguienteNodoId = "senales"
+                    texto = "Sí",
+                    siguienteNodoId = "senales_enganche"
                 ),
                 DecisionOption(
                     texto = "No",
@@ -150,34 +104,43 @@ val vapeInfoTree = DecisionTree(
             )
         ),
 
-        // =========================
-        // SEÑALES DE ALERTA
-        // =========================
-        "senales" to DecisionNode(
-            id = "senales",
-            texto = "Señales de alerta de dependencia al vapeo:",
-            mensaje =
-                """
-                • Necesidad de vapear poco despues de despertar.
-                • Usarlo en lugares donde no se permite.
-                • Seguir vapeando aunque ya tengas tos, irritacion o resequedad.
-                • Ansiedad intensa si no tienes bateria o liquido.
-                """.trimIndent(),
+        "senales_enganche" to DecisionNode(
+            id = "senales_enganche",
+            texto = "Señales frecuentes de enganche al vapeo:",
+            mensaje = "Vapear al despertar es lo primero que haces. Te cuesta no vapear en lugares donde no se permite. Sientes craving cuando ves el dispositivo. Necesitas más caladas para sentir lo mismo.",
             tipo = NodeType.FINAL,
             esFinal = true
         ),
 
-        // =========================
-        // FINAL
-        // =========================
         "final" to DecisionNode(
             id = "final",
-            texto = "Tu salud es primero. Si quieres apoyo, aqui estoy.",
-            mensaje =
-                """
-                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
-                Si hay una urgencia, llama al 911.
-                """.trimIndent(),
+            texto = "Cuidar tu salud es una decisión valiente. ¿Quieres tips iniciales para empezar?",
+            mensaje = "Si prefieres cerrar aquí, está bien. Si quieres apoyo, también.",
+            tipo = NodeType.QUESTION,
+            opciones = listOf(
+                DecisionOption(
+                    texto = "Sí, dame tips",
+                    siguienteNodoId = "tips_iniciales"
+                ),
+                DecisionOption(
+                    texto = "No, cerrar",
+                    siguienteNodoId = "fin"
+                )
+            )
+        ),
+
+        "tips_iniciales" to DecisionNode(
+            id = "tips_iniciales",
+            texto = "Tips iniciales para dejar o reducir el vapeo:",
+            mensaje = "Elige una fecha cercana y avisa a alguien de confianza. Deja el dispositivo fuera de tu alcance. Cambia rutinas que disparen el antojo. Sustitutos: agua, chicle, palillo o caminar 5 minutos. Si sube el craving, espera 10 minutos y respira lento.",
+            tipo = NodeType.FINAL,
+            esFinal = true
+        ),
+
+        "fin" to DecisionNode(
+            id = "fin",
+            texto = "Cuidar tu salud es una decisión valiente. Aquí estoy cuando lo necesites.",
+            mensaje = "En México, Línea de la Vida 800 911 2000 (24/7). Si hay urgencia, 911.",
             tipo = NodeType.FINAL,
             esFinal = true
         )

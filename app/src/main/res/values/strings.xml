@@ -1,12 +1,185 @@
 <resources>
     <string name="app_name">Solvyx</string>
 
-    <!-- TTS: Ejercicio 5-4-3-2-1 -->
-    <string name="tts_intro">Hola. Soy Berto y estoy aquí contigo. Vamos a hacer juntas el ejercicio cinco cuatro tres dos uno. Es una técnica de anclaje que trae tu mente al presente. Respira profundo y cuando estés lista, presiona comenzar.</string>
+    <!-- TTS: Ejercicio 5-4-3-2-1 (lenguaje inclusivo: "listx", "juntas") -->
+    <string name="tts_intro">Hola. Soy Berto y estoy aquí contigo. Vamos a hacer juntes el ejercicio cinco cuatro tres dos uno. Es una técnica de anclaje que trae tu mente al presente. Respira profundo y cuando estés listx, presiona comenzar.</string>
     <string name="tts_step_ver">Muy bien. Primer sentido: la vista. Busca cinco cosas que puedas ver ahora mismo a tu alrededor. Pueden ser objetos, colores, luces, o cualquier cosa visible. Toca cada burbuja cuando encuentres una.</string>
     <string name="tts_step_tocar">Excelente. Ahora el tacto. Identifica cuatro cosas que puedas tocar. Siente su textura, su temperatura. Puede ser tu ropa, la silla, el suelo, cualquier superficie cercana.</string>
     <string name="tts_step_escuchar">Muy bien. Tercer sentido: el oído. Escucha con atención y encuentra tres sonidos distintos. Puede ser el viento, voces lejanas, tu propia respiración. Tómate el tiempo que necesites.</string>
     <string name="tts_step_oler">Genial. Ahora el olfato. Identifica dos aromas que puedas detectar. Inhala suavemente por la nariz. Puede ser el aire, tu ropa, algún alimento cercano.</string>
     <string name="tts_step_saborear">Casi terminamos. Último sentido: el sabor. Presta atención a un sabor que puedas identificar ahora mismo en tu boca.</string>
     <string name="tts_completion">Lo lograste. Completaste el ejercicio cinco cuatro tres dos uno. Tu mente está anclada al presente. El pánico disminuye cuando traes tu atención al aquí y ahora. Estás haciendo un gran trabajo cuidándote.</string>
+
+    <!-- ── Acciones / Estado ─────────────────────────────────────────── -->
+    <string name="action_retry">Reintentar</string>
+    <string name="action_back">Volver</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_saving">Guardando…</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_open_menu">Abrir menú</string>
+    <string name="error_generic_title">Algo salió mal</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_dismiss">Descartar</string>
+    <string name="action_view_more">Ver más</string>
+    <string name="state_selected">Seleccionado</string>
+    <string name="state_not_selected">No seleccionado</string>
+    <string name="state_expanded">Expandido</string>
+    <string name="state_collapsed">Contraído</string>
+    <string name="state_completed">Completado</string>
+    <string name="state_pending">Pendiente</string>
+
+    <!-- ── Onboarding ────────────────────────────────────────────────── -->
+    <string name="onboarding_skip">Saltar</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_start">Empezar</string>
+
+    <!-- ── Ejercicios ────────────────────────────────────────────────── -->
+    <string name="ejercicios_title">Ejercicios</string>
+    <string name="ejercicio_detalle_title">Ejercicio</string>
+    <string name="ejercicio_duracion_min">%1$d min</string>
+    <string name="ejercicio_duracion_lectura">%1$d min de lectura</string>
+    <string name="ejercicio_pasos_label">Pasos</string>
+    <string name="ejercicio_iniciar_cta">Iniciar ejercicio</string>
+    <string name="ejercicio_iniciar_corto">Iniciar</string>
+    <string name="ejercicio_privacidad_hint">Tus respiraciones no se guardan. Estás a salvo.</string>
+    <string name="ejercicios_empty_title">Aún no hay ejercicios para este filtro</string>
+    <string name="ejercicios_empty_message">Vuelve más tarde o cambia el filtro.</string>
+    <string name="ejercicios_empty_action_ver_todos">Ver todos</string>
+    <string name="ejercicio_paso_x_de_y">Paso %1$d de %2$d</string>
+    <string name="ejercicio_salir_label">Salir</string>
+    <string name="ejercicio_salir_cta">Listx</string>
+    <string name="ejercicio_silenciar_voz">Silenciar voz</string>
+    <string name="ejercicio_reanudar_voz">Reanudar voz</string>
+    <string name="ejercicio_pausar">Pausar</string>
+    <string name="ejercicio_reanudar">Reanudar</string>
+    <string name="ejercicio_card_action_iniciar">Iniciar %1$s</string>
+
+    <!-- Filtros de ejercicios -->
+    <string name="filtro_ejercicios_todos">Todos</string>
+    <string name="filtro_ejercicios_respiracion">Respiración</string>
+    <string name="filtro_ejercicios_body_scan">Body scan</string>
+    <string name="filtro_ejercicios_grounding">Grounding</string>
+    <string name="filtro_ejercicios_activacion">Activación</string>
+    <string name="filtro_ejercicios_lugar_seguro">Lugar seguro</string>
+
+    <string name="fase_inhala">Inhala</string>
+    <string name="fase_sosten">Sostén</string>
+    <string name="fase_exhala">Exhala</string>
+    <string name="fase_completado">Lo lograste</string>
+
+    <!-- ── Guías Extendidas ──────────────────────────────────────────── -->
+    <string name="guias_extendidas_title">Guías de primeros auxilios</string>
+    <string name="guias_empty_title">No hay guías en esta categoría</string>
+    <string name="guias_empty_message">Estamos trabajando en más contenido. Vuelve pronto.</string>
+    <string name="guias_empty_action_ver_todas">Ver todas</string>
+    <string name="guia_detalle_title">Guía</string>
+    <string name="guia_seccion_pasos">Pasos</string>
+    <string name="guia_seccion_senales_alerta">Señales de alerta</string>
+    <string name="guia_seccion_llamar_911">Cuándo llamar al 911</string>
+    <string name="guia_seccion_lineas_ayuda">Líneas de ayuda</string>
+
+    <!-- Filtros de guías -->
+    <string name="filtro_guias_todas">Todas</string>
+    <string name="filtro_guias_crisis">Crisis</string>
+    <string name="filtro_guias_craving">Craving</string>
+    <string name="filtro_guias_consumo">Consumo</string>
+    <string name="filtro_guias_post_consumo">Post-consumo</string>
+    <string name="filtro_guias_noches">Noches</string>
+    <string name="filtro_guias_familia">Familia</string>
+    <string name="filtro_guias_violencia">Violencia</string>
+
+    <!-- Líneas de ayuda -->
+    <string name="guia_telefono_label">Teléfono %1$s</string>
+    <string name="guia_llamar_a">Llamar a %1$s</string>
+
+    <!-- ── Lecciones / Psicoeducación ────────────────────────────────── -->
+    <string name="lecciones_title">Psicoeducación</string>
+    <string name="leccion_detalle_title">Lección</string>
+    <string name="leccion_header_sustancia_tema">%1$s · %2$s</string>
+    <string name="leccion_duracion">%1$d min de lectura</string>
+    <string name="leccion_marcar_leida">Marcar como leída</string>
+    <string name="leccion_leida">Leída</string>
+    <string name="lecciones_empty_title">Aún no hay lecciones</string>
+    <string name="lecciones_empty_message">Pronto agregaremos más contenido sobre %1$s.</string>
+    <string name="leccion_abrir">Abrir lección %1$s</string>
+
+    <!-- ── Journaling ─────────────────────────────────────────────────── -->
+    <string name="journaling_title">Journaling</string>
+    <string name="journaling_fab_nueva_entrada">Nueva entrada</string>
+    <string name="journaling_prompts_seccion">Prompts sugeridos</string>
+    <string name="journaling_entradas_recientes">Mis entradas recientes</string>
+    <string name="journaling_empty_prompts_title">Sin prompts en esta categoría</string>
+    <string name="journaling_empty_prompts_message">Pronto agregaremos más ideas para escribir.</string>
+    <string name="journaling_editor_title">Escribir</string>
+    <string name="journaling_editor_placeholder_libre">¿Qué quieres anotar hoy?</string>
+    <string name="journaling_editor_placeholder_prompt">Escribe tu respuesta aquí…</string>
+    <string name="journaling_editor_chars">%1$d caracteres</string>
+    <string name="journaling_editor_privacidad_hint">Solo tú puedes leer esto.</string>
+    <string name="journaling_escribir_prompt">Escribir sobre este prompt</string>
+    <string name="journaling_escribir_libre">Escribir entrada libre</string>
+    <string name="journaling_prompt_label">Prompt: %1$s</string>
+
+    <!-- ── Rutinas ────────────────────────────────────────────────────── -->
+    <string name="rutinas_title">Rutinas</string>
+    <string name="rutina_detalle_title">Rutina</string>
+    <string name="rutina_detalle_progreso">%1$d de %2$d pasos completados hoy</string>
+    <string name="rutinas_empty_title">Aún no tienes rutinas</string>
+    <string name="rutinas_empty_message">Pronto agregaremos más. Mientras tanto, hay 2 disponibles.</string>
+    <string name="rutinas_hora_sugerida">Sugerida %1$s</string>
+    <string name="rutinas_abrir">Abrir rutina %1$s</string>
+    <string name="rutina_paso_label">Paso %1$d: %2$s. %3$s. Duración %4$d segundos. %5$s</string>
+
+    <!-- ── Insights ───────────────────────────────────────────────────── -->
+    <string name="insights_title">Insights de Berto</string>
+    <string name="insights_idle_title">Cuando Berto tenga algo que decirte, aparecerá aquí</string>
+    <string name="insights_idle_message">Puedes pedirle que analice tu proceso cuando quieras.</string>
+    <string name="insights_btn_evaluar_ahora">Evaluar ahora</string>
+    <string name="insights_historial_label">Historial</string>
+    <string name="insights_historial_vacio_title">Sin historial aún</string>
+    <string name="insights_historial_vacio_message">Cuando Berto comparta observaciones, aparecerán aquí.</string>
+    <string name="insights_berto_label">Berto</string>
+    <string name="insights_berto_anuncio">Insight de Berto. %1$s</string>
+
+    <!-- ── Bitácora Extendida (BottomSheet) ──────────────────────────── -->
+    <string name="bitacora_extendida_title">Detalles extendidos</string>
+    <string name="bitacora_extendida_subtitle">Estos datos son opcionales y privados.</string>
+    <string name="bitacora_extendida_sueno">Sueño</string>
+    <string name="bitacora_extendida_horas">Horas</string>
+    <string name="bitacora_extendida_calidad">Calidad</string>
+    <string name="bitacora_extendida_calidad_label">Calidad: %1$d de 5</string>
+    <string name="bitacora_extendida_calidad_seleccionar">Seleccionar calidad %1$d de 5</string>
+    <string name="bitacora_extendida_comida">Comida</string>
+    <string name="bitacora_extendida_comio">¿Comiste?</string>
+    <string name="bitacora_extendida_si">Sí</string>
+    <string name="bitacora_extendida_no">No</string>
+    <string name="bitacora_extendida_actividad">Actividad física</string>
+    <string name="bitacora_extendida_actividad_nada">Nada</string>
+    <string name="bitacora_extendida_actividad_ligera">Ligera</string>
+    <string name="bitacora_extendida_actividad_moderada">Moderada</string>
+    <string name="bitacora_extendida_actividad_intensa">Intensa</string>
+    <string name="bitacora_extendida_contexto">Contexto social</string>
+    <!-- Cambio a lenguaje no binario -->
+    <string name="bitacora_extendida_contexto_solo">En soledad</string>
+    <string name="bitacora_extendida_contexto_familia">Familia</string>
+    <string name="bitacora_extendida_contexto_amigos">Amistades</string>
+    <string name="bitacora_extendida_contexto_trabajo">Trabajo</string>
+    <string name="bitacora_extendida_opcion_label">Opción %1$s</string>
+    <string name="bitacora_extendida_detonante">Detonante principal</string>
+    <string name="bitacora_extendida_detonante_placeholder">¿Qué evento o pensamiento disparó esto?</string>
+    <string name="bitacora_extendida_ansiedad">Nivel de ansiedad</string>
+    <string name="bitacora_extendida_ansiedad_label">Nivel de ansiedad: %1$d de 10</string>
+    <string name="bitacora_extendida_craving">¿Tuviste craving?</string>
+    <string name="bitacora_extendida_ejercicio">¿Hiciste ejercicio físico?</string>
+    <string name="bitacora_extendida_nota">Nota privada</string>
+    <string name="bitacora_extendida_nota_placeholder">Aquí puedes escribir libremente…</string>
+
+    <!-- ── Sin red (banner global) ────────────────────────────────────── -->
+    <string name="sin_red_banner_title">Estás sin internet</string>
+    <string name="sin_red_banner_subtitle">Solvyx funciona completo. Algunas funciones requieren red.</string>
+    <string name="sin_red_banner_action">Ver detalles</string>
+
+    <!-- ── Chat Berto: Quick Reply Bar ────────────────────────────────── -->
+    <!-- Accesibilidad para los chips de respuesta rápida. TalkBack lee
+         "Opción: <texto>" al focus sobre cada chip. -->
+    <string name="quick_reply_chip_a11y">Opción: %1$s</string>
 </resources>

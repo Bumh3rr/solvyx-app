@@ -84,7 +84,13 @@ fun InicioScreen(
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToPlan: () -> Unit = {},
     onNavigateToRegistro: () -> Unit = {},
-    onNavigateToGuias: () -> Unit = {}
+    onNavigateToGuias: () -> Unit = {},
+    onNavigateToPsicoeducacion: () -> Unit = {},
+    onNavigateToJournaling: () -> Unit = {},
+    onNavigateToRutinas: () -> Unit = {},
+    onNavigateToInsights: () -> Unit = {},
+    onNavigateToGuiasExtendidas: () -> Unit = {},
+    onNavigateToDescubrir: () -> Unit = {}
 ) {
     val viewModel: InicioViewModel = hiltViewModel()
     val redApoyoViewModel: RedApoyoViewModel = hiltViewModel()
@@ -529,6 +535,14 @@ fun InicioScreen(
                         AccesoItem("Mi Registro",       "Ver mis patrones",        R.drawable.ic_trending_up, usePrimary = true,  onClick = onNavigateToRegistro),
                         AccesoItem("Mi Red de Apoyo",   "Contactos de confianza",  R.drawable.ic_people,      usePrimary = false, onClick = onNavigateToRedApoyo)
                     )
+                    data class DescubreCard(
+                        val titulo: String,
+                        val subtitulo: String,
+                        val iconRes: Int,
+                        val category: com.solvyx.ui.components.common.AccessCategory,
+                        val isNew: Boolean = false,
+                        val onClick: () -> Unit
+                    )
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         accesos.chunked(2).forEach { rowItems ->
                             Row(
@@ -545,6 +559,117 @@ fun InicioScreen(
                                         else
                                             MaterialTheme.colorScheme.secondaryContainer,
                                         onClick = item.onClick,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rowItems.size == 1) Spacer(Modifier.weight(1f))
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    // ── DESCUBRE SOLVYX (NUEVO) ───────────────
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Descubre Solvyx",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        androidx.compose.material3.TextButton(onClick = onNavigateToDescubrir) {
+                            Text(
+                                "Ver todo",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Icon(
+                                painter = painterResource(R.drawable.ic_chevron_right),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Recursos nuevos para acompañarte.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(12.dp))
+
+                    val descubriCards = listOf(
+                        DescubreCard(
+                            titulo = "Ejercicios",
+                            subtitulo = "Respiración, body scan, grounding",
+                            iconRes = R.drawable.ic_wind,
+                            category = com.solvyx.ui.components.common.AccessCategory.Calm,
+                            isNew = true,
+                            onClick = onNavigateToEjercicio
+                        ),
+                        DescubreCard(
+                            titulo = "Psicoeducación",
+                            subtitulo = "24 lecciones por sustancia",
+                            iconRes = R.drawable.ic_brain,
+                            category = com.solvyx.ui.components.common.AccessCategory.Learn,
+                            isNew = true,
+                            onClick = onNavigateToPsicoeducacion
+                        ),
+                        DescubreCard(
+                            titulo = "Rutinas",
+                            subtitulo = "Matutina y nocturna",
+                            iconRes = R.drawable.ic_calendar,
+                            category = com.solvyx.ui.components.common.AccessCategory.Calm,
+                            isNew = true,
+                            onClick = onNavigateToRutinas
+                        ),
+                        DescubreCard(
+                            titulo = "Journaling",
+                            subtitulo = "Escribe con prompts o libre",
+                            iconRes = R.drawable.ic_pencil,
+                            category = com.solvyx.ui.components.common.AccessCategory.Express,
+                            isNew = true,
+                            onClick = onNavigateToJournaling
+                        ),
+                        DescubreCard(
+                            titulo = "Guías extendidas",
+                            subtitulo = "8 guías adicionales",
+                            iconRes = R.drawable.ic_clipboard,
+                            category = com.solvyx.ui.components.common.AccessCategory.Support,
+                            isNew = true,
+                            onClick = onNavigateToGuiasExtendidas
+                        ),
+                        DescubreCard(
+                            titulo = "Insights",
+                            subtitulo = "Patrones que Berto nota",
+                            iconRes = R.drawable.ic_chart_bar,
+                            category = com.solvyx.ui.components.common.AccessCategory.Learn,
+                            isNew = true,
+                            onClick = onNavigateToInsights
+                        )
+                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        descubriCards.chunked(2).forEach { rowItems ->
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                rowItems.forEach { card ->
+                                    com.solvyx.ui.components.common.SolvyxAccessCard(
+                                        title = card.titulo,
+                                        description = card.subtitulo,
+                                        iconRes = card.iconRes,
+                                        category = card.category,
+                                        isNew = card.isNew,
+                                        onClick = card.onClick,
                                         modifier = Modifier.weight(1f)
                                     )
                                 }

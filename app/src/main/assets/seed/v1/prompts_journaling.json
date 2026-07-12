@@ -1,0 +1,225 @@
+{
+  "_format": "solvyx-seed-prompts-journaling",
+  "_schema_version": 1,
+  "_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_reviewed_by": "psicologo-solvyx 2026-07-12 v2 (auditoría completa: 0 críticos, 1 importante, 7 mejora)",
+  "items": [
+    {
+      "slug": "gratitud-001",
+      "categoria": "gratitud",
+      "texto": "Hoy algo que agradezco fue...",
+      "orden": 1
+    },
+    {
+      "slug": "gratitud-002",
+      "categoria": "gratitud",
+      "texto": "Alguien que hizo mi día un poco mejor fue... porque...",
+      "orden": 2
+    },
+    {
+      "slug": "gratitud-003",
+      "categoria": "gratitud",
+      "texto": "Algo de mi cuerpo que funcionó bien hoy fue...",
+      "orden": 3
+    },
+    {
+      "slug": "gratitud-004",
+      "categoria": "gratitud",
+      "texto": "Un momento de calma que tuve hoy fue cuando...",
+      "orden": 4
+    },
+    {
+      "slug": "gratitud-005",
+      "categoria": "gratitud",
+      "texto": "Algo pequeño de hoy por lo que estoy agradecido/a es...",
+      "orden": 5
+    },
+    {
+      "slug": "gratitud-006",
+      "categoria": "gratitud",
+      "texto": "Una decisión que tomé hoy y me siento bien con ella fue...",
+      "orden": 6
+    },
+    {
+      "slug": "dificultad-001",
+      "categoria": "dificultad",
+      "texto": "Hoy lo más difícil fue...",
+      "orden": 1
+    },
+    {
+      "slug": "dificultad-002",
+      "categoria": "dificultad",
+      "texto": "Algo que me costó trabajo hoy fue... y lo hice así...",
+      "orden": 2
+    },
+    {
+      "slug": "dificultad-003",
+      "categoria": "dificultad",
+      "texto": "Una emoción incómoda que apareció hoy fue... y la noté en...",
+      "orden": 3
+    },
+    {
+      "slug": "dificultad-004",
+      "categoria": "dificultad",
+      "texto": "Una conversación que evité hoy fue porque...",
+      "orden": 4
+    },
+    {
+      "slug": "dificultad-005",
+      "categoria": "dificultad",
+      "texto": "Algo que me juzgué con dureza hoy fue...",
+      "orden": 5
+    },
+    {
+      "slug": "dificultad-006",
+      "categoria": "dificultad",
+      "texto": "Si hoy lo repitiera, una cosa que haría distinto es...",
+      "orden": 6
+    },
+    {
+      "slug": "curiosidad-001",
+      "categoria": "curiosidad",
+      "texto": "Algo que me generó curiosidad hoy fue...",
+      "orden": 1
+    },
+    {
+      "slug": "curiosidad-002",
+      "categoria": "curiosidad",
+      "texto": "Una pregunta que me quedó rondando hoy fue...",
+      "orden": 2
+    },
+    {
+      "slug": "curiosidad-003",
+      "categoria": "curiosidad",
+      "texto": "Algo que hice hoy por primera vez (o casi) fue...",
+      "orden": 3
+    },
+    {
+      "slug": "curiosidad-004",
+      "categoria": "curiosidad",
+      "texto": "Hoy descubrí que me gusta... porque...",
+      "orden": 4
+    },
+    {
+      "slug": "curiosidad-005",
+      "categoria": "curiosidad",
+      "texto": "Una idea que tengo y me gustaría poner a prueba es...",
+      "orden": 5
+    },
+    {
+      "slug": "curiosidad-006",
+      "categoria": "curiosidad",
+      "texto": "Algo que observé en otra persona y me hizo pensar fue...",
+      "orden": 6
+    },
+    {
+      "slug": "emociones-001",
+      "categoria": "emociones",
+      "texto": "Hoy me sentí principalmente... y eso se notó en...",
+      "orden": 1
+    },
+    {
+      "slug": "emociones-002",
+      "categoria": "emociones",
+      "texto": "Una emoción que evité sentir hoy fue... y lo noté porque...",
+      "orden": 2
+    },
+    {
+      "slug": "emociones-003",
+      "categoria": "emociones",
+      "texto": "Algo que me hizo reír hoy fue...",
+      "orden": 3
+    },
+    {
+      "slug": "emociones-004",
+      "categoria": "emociones",
+      "texto": "Una emoción que quiero cuidar por estos días es...",
+      "orden": 4
+    },
+    {
+      "slug": "emociones-005",
+      "categoria": "emociones",
+      "texto": "Hoy algo que me dio energía o calma en el cuerpo fue...",
+      "orden": 5
+    },
+    {
+      "slug": "emociones-006",
+      "categoria": "emociones",
+      "texto": "Si pudiera describir hoy con una metáfora, sería...",
+      "orden": 6
+    },
+    {
+      "slug": "cravings-001",
+      "categoria": "cravings",
+      "texto": "Hoy el craving apareció cuando... y lo noté en...",
+      "orden": 1
+    },
+    {
+      "slug": "cravings-002",
+      "categoria": "cravings",
+      "texto": "Hoy lo que disparó el antojo fue... y eso me hizo sentir...",
+      "orden": 2
+    },
+    {
+      "slug": "cravings-003",
+      "categoria": "cravings",
+      "texto": "Hoy apareció un craving. ¿Cómo lo navegué, hayas consumido o no?",
+      "orden": 3
+    },
+    {
+      "slug": "cravings-004",
+      "categoria": "cravings",
+      "texto": "Si consumí hoy, lo que necesito ahora es...",
+      "orden": 4
+    },
+    {
+      "slug": "cravings-005",
+      "categoria": "cravings",
+      "texto": "Hoy la parte más difícil del craving fue... y aprendí que...",
+      "orden": 5
+    },
+    {
+      "slug": "cravings-006",
+      "categoria": "cravings",
+      "texto": "Una estrategia que ya me ha servido (hoy o antes) es...",
+      "orden": 6
+    },
+    {
+      "slug": "planes-001",
+      "categoria": "planes",
+      "texto": "Mañana una cosa que quiero hacer por mí es...",
+      "orden": 1
+    },
+    {
+      "slug": "planes-002",
+      "categoria": "planes",
+      "texto": "En esta semana quiero avanzar en... y un primer paso es...",
+      "orden": 2
+    },
+    {
+      "slug": "planes-003",
+      "categoria": "planes",
+      "texto": "Hoy decidí que esta semana voy a intentar...",
+      "orden": 3
+    },
+    {
+      "slug": "planes-004",
+      "categoria": "planes",
+      "texto": "Una persona con quien quiero hablar es... sobre...",
+      "orden": 4
+    },
+    {
+      "slug": "planes-005",
+      "categoria": "planes",
+      "texto": "Si me imagino la semana que viene y sale bien, lo que veo es...",
+      "orden": 5
+    },
+    {
+      "slug": "planes-006",
+      "categoria": "planes",
+      "texto": "Hoy definí que voy a soltar... y voy a empezar por...",
+      "orden": 6
+    }
+  ]
+}

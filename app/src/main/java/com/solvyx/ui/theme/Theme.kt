@@ -104,6 +104,7 @@ fun SolvyxappTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = SolvyxTypography,
+        shapes = SolvyxShapes,
         content = content
     )
 }

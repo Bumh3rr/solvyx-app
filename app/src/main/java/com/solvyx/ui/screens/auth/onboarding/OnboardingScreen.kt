@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -57,11 +58,11 @@ private val pages = listOf(
     OnboardingPage(
         imageRes = R.drawable.berto_mira_moriposa,
         title = "Siempre aquí para ti",
-        description = "Habla con Berto cuando algo no esté bien, registra cómo te sientes y activa ayuda si la necesitas."
+        description = "Habla con Berto cuando algo no esté bien, registra cómo te sientes y activa ayuda si la necesites."
     ),
     OnboardingPage(
         imageRes = R.drawable.berto_sin_internet,
-        title = "Sin internet,\nsin problema",
+        title = "Sin internet, sin problema",
         description = "Solvyx funciona aunque no tengas datos ni WiFi. Berto siempre está disponible."
     )
 )
@@ -166,16 +167,19 @@ private fun OnboardingButtons(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (pagerState.currentPage < pageCount - 1) {
-            SolvyxTextButton(text = "Saltar", onClick = onSkip)
+            SolvyxTextButton(
+                text = stringResource(R.string.onboarding_skip),
+                onClick = onSkip
+            )
             Spacer(Modifier.width(12.dp))
             SolvyxButton(
-                text = "Siguiente",
+                text = stringResource(R.string.onboarding_next),
                 onClick = onNext,
                 modifier = Modifier.weight(1f)
             )
         } else {
             SolvyxButton(
-                text = "Empezar",
+                text = stringResource(R.string.onboarding_start),
                 onClick = onFinish,
                 modifier = Modifier.fillMaxWidth()
             )

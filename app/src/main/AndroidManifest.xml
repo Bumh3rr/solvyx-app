@@ -7,9 +7,19 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS"
+        tools:ignore="SmsAndCallLogPolicy" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+        WorkManager + notificaciones (Android 13+).
+        POST_NOTIFICATIONS se solicita en runtime; si no se concede,
+        los workers simplemente omiten `notifier.post()` sin fallar.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Necesario para reintentar trabajo en Doze en Android < 12. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".SolvyxApp"
@@ -30,7 +40,44 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!--
+                Deep links para notificaciones y enlaces externos.
+                Las notificaciones de Berto generan URIs tipo
+                `solvyx://ejercicios/respiracion-4-7-8` que llegan aquí.
+                Navigation Compose los maneja vía `NavDeepLink.uriPattern`
+                cuando se registre en cada `composable(...)`.
+
+                Soportamos scheme `solvyx`. Cualquier path resuelto lo
+                captura automáticamente el grafo de navegación.
+            -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="solvyx" />
+            </intent-filter>
         </activity>
+
+        <!--
+            WorkManager: deshabilitamos el inicializador por defecto de
+            `androidx.startup` para que SolvyxApp (Configuration.Provider)
+            pueda inyectar el HiltWorkerFactory. Sin esto, WorkManager se
+            inicializa antes de que Hilt esté listo y nuestro factory no se
+            usa → `AssistedInject` falla en runtime.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge"
+            tools:ignore="MissingClass">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 
 </manifest>

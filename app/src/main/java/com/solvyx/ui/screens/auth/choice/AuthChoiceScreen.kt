@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
-import com.solvyx.ui.components.common.SolvyxOutlinedButton
 import com.solvyx.ui.navigation.Routes
 import com.solvyx.ui.theme.SolvyxappTheme
 
@@ -47,6 +46,14 @@ private fun AuthChoiceScreenPreviewDark() {
     }
 }
 
+/**
+ * Pantalla de bienvenida. El registro es OBLIGATORIO:
+ * - "Crear cuenta" es el botón principal y único punto de entrada.
+ * - "Iniciar sesión" se ofrece como enlace secundario, ya que
+ *   Solvyx es 100% local y no hay backend de auth: si el usuario
+ *   inicia sesión con credenciales guardadas localmente, sigue
+ *   siendo su cuenta en este dispositivo.
+ */
 @Composable
 fun AuthChoiceScreen(nav: NavHostController) {
 
@@ -127,44 +134,30 @@ fun AuthChoiceScreen(nav: NavHostController) {
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 24.dp)
-                .padding(top = 32.dp, bottom = 28.dp),
+                .padding(top = 28.dp, bottom = 22.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "¿Cómo quieres entrar?",
+                text = "Crea tu cuenta",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Black
                 ),
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
-                text = "Elige la opción para continuar",
+                text = "Tus datos viven solo en este teléfono.",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.SemiBold
                 ),
                 color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp)
             )
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(20.dp))
 
+            // ── Botón principal: Crear cuenta ──────────────
             SolvyxButton(
-                text = "Iniciar Sesión",
-                onClick = { nav.navigate(Routes.LOGIN) },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_login),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            SolvyxOutlinedButton(
                 text = "Crear cuenta",
                 onClick = { nav.navigate(Routes.REGISTER) },
                 modifier = Modifier.fillMaxWidth(),
@@ -172,13 +165,54 @@ fun AuthChoiceScreen(nav: NavHostController) {
                     Icon(
                         painter = painterResource(R.drawable.ic_add_user),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
             )
 
+            Spacer(Modifier.height(8.dp))
+
+            // ── Enlace secundario: Ya tienes cuenta ─────────
+            TextButton(
+                onClick = { nav.navigate(Routes.LOGIN) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "¿Ya tienes cuenta? Inicia sesión",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Spacer(Modifier.weight(1f))
+
+            // ── Compromiso de privacidad ───────────────────
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_shield),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "100% privado. Sin servidor. Tú controlas tus datos.",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 14.sp
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
 
             // Términos
             Text(

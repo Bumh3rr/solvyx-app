@@ -37,8 +37,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -97,6 +95,7 @@ import com.solvyx.R
 import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.common.SolvyxQuickReplyBar
 import com.solvyx.ui.theme.BertoVisorCalm
 import com.solvyx.ui.theme.BertoVisorCelebr
 import com.solvyx.ui.theme.BertoVisorCrisis
@@ -105,7 +104,6 @@ import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLightest
 import com.solvyx.ui.theme.TealPrimary
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -138,15 +136,22 @@ fun BertoScreen(
         }
     }
 
+    // Quick replies activas: el último mensaje de Berto con opciones.
+    // Las opciones rápidas ya no van inline en la burbuja: viven en el
+    // [SolvyxQuickReplyBar] sticky debajo del chat, así que basta con
+    // tomar las opciones del último mensaje de Berto que las tenga.
+    val activeReplies: List<String> = remember(messages) {
+        messages.lastOrNull { it.isFromBerto && it.quickReplies.isNotEmpty() }
+            ?.quickReplies
+            ?: emptyList()
+    }
+
     // Scroll index: sentinel lives at messages.size, past all items.
-    // Re-scroll after chip animation delay so FlowRow height is already laid out.
+    // Las opciones rápidas ya no expanden el flujo (son sticky fuera del
+    // LazyColumn), así que un único scroll al final basta.
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size)
-            if (messages.lastOrNull()?.quickReplies?.isNotEmpty() == true) {
-                delay(450)
-                listState.animateScrollToItem(messages.size)
-            }
         }
     }
 
@@ -229,21 +234,23 @@ fun BertoScreen(
                         .offset(x = slide.value.dp)
                 ) {
                     MessageBubble(message = message)
-                    val isLastBertoMsg = message.isFromBerto &&
-                            message.quickReplies.isNotEmpty() &&
-                            message == messages.lastOrNull { it.isFromBerto }
-                    if (isLastBertoMsg) {
-                        QuickRepliesRow(
-                            replies = message.quickReplies,
-                            onReplySelected = { viewModel.sendMessage(it) }
-                        )
-                    }
                 }
             }
             // Sentinel: scrolling to this index guarantees chips above are fully visible
             item(key = "bottom_sentinel") {
                 Spacer(Modifier.height(1.dp))
             }
+        }
+
+        // Sticky bar de opciones rápidas (encima del input bar).
+        // Se renderiza solo si el último mensaje de Berto tiene opciones;
+        // el componente además hace early-return si la lista está vacía
+        // (defensa en profundidad).
+        if (activeReplies.isNotEmpty()) {
+            SolvyxQuickReplyBar(
+                replies = activeReplies,
+                onReplySelected = { viewModel.sendMessage(it) }
+            )
         }
 
         ChatInputBar(
@@ -643,65 +650,6 @@ private fun MessageBubble(message: ChatMessage) {
                         .align(Alignment.End)
                         .padding(top = 4.dp)
                 )
-            }
-        }
-    }
-}
-
-// ── Chips de respuesta rápida ───────────────────────────
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun QuickRepliesRow(
-    replies: List<String>,
-    onReplySelected: (String) -> Unit
-) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(200)
-        visible = true
-    }
-
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(tween(400)) + slideInVertically(
-            initialOffsetY = { it / 2 },
-            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
-        )
-    ) {
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            replies.forEachIndexed { idx, reply ->
-                var chipVisible by remember { mutableStateOf(false) }
-                LaunchedEffect(Unit) {
-                    delay(idx * 100L)
-                    chipVisible = true
-                }
-                AnimatedVisibility(
-                    visible = chipVisible,
-                    enter = scaleIn(spring(dampingRatio = Spring.DampingRatioMediumBouncy)) +
-                            fadeIn(tween(200))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .border(1.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
-                            .clickable { onReplySelected(reply) }
-                            .padding(horizontal = 16.dp, vertical = 10.dp)
-                    ) {
-                        Text(
-                            reply,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
             }
         }
     }

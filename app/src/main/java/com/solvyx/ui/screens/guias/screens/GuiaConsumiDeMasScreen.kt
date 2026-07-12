@@ -163,7 +163,7 @@ fun GuiaConsumiDeMasScreen(
                 leftBorderColor = MaterialTheme.colorScheme.primary
             ) {
                 CardLabel(R.drawable.ic_heart, "Cuídate ahora mismo")
-                StepRow(1, "No estés solo o sola. Avisa a alguien.")
+                StepRow(1, "No te quedes en soledad. Avisa a alguien de confianza.")
                 StepRow(2, "Si tienes náuseas, acuéstate de lado.")
                 StepRow(3, "Toma agua a sorbos pequeños.")
                 StepRow(4, "No tomes medicamentos sin saber qué consumiste.")

@@ -1,0 +1,175 @@
+{
+  "_format": "solvyx-seed-ejercicios",
+  "_schema_version": 1,
+  "_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_reviewed_by": "psicologo-solvyx 2026-07-12 v2 (re-auditoría)",
+  "items": [
+    {
+      "slug": "respiracion-4-7-8",
+      "nombre": "Respiración 4-7-8",
+      "tipo": "respiracion",
+      "duracionMinutos": 3,
+      "descripcionCorta": "Inhala, sostén y exhala en tiempos 4-7-8 para inducir calma profunda.",
+      "pasos": [
+        "Inhala por la nariz en 4 tiempos.",
+        "Sostén la respiración 7 tiempos.",
+        "Exhala por la boca en 8 tiempos.",
+        "Repite 4 ciclos completos."
+      ],
+      "copyBienvenida": "Vamos a hacer una respiración 4-7-8. Te voy guiando paso a paso, sin apuro. Si alguna inhalación se corta, no pasa nada.",
+      "copyCierre": "Cuatro ciclos bastan para empezar a notar el cambio. Puedes repetirlo cuando lo necesites.",
+      "ttsText": {
+        "intro": "Respiración 4-7-8. Si te cuesta al principio, está bien. Cuando estés listx, inhala por la nariz.",
+        "paso1": "Inhala por la nariz en 4 tiempos.",
+        "paso2": "Sostén la respiración, 7 tiempos.",
+        "paso3": "Exhala lento por la boca, 8 tiempos.",
+        "cierre": "Tu cuerpo ya empieza a acomodarse. Puedes repetirlo cuando lo necesites."
+      },
+      "iconAsset": "ic_wind",
+      "orden": 1
+    },
+    {
+      "slug": "respiracion-cuadrada",
+      "nombre": "Respiración cuadrada",
+      "tipo": "respiracion",
+      "duracionMinutos": 3,
+      "descripcionCorta": "Inhala, sostén, exhala y sostén en 4 tiempos cada uno. Útil para anclarte al presente.",
+      "pasos": [
+        "Inhala por la nariz en 4 tiempos.",
+        "Sostén la respiración 4 tiempos.",
+        "Exhala por la boca en 4 tiempos.",
+        "Sostén con los pulmones vacíos 4 tiempos.",
+        "Repite 6 ciclos completos."
+      ],
+      "copyBienvenida": "La respiración cuadrada ayuda a volver al presente. La hacemos juntos, a tu ritmo.",
+      "copyCierre": "Tu mente tiene un ritmo nuevo. Puedes usar este ejercicio antes de una conversación difícil o cuando notes que aceleras.",
+      "ttsText": {
+        "intro": "Respiración cuadrada. Cada lado dura 4 tiempos. Si te pierdes en algún paso, retoma con calma. Empezamos.",
+        "paso1": "Inhala por la nariz, 4 tiempos.",
+        "paso2": "Sostén, 4 tiempos.",
+        "paso3": "Exhala por la boca, 4 tiempos.",
+        "paso4": "Sostén con los pulmones vacíos, 4 tiempos.",
+        "cierre": "Tu cuerpo empieza a encontrar un ritmo más estable. Puedes quedarte aquí un momento más."
+      },
+      "iconAsset": "ic_wind",
+      "orden": 2
+    },
+    {
+      "slug": "body-scan",
+      "nombre": "Escaneo corporal",
+      "tipo": "body_scan",
+      "duracionMinutos": 8,
+      "descripcionCorta": "Recorrido guiado de pies a cabeza para registrar tensión, temperatura y sensaciones sin juzgarlas. Versión completa ~8 min; versión corta para rutina nocturna ~5 min.",
+      "pasos": [
+        "Acomódate sentadx o recostadx, con ropa cómoda.",
+        "Cierra los ojos o fija la mirada en un punto.",
+        "Lleva atención a los pies. Nota su temperatura y peso.",
+        "Sube por piernas, caderas, abdomen, pecho.",
+        "Recorre espalda, hombros, brazos, manos.",
+        "Sube por cuello, mandíbula, cara y coronilla.",
+        "Haz una respiración profunda y abre los ojos cuando quieras."
+      ],
+      "copyBienvenida": "El escaneo corporal te ayuda a registrar qué pasa en tu cuerpo. No hay que cambiar nada, solo observar. Si una zona te incomoda, pasa a la siguiente sin culpa.",
+      "copyCierre": "Observaste tu cuerpo con curiosidad. Esa atención ya es una forma de cuidado.",
+      "ttsText": {
+        "intro": "Escaneo corporal. Vamos a recorrer tu cuerpo de pies a cabeza, sin cambiar nada, solo observando. Si tu mente se va, vuelve con suavidad. Si una zona te incomoda, pasa a la siguiente.",
+        "paso1": "Acomódate. Cierra los ojos si te ayuda.",
+        "paso2": "Pies. Nota su temperatura y contacto con el suelo.",
+        "paso3": "Pantorrillas, rodillas, muslos. Solo registra.",
+        "paso4": "Caderas, abdomen, pecho. Observa sin cambiar.",
+        "paso5": "Espalda, hombros, brazos, manos.",
+        "paso6": "Cuello, mandíbula, cara, coronilla.",
+        "paso7": "Respira profundo una vez.",
+        "cierre": "Respira profundo. Puedes abrir los ojos cuando quieras. Tu cuerpo te lo agradece."
+      },
+      "iconAsset": "ic_body",
+      "orden": 3
+    },
+    {
+      "slug": "grounding-inverso",
+      "nombre": "Grounding en orden inverso",
+      "tipo": "grounding",
+      "duracionMinutos": 4,
+      "descripcionCorta": "Reconecta con el presente usando los cinco sentidos en orden inverso: 1 sabor, 2 olores, 3 sonidos, 4 cosas que tocas, 5 cosas que ves.",
+      "pasos": [
+        "Identifica 1 sabor en tu boca ahora mismo.",
+        "Identifica 2 olores a tu alrededor.",
+        "Identifica 3 sonidos, por lejanos que sean.",
+        "Identifica 4 cosas que puedes tocar: pies, ropa, piel, aire.",
+        "Identifica 5 cosas que puedes ver.",
+        "Respira una vez lento y observa cómo estás."
+      ],
+      "copyBienvenida": "Este ejercicio usa los cinco sentidos en orden inverso. Sirve cuando sientes que tu mente va muy rápido o que pierdes contacto con el momento presente. Si no encuentras uno, está bien. Pasa al siguiente.",
+      "copyCierre": "Volviste al presente. Estás aquí. Eso ya es suficiente por ahora.",
+      "ttsText": {
+        "intro": "Grounding inverso. Vamos al revés del clásico 5-4-3-2-1. Si no encuentras una, pasa a la siguiente sin culpa. Empezamos por un sabor.",
+        "paso1": "Un sabor. El aire que pasa por tu boca cuenta, o el café, o la sal. Lo que percibas ahora.",
+        "paso2": "Dos olores. Tu piel, la ropa, el cuarto, la calle.",
+        "paso3": "Tres sonidos. Aunque sean lejanos, los hay.",
+        "paso4": "Cuatro cosas que tocas. Los pies en el suelo, la ropa, tus manos, el aire en la piel.",
+        "paso5": "Cinco cosas que ves. Nómbralas en silencio.",
+        "cierre": "Estás aquí. Respira una vez. Ya estás en el presente."
+      },
+      "iconAsset": "ic_anchor",
+      "orden": 4
+    },
+    {
+      "slug": "lugar-seguro",
+      "nombre": "Lugar seguro",
+      "tipo": "lugar_seguro",
+      "duracionMinutos": 10,
+      "descripcionCorta": "Visualización guiada de un lugar donde te sientas lo más segurx posible. Puede ser real o imaginado. Si alguna escena te incomoda, puedes hacer el ejercicio con los ojos abiertos o adaptar los detalles.",
+      "pasos": [
+        "Cierra los ojos o baja la mirada. Respira tres veces lento.",
+        "Imagina un lugar donde te sientas segurx. Puede ser real o inventado.",
+        "Observa los colores, las texturas, la luz de ese lugar.",
+        "Escucha los sonidos. Huele los olores.",
+        "Siente la temperatura y el contacto de tu cuerpo ahí.",
+        "Quédate ahí el tiempo que quieras. Es tu lugar.",
+        "Cuando estés listx, guarda una imagen mental y abre los ojos."
+      ],
+      "copyBienvenida": "Vamos a construir un lugar segurx en tu mente. Si te cuesta visualizar o te incomoda, puedes hacer el ejercicio con los ojos abiertos o adaptar los detalles. Lo que importa es cómo te sientes ahí.",
+      "copyCierre": "Tienes un lugar al que puedes volver. Puedes regresar a él cuando lo necesites, las veces que quieras.",
+      "ttsText": {
+        "intro": "Vamos a tu lugar segurx. Puedes cerrar los ojos o solo bajar la mirada. Si algo te incomoda, sáltalo o abre los ojos. Respira tres veces.",
+        "paso1": "Imagina el lugar. Puede ser una playa, tu cuarto, un bosque, una cafetería, donde sea. Si te cuesta, empieza por un color o un sonido.",
+        "paso2": "Mira los colores. La luz. Las sombras. Las texturas.",
+        "paso3": "Escucha qué hay. Viento, olas, voces lejanas, silencio. Lo que sea.",
+        "paso4": "Huele. Sal, tierra, café, lluvia. Lo que llegue.",
+        "paso5": "Siente la temperatura, el contacto de tu piel con el lugar.",
+        "paso6": "Quédate ahí. No hay prisa. Es tu espacio.",
+        "cierre": "Guarda una imagen. Puedes volver cuando lo necesites. Abre los ojos cuando estés listx."
+      },
+      "iconAsset": "ic_home",
+      "orden": 5
+    },
+    {
+      "slug": "activacion-conductual",
+      "nombre": "Activación: cinco acciones pequeñas",
+      "tipo": "activacion",
+      "duracionMinutos": 5,
+      "descripcionCorta": "Cinco cosas concretas que puedes hacer en los próximos 10 minutos para mover tu cuerpo y tu ánimo. Si ninguna te es posible hoy, estar aquí también cuenta.",
+      "pasos": [
+        "Sirvete un vaso de agua y tómalo lento.",
+        "Sal al exterior o asómate a una ventana. Mira el cielo 30 segundos.",
+        "Estira brazos y piernas 60 segundos.",
+        "Escribe o dicta a Berto una cosa que lograste hoy, por mínima que sea.",
+        "Manda un mensaje breve a alguien de tu red: 'pensé en ti'. Si hoy no puedes, está bien."
+      ],
+      "copyBienvenida": "Cuando estás pasadx o sin ganas, lo pequeño también cuenta. Aquí tienes cinco acciones pequeñas para los próximos 10 minutos. Puedes hacerlas todas o solo las que puedas. Si ninguna te es posible hoy, estar aquí también es cuidado.",
+      "copyCierre": "Hiciste algo por ti. Eso cuenta, aunque haya sido mínimo. Tu cuerpo y tu mente lo notaron.",
+      "ttsText": {
+        "intro": "Activación conductual. Vamos a elegir acciones pequeñas. Puedes hacerlas todas o solo las que puedas. Si una no te es posible hoy, pasa a la siguiente sin culpa.",
+        "paso1": "Un vaso de agua. Tómalo lento.",
+        "paso2": "Asómate a una ventana o sal. Mira el cielo 30 segundos.",
+        "paso3": "Estira brazos y piernas un minuto.",
+        "paso4": "Escribe una cosa que lograste hoy. Aunque parezca menor.",
+        "paso5": "Manda un mensaje breve a alguien que te importe. Si hoy no puedes, está bien.",
+        "cierre": "Si hiciste al menos una, ya es cuidado. Tu cuerpo y tu mente lo notaron."
+      },
+      "iconAsset": "ic_run",
+      "orden": 6
+    }
+  ]
+}

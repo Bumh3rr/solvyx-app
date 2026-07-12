@@ -203,10 +203,18 @@ fun RegisterScreen(
             SolvyxTextField(
                 value = viewModel.birthdate,
                 onValueChange = viewModel::onBirthdateChange,
-                placeholder = "Fecha de nacimiento",
+                placeholder = "DD/MM/AAAA",
                 leadingIconRes = R.drawable.ic_birthday,
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
+            )
+            Text(
+                text = "Solo números, 8 dígitos",
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 4.dp, top = 4.dp)
             )
             Spacer(Modifier.height(12.dp))
 
@@ -271,23 +279,55 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(20.dp))
 
+            // Mensaje de error (validación)
+            viewModel.errorMessage?.let { msg ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.errorContainer)
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_alert_circle),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = msg,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+            }
+
             SolvyxButton(
-                text = "Registrarme",
+                text = if (viewModel.isLoading) "Creando..." else "Registrarme",
                 onClick = {
-                    viewModel.register {
-                        nav.navigate(Routes.DIAGNOSTICO) {
-                            popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
+                    if (!viewModel.isLoading) {
+                        viewModel.register {
+                            nav.navigate(Routes.DIAGNOSTICO) {
+                                popUpTo(Routes.AUTH_CHOICE) { inclusive = true }
+                            }
                         }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !viewModel.isLoading,
                 leadingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_add_user),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    if (!viewModel.isLoading) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_add_user),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             )
             Spacer(Modifier.height(16.dp))

@@ -2,75 +2,41 @@ package com.solvyx.backend.decisiontree.trees
 
 import com.solvyx.backend.decisiontree.model.*
 
+// Auditado por psicologo-solvyx 2026-07-12 v2 (conversacional + RD)
+
 val cristalInfoTree = DecisionTree(
-
     id = "cristal_info",
-
     nombre = "Información Cristal",
-
     nodoInicialId = "inicio",
-
     nodos = mapOf(
 
         "inicio" to DecisionNode(
-
             id = "inicio",
-
-            texto =
-                "¿Quieres saber, sin juicio, que efectos puede tener el cristal en cuerpo y mente?",
-
-            mensaje =
-                """
-                Estoy aqui para explicartelo claro y sin reganos.
-                """.trimIndent(),
-
+            texto = "¿Quieres saber, sin rollo, cómo te puede afectar el cristal?",
+            mensaje = "Te lo cuento claro y sin juzgarte. Tú decides qué hacer con la información.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Si",
-                    siguienteNodoId = "riesgo"
-                ),
-
-                DecisionOption(
-                    texto = "No, quiero empezar por lo basico",
+                    texto = "Sí, cuéntame",
                     siguienteNodoId = "efectos"
                 ),
-
                 DecisionOption(
-                    texto = "Quiero mitos y realidades",
+                    texto = "Mejor dime mitos y realidades",
                     siguienteNodoId = "mitos"
                 )
             )
         ),
 
         "efectos" to DecisionNode(
-
             id = "efectos",
-
-            texto =
-                "El cristal puede provocar efectos intensos en el cuerpo y la mente:",
-
-            mensaje =
-                """
-                • Ansiedad, inquietud o paranoia
-                • Taquicardia y sudoracion
-                • Insomnio y falta de apetito
-                • Conductas impulsivas y alteracion del juicio
-
-                Estos efectos pueden variar segun la persona y la cantidad.
-                """.trimIndent(),
-
+            texto = "El cristal puede provocar efectos intensos en cuerpo y mente.",
+            mensaje = "Ansiedad, inquietud o paranoia. Taquicardia y sudoración. Insomnio y pérdida de apetito. Conductas impulsivas y alteración del juicio. Cada persona lo vive distinto.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir explorando",
                     siguienteNodoId = "impacto"
                 ),
-
                 DecisionOption(
                     texto = "Ver mitos y realidades",
                     siguienteNodoId = "mitos"
@@ -79,295 +45,158 @@ val cristalInfoTree = DecisionTree(
         ),
 
         "mitos" to DecisionNode(
-
             id = "mitos",
-
-            texto =
-                "Mitos y realidades sobre el cristal:",
-
-            mensaje =
-                """
-                • Mito: "Me ayuda a rendir". Realidad: puede dar sensacion de energia, pero aumenta errores, impulsividad y desgaste.
-                • Mito: "Solo uso cuando quiero". Realidad: la dependencia puede aparecer aun con consumo esporadico.
-                • Mito: "Si duermo despues, se me pasa". Realidad: el insomnio y la ansiedad pueden durar dias.
-                """.trimIndent(),
-
+            texto = "Algunos mitos frecuentes sobre el cristal:",
+            mensaje = "Mito: me ayuda a rendir. Realidad: da sensación de energía, pero sube los errores y el desgaste. Mito: solo lo uso cuando quiero. Realidad: la dependencia puede aparecer incluso con consumo esporádico. Mito: si duermo después, se pasa. Realidad: el insomnio y la ansiedad pueden durar días.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir explorando",
                     siguienteNodoId = "impacto"
                 )
             )
         ),
 
         "impacto" to DecisionNode(
-
             id = "impacto",
-
-            texto =
-                "¿Sabias que el consumo puede afectar escuela, trabajo y relaciones?",
-
-            mensaje =
-                """
-                No es solo el momento del uso; tambien impacta rutinas, animo y decisiones.
-                """.trimIndent(),
-
+            texto = "¿Sabías que el consumo puede afectar la escuela, el trabajo y las relaciones?",
+            mensaje = "No es solo el momento del uso: también impacta rutinas, ánimo y decisiones. A veces uno se entera por terceros, no por uno mismo.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Si",
+                    texto = "Sí, me ha pasado",
+                    siguienteNodoId = "impacto_largo_plazo"
+                ),
+                DecisionOption(
+                    texto = "No de momento",
                     siguienteNodoId = "abstinencia"
                 ),
-
                 DecisionOption(
-                    texto = "No",
-                    siguienteNodoId = "problemas_sociales"
-                ),
-
-                DecisionOption(
-                    texto = "Quiero saber el impacto a largo plazo",
+                    texto = "Quiero ver el panorama completo",
                     siguienteNodoId = "impacto_largo_plazo"
                 )
             )
         ),
 
         "impacto_largo_plazo" to DecisionNode(
-
             id = "impacto_largo_plazo",
-
-            texto =
-                "Impacto posible a largo plazo:",
-
-            mensaje =
-                """
-                • Mayor riesgo de ansiedad, depresion o paranoia persistente
-                • Problemas de sueno y memoria
-                • Deterioro en relaciones y estabilidad laboral
-
-                No a todas las personas les pasa igual, pero el riesgo aumenta con el tiempo y la frecuencia.
-                """.trimIndent(),
-
+            texto = "Mirando a meses y años, el consumo puede dejar huella:",
+            mensaje = "Mayor riesgo de ansiedad, depresión o paranoia persistente. Problemas de sueño y memoria. Desgaste en relaciones y estabilidad. No a todas las personas les pasa igual, pero el riesgo sube con el tiempo y la frecuencia.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir",
                     siguienteNodoId = "abstinencia"
                 )
             )
         ),
 
         "abstinencia" to DecisionNode(
-
             id = "abstinencia",
-
-            texto =
-                "¿Sabias que al dejar de consumir pueden aparecer molestias?",
-
-            mensaje =
-                """
-                Es una reaccion comun del cuerpo mientras se ajusta.
-                """.trimIndent(),
-
+            texto = "Cuando se deja de consumir pueden aparecer molestias. ¿Sabías cuáles?",
+            mensaje = "Es una reacción común del cuerpo mientras se ajusta. No es para siempre.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Si",
-                    siguienteNodoId = "final"
-                ),
-
-                DecisionOption(
-                    texto = "No",
+                    texto = "Sí, dime las señales",
                     siguienteNodoId = "info_abstinencia"
                 ),
-
                 DecisionOption(
-                    texto = "Quiero saber cuando es urgencia",
+                    texto = "No, cuéntame",
+                    siguienteNodoId = "info_abstinencia"
+                ),
+                DecisionOption(
+                    texto = "¿Cuándo es urgencia?",
                     siguienteNodoId = "senales_alarma"
                 )
             )
         ),
 
         "info_abstinencia" to DecisionNode(
-
             id = "info_abstinencia",
-
-            texto =
-                "La abstinencia puede incluir sintomas como:",
-
-            mensaje =
-                """
-                • Cansancio intenso o sueno excesivo
-                • Estado de animo bajo o irritabilidad
-                • Ansiedad y dificultad para concentrarse
-                • Cambios en el apetito y el sueno
-                """.trimIndent(),
-
+            texto = "La abstinencia puede incluir:",
+            mensaje = "Cansancio intenso o sueño excesivo. Ánimo bajo o irritabilidad. Ansiedad y dificultad para concentrarte. Cambios en el apetito y el sueño. Suelen ir bajando con el tiempo.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir",
                     siguienteNodoId = "final"
                 )
             )
         ),
 
         "senales_alarma" to DecisionNode(
-
             id = "senales_alarma",
-
-            texto =
-                "Señales de alerta para buscar ayuda urgente:",
-
-            mensaje =
-                """
-                • Dolor en el pecho, dificultad para respirar o desmayo
-                • Confusion intensa, paranoia extrema o alucinaciones
-                • Agitacion que no baja o riesgo de hacerse dano
-
-                En Mexico, llama al 911 si hay riesgo inmediato.
-                """.trimIndent(),
-
+            texto = "Señales de alerta para buscar ayuda urgente:",
+            mensaje = "Dolor en el pecho, dificultad para respirar o desmayo. Confusión intensa, paranoia extrema o alucinaciones. Agitación que no baja o riesgo de hacerte daño. En México, 911 si hay riesgo inmediato.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Continuar",
+                    texto = "Seguir",
                     siguienteNodoId = "final"
                 )
             )
         ),
 
         "riesgo" to DecisionNode(
-
             id = "riesgo",
-
-            texto =
-                "¿Quieres aprender a identificar señales de riesgo?",
-
-            mensaje =
-                """
-                Te ayuda a saber cuando pedir apoyo extra.
-                """.trimIndent(),
-
+            texto = "¿Quieres aprender a identificar señales de riesgo de enganche?",
+            mensaje = "Te ayuda a saber cuándo pedir apoyo extra, antes de que escale.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Si",
-                    siguienteNodoId = "senales"
+                    texto = "Sí",
+                    siguienteNodoId = "senales_enganche"
                 ),
-
                 DecisionOption(
-                    texto = "No",
+                    texto = "No, mejor ir al final",
                     siguienteNodoId = "final"
                 ),
-
                 DecisionOption(
-                    texto = "Tambien quiero mitos y realidades",
+                    texto = "También mitos y realidades",
                     siguienteNodoId = "mitos"
                 )
             )
         ),
 
-        "senales" to DecisionNode(
-
-            id = "senales",
-
-            texto =
-                "Señales importantes de riesgo:",
-
-            mensaje =
-                """
-                • Craving intenso y frecuente
-                • Consumo impulsivo o compulsivo
-                • Aislamiento social y perdida de rutinas
-                • Ansiedad, irritabilidad o paranoia
-                • Continuar consumiendo pese a consecuencias negativas
-                """.trimIndent(),
-
+        "senales_enganche" to DecisionNode(
+            id = "senales_enganche",
+            texto = "Señales frecuentes de enganche al cristal:",
+            mensaje = "Craving intenso y recurrente. Consumo impulsivo o compulsivo. Aislamiento social y pérdida de rutinas. Ansiedad, irritabilidad o paranoia. Seguir consumiendo aunque ya haya consecuencias negativas.",
             tipo = NodeType.FINAL,
-
             esFinal = true
         ),
 
         "final" to DecisionNode(
-
             id = "final",
-
-            texto =
-                "Cuidar tu salud es una decision valiente. ¿Quieres pasos simples para pedir apoyo?",
-
-            mensaje =
-                """
-                Si prefieres terminar aqui, esta bien.
-                """.trimIndent(),
-
+            texto = "Cuidar tu salud es una decisión valiente. ¿Quieres unos pasos simples para pedir apoyo?",
+            mensaje = "Si prefieres cerrar aquí, está bien. Si quieres apoyo, también.",
             tipo = NodeType.QUESTION,
-
             opciones = listOf(
-
                 DecisionOption(
-                    texto = "Si, quiero pasos",
+                    texto = "Sí, dame pasos",
                     siguienteNodoId = "pasos_apoyo"
                 ),
-
                 DecisionOption(
-                    texto = "No, terminar",
+                    texto = "No, cerrar",
                     siguienteNodoId = "fin"
                 )
             )
         ),
 
         "pasos_apoyo" to DecisionNode(
-
             id = "pasos_apoyo",
-
-            texto =
-                "Pasos simples para pedir apoyo:",
-
-            mensaje =
-                """
-                • Elige a alguien de confianza y dile: "Necesito apoyo, no quiero consumir".
-                • Si puedes, aléjate del lugar donde estas y ve a un espacio seguro.
-                • Considera hablar con un profesional; no tienes que hacerlo solo.
-
-                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
-                Si hay una urgencia, llama al 911.
-                """.trimIndent(),
-
+            texto = "Pasos simples para pedir apoyo:",
+            mensaje = "Elige a alguien de tu confianza y dile: necesito apoyo, no quiero consumir. Si puedes, aléjate del lugar y ve a un espacio seguro. Considera hablar con un profesional, no tienes que hacerlo solo. En México, Línea de la Vida 800 911 2000 (24/7). Si hay urgencia, 911.",
             tipo = NodeType.FINAL,
-
             esFinal = true
         ),
 
         "fin" to DecisionNode(
-
             id = "fin",
-
-            texto =
-                "Gracias por cuidar de ti. Aqui estoy para apoyarte.",
-
-            mensaje =
-                """
-                En Mexico, la Linea de la Vida atiende 24/7 al 800 911 2000.
-                Si hay una urgencia, llama al 911.
-                """.trimIndent(),
-
+            texto = "Gracias por cuidar de ti. Aquí estoy cuando quieras.",
+            mensaje = "En México, Línea de la Vida 800 911 2000 (24/7). Si hay urgencia, 911.",
             tipo = NodeType.FINAL,
-
             esFinal = true
         )
     )

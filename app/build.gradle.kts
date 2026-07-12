@@ -37,10 +37,19 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     kotlinOptions {
         jvmTarget = "11"
     }
+}
+
+// KSP arguments: exportar el esquema de Room a `app/schemas` para poder
+// verificar las migraciones con MigrationTestHelper (requerido por el flujo
+// "nunca destruir datos de usuario").
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
 }
 
 dependencies {
@@ -95,11 +104,16 @@ dependencies {
 
     // KSP para Hilt (en lugar de KAPT)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+
+    // WorkManager + Hilt-Work (background scheduling local)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
 
 
     implementation(libs.androidx.core.ktx)

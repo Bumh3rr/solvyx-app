@@ -257,7 +257,7 @@ class ChatViewModel @Inject constructor(
                 currentNode = nextNode
 
                 val respuestaTexto = if (nextNode.mensaje != null) {
-                    "${nextNode.mensaje}\n\n${nextNode.texto}"
+                    "${nextNode.texto}\n\n${nextNode.mensaje}"
                 } else {
                     nextNode.texto
                 }

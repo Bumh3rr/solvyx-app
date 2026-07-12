@@ -104,7 +104,7 @@ fun GuiaCravingIntensoScreen(
                     color = TealMedium,
                     modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
                 )
-                SafetyRow("No consumas solo o sola")
+                SafetyRow("No consumas en soledad")
                 SafetyRow("No mezcles sustancias")
                 SafetyRow("Toma agua y come antes")
                 SafetyRow("Identifica un lugar seguro donde haya alguien de confianza")

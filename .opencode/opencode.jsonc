@@ -1,0 +1,115 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "psicologo-solvyx": {
+      "prompt_file": ".opencode/agent/psicologo-solvyx.md",
+      "tools": {
+        "bash": false,
+        "edit": false,
+        "write": false,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "backend-data-architect": {
+      "prompt_file": ".opencode/agent/backend-data-architect.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "backend-viewmodel-repository": {
+      "prompt_file": ".opencode/agent/backend-viewmodel-repository.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "backend-content-curator": {
+      "prompt_file": ".opencode/agent/backend-content-curator.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "backend-insights-engine": {
+      "prompt_file": ".opencode/agent/backend-insights-engine.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "backend-work-scheduler": {
+      "prompt_file": ".opencode/agent/backend-work-scheduler.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "ui-screen-flow-builder": {
+      "prompt_file": ".opencode/agent/ui-screen-flow-builder.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "ui-design-system-guardian": {
+      "prompt_file": ".opencode/agent/ui-design-system-guardian.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "ui-tts-exercise-specialist": {
+      "prompt_file": ".opencode/agent/ui-tts-exercise-specialist.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "ui-accessibility-i18n-auditor": {
+      "prompt_file": ".opencode/agent/ui-accessibility-i18n-auditor.md",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "write": true,
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    }
+  }
+}

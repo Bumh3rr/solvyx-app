@@ -52,6 +52,7 @@ fun RegistroEmocionalScreen(
     viewModel: RegistroViewModel = hiltViewModel()
 ) {
     var showHistorial by remember { mutableStateOf(false) }
+    var showExtendida by remember { mutableStateOf(false) }
 
     if (showHistorial) {
         HistorialBitacoraScreen(viewModel = viewModel, onBack = { showHistorial = false })
@@ -90,6 +91,11 @@ fun RegistroEmocionalScreen(
         )
     }
 
+    BitacoraExtendidaLauncher(
+        visible = showExtendida,
+        onDismiss = { showExtendida = false }
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,6 +125,14 @@ fun RegistroEmocionalScreen(
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
+                IconButton(onClick = { showExtendida = true }) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_clipboard),
+                        contentDescription = "Detalles extendidos",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
                 IconButton(onClick = { showHistorial = true }) {
                     Icon(
                         painter = painterResource(R.drawable.ic_history),

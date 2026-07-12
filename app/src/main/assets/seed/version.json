@@ -1,0 +1,20 @@
+{
+  "_format": "solvyx-seed-index",
+  "_schema_version": 1,
+  "_latest_seed_version": 2,
+  "_created_at": "2026-07-12T00:00:00Z",
+  "_migration_notes": "v2: correcciones de auditoría clínica. Versionado ahora es por archivo (ver AssetsSeeder.kt).",
+  "_available_versions": [
+    {
+      "version": 1,
+      "released_at": "2026-07-12T00:00:00Z",
+      "files": ["ejercicios.json", "guias_extendidas.json", "lecciones.json", "prompts_journaling.json", "rutinas.json", "rutina_pasos.json"]
+    },
+    {
+      "version": 2,
+      "released_at": "2026-07-12T00:00:00Z",
+      "migration_notes": "Re-auditoría clínica completa de los 6 archivos seed. 20+ cifras científicas marcadas con [dato no verificado] para validación pre-release. 1 escalamiento crítico a Línea de la Vida en cristal-mitos. Lenguaje inclusivo corregido. Accionabilidad mejorada en rutina matutina.",
+      "files": ["ejercicios.json", "guias_extendidas.json", "lecciones.json", "prompts_journaling.json", "rutinas.json", "rutina_pasos.json"]
+    }
+  ]
+}

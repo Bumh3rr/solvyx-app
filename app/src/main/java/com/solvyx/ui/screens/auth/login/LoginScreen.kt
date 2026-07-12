@@ -171,7 +171,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Bienvenido de nuevo",
+                text = "Te damos la bienvenida de nuevo",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.ExtraBold
                 ),
