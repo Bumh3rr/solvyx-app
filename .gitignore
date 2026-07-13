@@ -48,3 +48,6 @@ build/generated/ksp/
 
 # If you need to untrack files already committed, run:
 # git rm -r --cached <file_or_folder>
+
+# Ignore Google Services configuration file
+app/google-services.json
