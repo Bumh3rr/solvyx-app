@@ -73,7 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
-import com.solvyx.backend.data.local.entity.ContactoSosEntity
+import com.solvyx.backend.data.local.entity.SosContactEntity
 import com.solvyx.backend.validation.Validadores
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
@@ -457,9 +457,9 @@ private fun SpeechBubble(text: String) {
 @Composable
 private fun ContactCard(
     index: Int,
-    contacto: ContactoSosEntity,
+    contacto: SosContactEntity,
     isRequired: Boolean,
-    onContactoChange: (ContactoSosEntity) -> Unit,
+    onContactoChange: (SosContactEntity) -> Unit,
     onRemove: () -> Unit
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -559,8 +559,8 @@ private fun ContactCard(
             ContactInputField(
                 iconRes = R.drawable.ic_person,
                 placeholder = "Nombre completo",
-                value = contacto.nombre,
-                onValueChange = { onContactoChange(contacto.copy(nombre = Validadores.filtrarNombre(it))) },
+                value = contacto.name,
+                onValueChange = { onContactoChange(contacto.copy(name = Validadores.filtrarNombre(it))) },
                 keyboardType = KeyboardType.Text
             )
 
@@ -569,8 +569,8 @@ private fun ContactCard(
             ContactInputField(
                 iconRes = R.drawable.ic_phone,
                 placeholder = "Número de teléfono",
-                value = contacto.telefono,
-                onValueChange = { onContactoChange(contacto.copy(telefono = Validadores.filtrarTelefono(it))) },
+                value = contacto.phone,
+                onValueChange = { onContactoChange(contacto.copy(phone = Validadores.filtrarTelefono(it))) },
                 keyboardType = KeyboardType.Phone
             )
         }

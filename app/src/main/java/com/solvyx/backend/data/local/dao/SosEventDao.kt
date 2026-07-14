@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SosEventDao {
     @Insert
-    suspend fun insertar(event: SosEventEntity)
+    suspend fun insert(event: SosEventEntity)
 
-    @Query("SELECT * FROM sos_events ORDER BY fecha DESC")
-    fun observar(): Flow<List<SosEventEntity>>
+    @Query("SELECT * FROM sos_events ORDER BY date DESC")
+    fun observe(): Flow<List<SosEventEntity>>
 }

@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "sos_events")
 data class SosEventEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val fecha: Long = System.currentTimeMillis(),
-    val telefonosEnviados: String = ""
+    val date: Long = System.currentTimeMillis(),
+    val notifiedPhones: String = ""
 )

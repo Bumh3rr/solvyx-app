@@ -3,10 +3,10 @@ package com.solvyx.backend.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "contactos_sos")
-data class ContactoSosEntity(
+@Entity(tableName = "sos_contacts")
+data class SosContactEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val nombre: String = "",
-    val telefono: String = "",
-    val orden: Int = 0
+    val name: String = "",
+    val phone: String = "",
+    val position: Int = 0
 )

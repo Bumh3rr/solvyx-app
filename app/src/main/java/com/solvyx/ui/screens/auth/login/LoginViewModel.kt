@@ -48,7 +48,7 @@ class LoginViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            authRepository.iniciarSesion(email.trim(), password)
+            authRepository.signIn(email.trim(), password)
                 .onSuccess {
                     val destino = postAuthRouter.resolver()
                     _uiState.update { it.copy(isLoading = false, destino = destino) }

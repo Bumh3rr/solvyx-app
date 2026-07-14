@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
-import com.solvyx.backend.data.local.entity.BitacoraEntity
+import com.solvyx.backend.data.local.entity.JournalEntity
 import com.solvyx.ui.components.common.SolvyxBackButton
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,7 +36,7 @@ fun HistorialBitacoraScreen(
 ) {
     val registros by viewModel.historial.collectAsState()
     val totalRegistros = registros.size
-    val sinConsumo = registros.count { !it.consumio }
+    val sinConsumo = registros.count { !it.consumed }
     val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "MX"))
 
     Column(
@@ -82,7 +82,7 @@ fun HistorialBitacoraScreen(
             items(registros) { registro ->
                 HistorialRegistroCard(
                     registro = registro,
-                    fechaLabel = dateFormat.format(Date(registro.fecha))
+                    fechaLabel = dateFormat.format(Date(registro.date))
                         .replaceFirstChar { it.uppercase() }
                 )
             }
@@ -108,7 +108,7 @@ private fun ResumenStatItem(valor: String, label: String) {
 }
 
 @Composable
-private fun HistorialRegistroCard(registro: BitacoraEntity, fechaLabel: String) {
+private fun HistorialRegistroCard(registro: JournalEntity, fechaLabel: String) {
     val faceIcons = mapOf(
         "triste"   to R.drawable.ic_face_sad,
         "ansioso"  to R.drawable.ic_face_anxious,
@@ -136,7 +136,7 @@ private fun HistorialRegistroCard(registro: BitacoraEntity, fechaLabel: String) 
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (registro.consumio) {
+                if (registro.consumed) {
                     Box(
                         Modifier
                             .clip(RoundedCornerShape(50.dp))
@@ -144,7 +144,7 @@ private fun HistorialRegistroCard(registro: BitacoraEntity, fechaLabel: String) 
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
-                            "Consumo: ${registro.sustancia?.replaceFirstChar { it.uppercase() }}",
+                            "Consumo: ${registro.substance?.replaceFirstChar { it.uppercase() }}",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = sosRed
                         )
@@ -179,7 +179,7 @@ private fun HistorialRegistroCard(registro: BitacoraEntity, fechaLabel: String) 
                 ) {
                     Icon(
                         painter = painterResource(
-                            faceIcons[registro.estadoAnimo] ?: R.drawable.ic_face_neutral
+                            faceIcons[registro.mood] ?: R.drawable.ic_face_neutral
                         ),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
@@ -192,13 +192,13 @@ private fun HistorialRegistroCard(registro: BitacoraEntity, fechaLabel: String) 
                         .padding(horizontal = 12.dp)
                 ) {
                     Text(
-                        faceLabels[registro.estadoAnimo] ?: "",
+                        faceLabels[registro.mood] ?: "",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    if (registro.nota != null) {
+                    if (registro.note != null) {
                         Text(
-                            registro.nota,
+                            registro.note,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,

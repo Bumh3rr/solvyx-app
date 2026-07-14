@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "com.solvyx"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -53,10 +53,6 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.config)
-
-    // BlurView
-    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
-    implementation("androidx.compose.ui:ui:1.7.0-beta06")
 
     implementation("com.google.code.gson:gson:2.10.1")
 

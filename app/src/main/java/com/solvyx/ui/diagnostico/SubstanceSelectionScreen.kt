@@ -1,6 +1,5 @@
 package com.solvyx.ui.diagnostico
 
-import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -42,22 +41,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.solvyx.R
-import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 import com.solvyx.ui.components.common.SolvyxButton
-import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
-import com.solvyx.ui.theme.SolvyxappTheme
 
 @Composable
 fun SubstanceSelectionScreen(

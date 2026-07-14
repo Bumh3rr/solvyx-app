@@ -5,7 +5,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 
 @Composable
 fun DiagnosticoNavGraph(

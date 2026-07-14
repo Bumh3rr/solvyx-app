@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.solvyx.backend.data.local.entity.BitacoraEntity
-import com.solvyx.backend.repository.BitacoraRepository
+import com.solvyx.backend.data.local.entity.JournalEntity
+import com.solvyx.backend.repository.JournalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class RegistroViewModel @Inject constructor(
-    private val repository: BitacoraRepository
+    private val repository: JournalRepository
 ) : ViewModel() {
 
     var fechaSeleccionada by mutableStateOf(LocalDate.now())
@@ -41,12 +41,12 @@ class RegistroViewModel @Inject constructor(
     var isSaved by mutableStateOf(false)
         private set
 
-    val historial: StateFlow<List<BitacoraEntity>> =
-        repository.observar()
+    val historial: StateFlow<List<JournalEntity>> =
+        repository.observe()
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val fechasConRegistro: StateFlow<Set<LocalDate>> =
-        repository.observarFechas()
+        repository.observeDates()
             .stateIn(viewModelScope, SharingStarted.Lazily, emptySet())
 
     fun canSave(): Boolean =
@@ -68,16 +68,16 @@ class RegistroViewModel @Inject constructor(
     fun guardarRegistro() {
         if (!canSave()) return
         viewModelScope.launch {
-            repository.guardar(
-                BitacoraEntity(
-                    fecha = fechaSeleccionada
+            repository.save(
+                JournalEntity(
+                    date = fechaSeleccionada
                         .atStartOfDay(ZoneId.systemDefault())
                         .toInstant()
                         .toEpochMilli(),
-                    estadoAnimo = estadoAnimo!!,
-                    consumio = consumo!!,
-                    sustancia = sustanciaSeleccionada,
-                    nota = notaAnimo.ifBlank { null }
+                    mood = estadoAnimo!!,
+                    consumed = consumo!!,
+                    substance = sustanciaSeleccionada,
+                    note = notaAnimo.ifBlank { null }
                 )
             )
             isSaved = true

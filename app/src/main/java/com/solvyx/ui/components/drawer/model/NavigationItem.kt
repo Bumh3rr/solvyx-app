@@ -25,16 +25,12 @@ enum class NavigationItem(
     RedApoyo(title = "Mi Red de apoyo",    icon = R.drawable.ic_people)
 }
 
-fun NavigationItem.isRutina(): Boolean =
-    this in listOf(NavigationItem.Inicio, NavigationItem.Plan,
-                   NavigationItem.RegistroEmocional, NavigationItem.Avances)
+fun NavigationItem.isRutina(): Boolean = this in listOf(NavigationItem.Inicio)
 
 fun NavigationItem.isHerramientas(): Boolean =
-    this in listOf(NavigationItem.Berto, NavigationItem.GuiasPrimerosAuxilios,
-                   NavigationItem.Directorio)
+    this in listOf(NavigationItem.Berto, NavigationItem.GuiasPrimerosAuxilios, NavigationItem.Directorio)
 
-fun NavigationItem.isMiCuenta(): Boolean =
-    this in listOf(NavigationItem.MiPerfil, NavigationItem.CerrarSesion)
+fun NavigationItem.isMiCuenta(): Boolean = this in listOf(NavigationItem.CerrarSesion)
 
 // Kept for compatibility with NavigationItemView
 fun NavigationItem.isPrimary(): Boolean = isRutina()

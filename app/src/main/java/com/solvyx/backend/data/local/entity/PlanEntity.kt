@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "plan")
 data class PlanEntity(
     @PrimaryKey val id: Int = 1,
-    val metaIndex: Int = 0,
-    val metaLogradaHoy: Boolean = false,
-    val fecha: Long = System.currentTimeMillis()
+    val goalIndex: Int = 0,
+    val goalAchievedToday: Boolean = false,
+    val date: Long = System.currentTimeMillis()
 )

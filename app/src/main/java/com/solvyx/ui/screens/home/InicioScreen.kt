@@ -90,7 +90,7 @@ fun InicioScreen(
 ) {
     val viewModel: InicioViewModel = hiltViewModel()
     val redApoyoViewModel: RedApoyoViewModel = hiltViewModel()
-    val contactCount = redApoyoViewModel.contactos.count { it.nombre.isNotBlank() }
+    val contactCount = redApoyoViewModel.contactos.count { it.name.isNotBlank() }
     var showSosDialog by remember { mutableStateOf(false) }
     var sosBannerDescartado by remember { mutableStateOf(false) }
     var assistBannerDescartado by remember { mutableStateOf(false) }
@@ -194,7 +194,7 @@ fun InicioScreen(
                             .padding(end = 140.dp)
                     ) {
                         Text(
-                            text = "Hola, ${viewModel.apodo}",
+                            text = "Hola, ${viewModel.nickname}",
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.ExtraBold
                             ),
@@ -222,7 +222,7 @@ fun InicioScreen(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = "${viewModel.racha} días de racha",
+                                text = "${viewModel.streak} días de racha",
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -259,7 +259,7 @@ fun InicioScreen(
 
                     // ── ASSIST pendiente banner ───────
                     AnimatedVisibility(
-                        visible = !viewModel.assistCompletado && !assistBannerDescartado,
+                        visible = !viewModel.isAssistCompleted && !assistBannerDescartado,
                         enter = fadeIn() + expandVertically(),
                         exit  = fadeOut() + shrinkVertically()
                     ) {
@@ -277,7 +277,7 @@ fun InicioScreen(
 
                     // ── Registro banner (solo anónimo) ─
                     AnimatedVisibility(
-                        visible = viewModel.esAnonimo && !registroBannerDescartado,
+                        visible = viewModel.isAnonymous && !registroBannerDescartado,
                         enter = fadeIn() + expandVertically(),
                         exit  = fadeOut() + shrinkVertically()
                     ) {

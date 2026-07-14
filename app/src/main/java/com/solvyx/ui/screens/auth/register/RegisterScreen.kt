@@ -1,6 +1,5 @@
 package com.solvyx.ui.screens.auth.register
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,24 +59,7 @@ import com.solvyx.ui.components.common.SolvyxDateField
 import com.solvyx.ui.components.common.SolvyxTextField
 import com.solvyx.ui.navigation.Routes
 import com.solvyx.ui.navigation.aRuta
-import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
 import com.solvyx.ui.theme.SolvyxappTheme
-
-@Preview(name = "Login — Light", showSystemUi = true)
-@Composable
-private fun RegisterScreenPreviewLight() {
-    SolvyxappTheme(darkTheme = false) {
-        RegisterScreen(nav = NavHostController(LocalContext.current))
-    }
-}
-
-@Preview(name = "Login — Dark", showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun RegisterScreenPreviewDark() {
-    SolvyxappTheme(darkTheme = true) {
-        RegisterScreen(nav = NavHostController(LocalContext.current))
-    }
-}
 
 @Composable
 fun RegisterScreen(
@@ -218,7 +202,7 @@ fun RegisterScreen(
             Spacer(Modifier.height(12.dp))
 
             SolvyxDateField(
-                value = viewModel.birthdate,
+                value = viewModel.birthDate,
                 onDateSelected = viewModel::onBirthdateChange,
                 placeholder = "Fecha de nacimiento",
                 leadingIconRes = R.drawable.ic_birthday
@@ -259,9 +243,15 @@ fun RegisterScreen(
                     )
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        append("Acepto los ")
+                // Términos
+                val terminosPrivacidadTexto = buildAnnotatedString {
+                    append("Al continuar aceptas nuestros ")
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = "terminos",
+                            linkInteractionListener = { nav.navigate(Routes.TERMINOS) }
+                        )
+                    ) {
                         withStyle(
                             SpanStyle(
                                 fontWeight = FontWeight.Bold,
@@ -270,18 +260,31 @@ fun RegisterScreen(
                         ) {
                             append("Términos de uso")
                         }
-                        append(" y las ")
+                    }
+                    append(" y ")
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = "privacidad",
+                            linkInteractionListener = { nav.navigate(Routes.PRIVACIDAD) }
+                        )
+                    ) {
                         withStyle(
                             SpanStyle(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            append("Políticas de privacidad")
+                            append("Política de privacidad")
                         }
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    }
+                    append(".")
+                }
+                Text(
+                    text = terminosPrivacidadTexto,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
             Spacer(Modifier.height(20.dp))

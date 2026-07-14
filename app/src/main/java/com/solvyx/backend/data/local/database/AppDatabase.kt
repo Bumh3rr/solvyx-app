@@ -4,42 +4,42 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.solvyx.backend.data.local.dao.BitacoraDao
-import com.solvyx.backend.data.local.dao.ContactoSosDao
-import com.solvyx.backend.data.local.dao.LogroDao
+import com.solvyx.backend.data.local.dao.JournalDao
+import com.solvyx.backend.data.local.dao.SosContactDao
+import com.solvyx.backend.data.local.dao.AchievementDao
 import com.solvyx.backend.data.local.dao.PlanDao
 import com.solvyx.backend.data.local.dao.SosEventDao
-import com.solvyx.backend.data.local.dao.UltimoAssistDao
+import com.solvyx.backend.data.local.dao.LastAssistDao
 import com.solvyx.backend.data.local.dao.UserDao
-import com.solvyx.backend.data.local.entity.BitacoraEntity
-import com.solvyx.backend.data.local.entity.ContactoSosEntity
+import com.solvyx.backend.data.local.entity.JournalEntity
+import com.solvyx.backend.data.local.entity.SosContactEntity
 import com.solvyx.backend.data.local.entity.Converters
-import com.solvyx.backend.data.local.entity.LogroEntity
+import com.solvyx.backend.data.local.entity.AchievementEntity
 import com.solvyx.backend.data.local.entity.PlanEntity
 import com.solvyx.backend.data.local.entity.SosEventEntity
-import com.solvyx.backend.data.local.entity.UltimoAssistEntity
+import com.solvyx.backend.data.local.entity.LastAssistEntity
 import com.solvyx.backend.data.local.entity.UserEntity
 
 @TypeConverters(Converters::class)
 @Database(
     entities = [
         UserEntity::class,
-        ContactoSosEntity::class,
-        UltimoAssistEntity::class,
-        BitacoraEntity::class,
+        SosContactEntity::class,
+        LastAssistEntity::class,
+        JournalEntity::class,
         PlanEntity::class,
-        LogroEntity::class,
+        AchievementEntity::class,
         SosEventEntity::class
     ],
-    version = 4
+    version = 6
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
-    abstract fun contactoSosDao(): ContactoSosDao
-    abstract fun ultimoAssistDao(): UltimoAssistDao
-    abstract fun bitacoraDao(): BitacoraDao
+    abstract fun sosContactDao(): SosContactDao
+    abstract fun lastAssistDao(): LastAssistDao
+    abstract fun journalDao(): JournalDao
     abstract fun planDao(): PlanDao
-    abstract fun logroDao(): LogroDao
+    abstract fun achievementDao(): AchievementDao
     abstract fun sosEventDao(): SosEventDao
 
     companion object {
@@ -48,7 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 listOf("racha_3", "racha_7", "racha_10", "racha_15", "racha_30").forEach { id ->
                     db.execSQL(
-                        "INSERT INTO logros (id, unlocked, fechaUnlock) VALUES ('$id', 0, NULL)"
+                        "INSERT INTO achievements (id, unlocked, unlockDate) VALUES ('$id', 0, NULL)"
                     )
                 }
             }

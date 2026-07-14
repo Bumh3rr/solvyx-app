@@ -83,6 +83,7 @@ fun MiPerfilScreen(
     onNavigateToPrivacidad: () -> Unit,
     onNavigateToAcercaDe: () -> Unit,
     onNavigateToTerminos: () -> Unit,
+    onNavigateToAgregarCuenta: () -> Unit,
     onLogout: () -> Unit,
     viewModel: PerfilViewModel = hiltViewModel()
 ) {
@@ -94,6 +95,7 @@ fun MiPerfilScreen(
     }
     if (viewModel.showLogoutDialog) {
         LogoutConfirmDialog(
+            esAnonimo = viewModel.isAnonymous,
             onConfirm = {
                 viewModel.confirmarLogout()
                 onLogout()
@@ -190,7 +192,7 @@ fun MiPerfilScreen(
                     Spacer(Modifier.height(14.dp))
 
                     Text(
-                        text = viewModel.apodo,
+                        text = viewModel.nickname,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.ExtraBold,
                             letterSpacing = (-0.01).sp
@@ -198,36 +200,11 @@ fun MiPerfilScreen(
                         color = Color.White
                     )
                     Text(
-                        text = "Miembro desde ${viewModel.fechaRegistro}",
+                        text = "Miembro desde ${viewModel.registrationDate}",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.70f),
                         modifier = Modifier.padding(top = 2.dp)
                     )
-
-                    // Privacy pill
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(Color.White.copy(alpha = 0.12f))
-                            .padding(horizontal = 14.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_shield),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = "Modo anónimo · Tus datos son tuyos",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = Color.White
-                        )
-                    }
                 }
             }
 
@@ -285,7 +262,7 @@ fun MiPerfilScreen(
                         StatCol(
                             iconRes = R.drawable.ic_clipboard,
                             iconColor = TealMedium,
-                            num = viewModel.diagnosticosCompletados.toString(),
+                            num = viewModel.completedAssessments.toString(),
                             label = "Diagnósticos",
                             modifier = Modifier.weight(1f)
                         )
@@ -401,7 +378,7 @@ fun MiPerfilScreen(
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = viewModel.nivelRiesgo,
+                                text = viewModel.riskLevel,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.ExtraBold,
                                     letterSpacing = 0.06.sp
@@ -412,7 +389,7 @@ fun MiPerfilScreen(
                     }
 
                     Text(
-                        text = "Riesgo ${viewModel.nivelRiesgo.lowercase()} detectado",
+                        text = "Riesgo ${viewModel.riskLevel.lowercase()} detectado",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -420,7 +397,7 @@ fun MiPerfilScreen(
                         modifier = Modifier.padding(top = 10.dp)
                     )
                     Text(
-                        text = "Última evaluación: ${viewModel.fechaUltimoAssist}",
+                        text = "Última evaluación: ${viewModel.lastAssistDate}",
                         style = MaterialTheme.typography.bodySmall,
                         color = TealMedium,
                         modifier = Modifier.padding(top = 2.dp)
@@ -509,7 +486,7 @@ fun MiPerfilScreen(
                             trailing = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "${viewModel.cantidadContactos} contactos",
+                                        text = "${viewModel.contactCount} contactos",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = TealLight
                                     )
@@ -578,6 +555,33 @@ fun MiPerfilScreen(
 
                 Spacer(Modifier.height(28.dp))
 
+                // ── Agregar cuenta (solo modo anónimo) ─
+                if (viewModel.isAnonymous) {
+                    SolvyxButton(
+                        text = "Agregar cuenta",
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_add_user),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = onNavigateToAgregarCuenta,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "Guarda tu progreso de forma permanente antes de cerrar sesión.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TealMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 6.dp)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
+
                 // ── Cerrar sesión ─────────────────────
                 SolvyxOutlinedButton(
                     text = "Cerrar sesión",
@@ -593,18 +597,6 @@ fun MiPerfilScreen(
                     modifier = Modifier.fillMaxWidth(),
                     borderColor = Color(0xFFE24B4A),
                     textColor = Color(0xFFE24B4A)
-                )
-
-                Text(
-                    text = "Tus datos siguen guardados en este dispositivo",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontStyle = FontStyle.Italic
-                    ),
-                    color = TealMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
                 )
                 Text(
                     text = "Solvyx 2026 · Tecnologías para la Salud Humana",
@@ -638,7 +630,7 @@ private fun SustanciasChips(viewModel: PerfilViewModel) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         sustancias.forEach { (id, label) ->
-            val activa = viewModel.sustanciasSeleccionadas.contains(id)
+            val activa = viewModel.selectedSubstances.contains(id)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50.dp))
@@ -788,16 +780,6 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .width(40.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(Modifier.height(20.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -831,14 +813,14 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 modifier = Modifier.padding(bottom = 6.dp)
             )
             SolvyxTextField(
-                value = viewModel.apodoEditando,
+                value = viewModel.editingNickname,
                 onValueChange = { viewModel.onApodoChange(it) },
                 placeholder = "Ej: Alex, Mia, Riku…",
                 leadingIconRes = R.drawable.ic_person,
                 filtro = Validadores::filtrarNombre
             )
             Text(
-                text = "${viewModel.apodoEditando.length}/30",
+                text = "${viewModel.editingNickname.length}/30",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.labelSmall,
@@ -854,7 +836,7 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 modifier = Modifier.padding(bottom = 6.dp)
             )
             SolvyxDateField(
-                value = viewModel.fechaNacimientoEditando,
+                value = viewModel.editingBirthDate,
                 onDateSelected = { viewModel.onFechaNacimientoChange(it) },
                 placeholder = "DD/MM/AAAA",
                 leadingIconRes = R.drawable.ic_calendar
@@ -866,7 +848,7 @@ private fun EditarPerfilBottomSheet(viewModel: PerfilViewModel) {
                 text = "Guardar cambios",
                 onClick = { viewModel.guardarPerfil() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = Validadores.esNombreValido(viewModel.apodoEditando)
+                enabled = Validadores.esNombreValido(viewModel.editingNickname)
             )
         }
     }
@@ -888,17 +870,6 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .width(40.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(Modifier.height(20.dp))
-
             Text(
                 text = "Sustancias en seguimiento",
                 style = MaterialTheme.typography.titleMedium.copy(
@@ -927,7 +898,7 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     row.forEach { (id, label) ->
-                        val activa = viewModel.sustanciasSeleccionadas.contains(id)
+                        val activa = viewModel.selectedSubstances.contains(id)
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -994,6 +965,7 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
 
 @Composable
 private fun LogoutConfirmDialog(
+    esAnonimo: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -1033,9 +1005,13 @@ private fun LogoutConfirmDialog(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Tus datos seguirán guardados en este dispositivo.",
+                    text = if (esAnonimo) {
+                        "Perderás todo tu progreso de forma permanente: sustancias, diagnóstico y bitácora no se pueden recuperar sin una cuenta."
+                    } else {
+                        "Tu información está respaldada en tu cuenta. Podrás verla de nuevo al iniciar sesión."
+                    },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TealMedium,
+                    color = if (esAnonimo) Color(0xFFE24B4A) else TealMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 6.dp, bottom = 22.dp)
                 )

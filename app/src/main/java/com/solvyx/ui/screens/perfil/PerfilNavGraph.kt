@@ -10,6 +10,7 @@ fun PerfilNavGraph(
     onOpenDrawer: () -> Unit,
     onNavigateToAssist: () -> Unit,
     onNavigateToRedApoyo: () -> Unit,
+    onNavigateToAgregarCuenta: () -> Unit,
     onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
@@ -23,6 +24,7 @@ fun PerfilNavGraph(
                 onNavigateToPrivacidad = { navController.navigate("perfil_privacidad") },
                 onNavigateToAcercaDe = { navController.navigate("perfil_acerca") },
                 onNavigateToTerminos = { navController.navigate("perfil_terminos") },
+                onNavigateToAgregarCuenta = onNavigateToAgregarCuenta,
                 onLogout = onLogout
             )
         }

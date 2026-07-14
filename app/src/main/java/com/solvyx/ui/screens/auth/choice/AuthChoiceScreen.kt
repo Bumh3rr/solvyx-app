@@ -19,11 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -223,42 +225,46 @@ fun AuthChoiceScreen(
             // Términos
             val terminosPrivacidadTexto = buildAnnotatedString {
                 append("Al continuar aceptas nuestros ")
-                pushStringAnnotation(tag = "terminos", annotation = Routes.TERMINOS)
-                withStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                withLink(
+                    LinkAnnotation.Clickable(
+                        tag = "terminos",
+                        linkInteractionListener = { nav.navigate(Routes.TERMINOS) }
                     )
                 ) {
-                    append("Términos de uso")
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        append("Términos de uso")
+                    }
                 }
-                pop()
                 append(" y ")
-                pushStringAnnotation(tag = "privacidad", annotation = Routes.PRIVACIDAD)
-                withStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                withLink(
+                    LinkAnnotation.Clickable(
+                        tag = "privacidad",
+                        linkInteractionListener = { nav.navigate(Routes.PRIVACIDAD) }
                     )
                 ) {
-                    append("Política de privacidad")
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        append("Política de privacidad")
+                    }
                 }
-                pop()
                 append(".")
             }
-            ClickableText(
+            Text(
                 text = terminosPrivacidadTexto,
                 style = MaterialTheme.typography.bodySmall.copy(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface
                 ),
-                modifier = Modifier.padding(horizontal = 8.dp),
-                onClick = { offset ->
-                    terminosPrivacidadTexto.getStringAnnotations(tag = "terminos", start = offset, end = offset)
-                        .firstOrNull()?.let { nav.navigate(it.item) }
-                    terminosPrivacidadTexto.getStringAnnotations(tag = "privacidad", start = offset, end = offset)
-                        .firstOrNull()?.let { nav.navigate(it.item) }
-                }
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
         }
     }

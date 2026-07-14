@@ -36,10 +36,10 @@ class PlanViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.observar().collect { plan ->
+            repository.observe().collect { plan ->
                 if (plan != null) {
-                    metaIndex = plan.metaIndex
-                    metaLogradaHoy = plan.metaLogradaHoy
+                    metaIndex = plan.goalIndex
+                    metaLogradaHoy = plan.goalAchievedToday
                 }
             }
         }
@@ -66,7 +66,7 @@ class PlanViewModel @Inject constructor(
 
     private fun persist() {
         viewModelScope.launch {
-            repository.guardar(PlanEntity(metaIndex = metaIndex, metaLogradaHoy = metaLogradaHoy))
+            repository.save(PlanEntity(goalIndex = metaIndex, goalAchievedToday = metaLogradaHoy))
         }
     }
 }

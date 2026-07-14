@@ -1,4 +1,4 @@
-package com.solvyx.backend.presentation.viewmodel
+package com.solvyx.ui.diagnostico
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,18 +7,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.models.Pregunta
 import com.solvyx.backend.models.ResultadoDiagnostico
+import com.solvyx.backend.repository.AssessmentRepository
 import com.solvyx.backend.repository.AssistRepository
-import com.solvyx.backend.repository.DiagnosticoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.plus
 
 @HiltViewModel
 class DiagnosticoViewModel @Inject constructor(
-    private val repository: DiagnosticoRepository,
+    private val repository: AssessmentRepository,
     private val assistRepository: AssistRepository
 ) : ViewModel() {
 
@@ -61,21 +62,21 @@ class DiagnosticoViewModel @Inject constructor(
         val sustanciaGuardada = sustanciaActual
         answersMap = answersMap + (sustanciaGuardada to answers)
         viewModelScope.launch {
-            val resultado = repository.evaluar(sustanciaGuardada, answers)
+            val resultado = repository.evaluate(sustanciaGuardada, answers)
             _resultados.value = _resultados.value + resultado
-            assistRepository.guardarResultado(resultado)
+            assistRepository.saveResult(resultado)
         }
         return if (esUltimaSustancia) false
         else { sustanciaActualIndex++; cargarPreguntas(sustanciaActual); true }
     }
 
     fun cargarPreguntas(sustancia: String) {
-        _preguntas.value = repository.obtenerPreguntas(sustancia)
+        _preguntas.value = repository.getQuestions(sustancia)
     }
 
     fun cargarHistorial() {
         viewModelScope.launch {
-            _historial.value = assistRepository.obtenerHistorial()
+            _historial.value = assistRepository.getHistory()
         }
     }
 }

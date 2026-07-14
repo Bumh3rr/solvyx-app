@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.repository.AuthRepository
-import com.solvyx.backend.repository.BitacoraRepository
+import com.solvyx.backend.repository.JournalRepository
 import com.solvyx.backend.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -25,20 +25,20 @@ import javax.inject.Inject
 @HiltViewModel
 class InicioViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val bitacoraRepository: BitacoraRepository,
+    private val journalRepository: JournalRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    var apodo by mutableStateOf("Usuario")
+    var nickname by mutableStateOf("Usuario")
         private set
 
-    var racha by mutableIntStateOf(0)
+    var streak by mutableIntStateOf(0)
         private set
 
-    var assistCompletado by mutableStateOf(true)
+    var isAssistCompleted by mutableStateOf(true)
         private set
 
-    var esAnonimo by mutableStateOf(false)
+    var isAnonymous by mutableStateOf(false)
         private set
 
     val fechaHoy: String = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "MX"))
@@ -49,39 +49,43 @@ class InicioViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            userRepository.observar().collect { user ->
-                apodo = user?.apodo?.ifBlank { "Usuario" } ?: "Usuario"
-                esAnonimo = user?.esAnonimo ?: false
+            userRepository.observe().collect { user ->
+                isAnonymous = user?.isAnonymous ?: false
             }
         }
         viewModelScope.launch {
-            val user = authRepository.usuarioActual()
-            assistCompletado = when {
+            nickname = authRepository.getProfile()?.nickname?.ifBlank { "Usuario" } ?: "Usuario"
+        }
+        viewModelScope.launch {
+            val user = authRepository.currentUser
+            isAssistCompleted = when {
                 user == null -> true
                 user.isAnonymous -> false
-                else -> authRepository.assistCompletado(user.uid)
+                else -> authRepository.isAssistCompleted(user.uid)
             }
         }
         viewModelScope.launch {
-            bitacoraRepository.observar().collect { entries ->
+            journalRepository.observe().collect { entries ->
                 val today = LocalDate.now(zone)
                 val entryMap = entries.groupBy {
-                    Instant.ofEpochMilli(it.fecha).atZone(zone).toLocalDate()
+                    Instant.ofEpochMilli(it.date).atZone(zone).toLocalDate()
                 }
-                var streak = 0
+                var streakCount = 0
                 var day = today
                 while (true) {
                     val dayEntries = entryMap[day]
-                    if (dayEntries == null || dayEntries.any { it.consumio }) break
-                    streak++
+                    if (dayEntries == null || dayEntries.any { it.consumed }) break
+                    streakCount++
                     day = day.minusDays(1)
                 }
-                racha = streak
+                streak = streakCount
             }
         }
     }
 
     fun cerrarSesion() {
-        authRepository.cerrarSesion()
+        viewModelScope.launch {
+            authRepository.signOut()
+        }
     }
 }

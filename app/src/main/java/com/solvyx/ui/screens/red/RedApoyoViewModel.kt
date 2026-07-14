@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.solvyx.backend.data.local.entity.ContactoSosEntity
-import com.solvyx.backend.repository.ContactoSosRepository
+import com.solvyx.backend.data.local.entity.SosContactEntity
+import com.solvyx.backend.repository.SosContactRepository
 import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,10 +14,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RedApoyoViewModel @Inject constructor(
-    private val repository: ContactoSosRepository
+    private val repository: SosContactRepository
 ) : ViewModel() {
 
-    var contactos by mutableStateOf(listOf(ContactoSosEntity()))
+    var contactos by mutableStateOf(listOf(SosContactEntity()))
         private set
 
     var isSaving by mutableStateOf(false)
@@ -28,7 +28,7 @@ class RedApoyoViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.observar().collect { stored ->
+            repository.observe().collect { stored ->
                 if (stored.isNotEmpty()) contactos = stored
             }
         }
@@ -39,16 +39,16 @@ class RedApoyoViewModel @Inject constructor(
 
     fun canSave(): Boolean {
         val c0 = contactos.firstOrNull() ?: return false
-        return Validadores.esNombreValido(c0.nombre) && phoneValido(c0.telefono)
+        return Validadores.esNombreValido(c0.name) && phoneValido(c0.phone)
     }
 
-    fun setContacto(index: Int, contacto: ContactoSosEntity) {
+    fun setContacto(index: Int, contacto: SosContactEntity) {
         contactos = contactos.toMutableList().also { it[index] = contacto }
     }
 
     fun addContacto() {
         if (contactos.size >= 3) return
-        contactos = contactos + ContactoSosEntity()
+        contactos = contactos + SosContactEntity()
     }
 
     fun removeContacto(index: Int) {
@@ -60,7 +60,7 @@ class RedApoyoViewModel @Inject constructor(
         if (!canSave()) return
         viewModelScope.launch {
             isSaving = true
-            repository.guardarTodos(contactos)
+            repository.saveAll(contactos)
             isSaving = false
             savedSuccessfully = true
         }

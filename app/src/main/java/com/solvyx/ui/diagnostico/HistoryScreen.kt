@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.backend.models.ResultadoDiagnostico
-import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 import com.solvyx.ui.components.common.SolvyxBackButton
 import java.text.SimpleDateFormat
 import java.util.Date

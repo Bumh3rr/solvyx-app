@@ -1,60 +1,56 @@
 package com.solvyx.ui.screens.perfil
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.common.formatter.DateFormatter
 import com.solvyx.backend.data.local.entity.UserEntity
 import com.solvyx.backend.repository.AssistRepository
 import com.solvyx.backend.repository.AuthRepository
-import com.solvyx.backend.repository.BitacoraRepository
-import com.solvyx.backend.repository.ContactoSosRepository
+import com.solvyx.backend.repository.JournalRepository
+import com.solvyx.backend.repository.SosContactRepository
 import com.solvyx.backend.repository.UserRepository
 import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class PerfilViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
-    private val bitacoraRepository: BitacoraRepository,
-    private val contactoRepository: ContactoSosRepository,
-    private val authRepository: AuthRepository
+    private val journalRepository: JournalRepository,
+    private val sosContactRepository: SosContactRepository,
+    private val authRepository: AuthRepository,
+    private val dateFormatter: DateFormatter
 ) : ViewModel() {
 
-    var apodo by mutableStateOf("")
+    var nickname by mutableStateOf("")
         private set
-    var fechaRegistro by mutableStateOf("")
+    var registrationDate by mutableStateOf("")
         private set
-    var fechaNacimiento by mutableStateOf("")
+    var birthDate by mutableStateOf("")
         private set
     var rachaActual by mutableStateOf(0)
         private set
     var mejorRacha by mutableStateOf(0)
         private set
-    var diagnosticosCompletados by mutableStateOf(0)
+    var completedAssessments by mutableStateOf(0)
         private set
-    var sustanciasSeleccionadas by mutableStateOf(setOf<String>())
+    var selectedSubstances by mutableStateOf(setOf<String>())
         private set
-    var nivelRiesgo by mutableStateOf("BAJO")
+    var riskLevel by mutableStateOf("")
         private set
-    var puntajeAssist by mutableStateOf(0)
+    var assistScore by mutableStateOf(0)
         private set
-    var fechaUltimoAssist by mutableStateOf("")
+    var lastAssistDate by mutableStateOf("")
         private set
-    var cantidadContactos by mutableStateOf(0)
+    var contactCount by mutableStateOf(0)
         private set
     var notificacionesActivas by mutableStateOf(true)
         private set
@@ -64,55 +60,58 @@ class PerfilViewModel @Inject constructor(
         private set
     var showEditarSustancias by mutableStateOf(false)
         private set
-    var apodoEditando by mutableStateOf("")
+    var editingNickname by mutableStateOf("")
         private set
-    var fechaNacimientoEditando by mutableStateOf("")
+    var editingBirthDate by mutableStateOf("")
+        private set
+    var isAnonymous by mutableStateOf(false)
         private set
 
     private var cachedUser: UserEntity? = null
     private val zone = ZoneId.systemDefault()
-    private val fmtRegistro = SimpleDateFormat("MMMM yyyy", Locale("es", "MX"))
-    private val fmtAssist = SimpleDateFormat("d 'de' MMMM yyyy", Locale("es", "MX"))
 
     init {
         viewModelScope.launch {
-            userRepository.observar().collect { user ->
+            userRepository.observe().collect { user ->
                 cachedUser = user
-                apodo = user?.apodo?.ifBlank { "Usuario" } ?: "Usuario"
-                fechaRegistro = user?.let { fmtRegistro.format(Date(it.fechaRegistro)) } ?: ""
-                fechaNacimiento = user?.fechaNacimiento ?: ""
-                sustanciasSeleccionadas = user?.sustanciasJson
+                isAnonymous = user?.isAnonymous ?: false
+                selectedSubstances = user?.substancesJson
                     ?.split(",")
                     ?.filter { it.isNotBlank() }
                     ?.toSet() ?: emptySet()
             }
         }
         viewModelScope.launch {
-            assistRepository.observarUltimo().collect { ultimo ->
-                diagnosticosCompletados = ultimo?.totalCompletados ?: 0
-                if (ultimo != null) {
-                    nivelRiesgo = ultimo.nivel
-                    puntajeAssist = ultimo.puntaje
-                    fechaUltimoAssist = fmtAssist.format(Date(ultimo.fecha))
-                        .replaceFirstChar { it.uppercase() }
+            val profile = authRepository.getProfile()
+            nickname = profile?.nickname?.ifBlank { "Usuario" } ?: "Usuario"
+            birthDate = profile?.birthDate ?: ""
+            registrationDate = profile?.let { dateFormatter.format(it.createdAt, "MMMM yyyy") } ?: ""
+        }
+        viewModelScope.launch {
+            assistRepository.observeLast().collect { last ->
+                completedAssessments = last?.totalCompleted ?: 0
+                if (last != null) {
+                    riskLevel = last.level
+                    assistScore = last.score
+                    lastAssistDate = dateFormatter.format(last.date,"d 'de' MMMM yyyy").replaceFirstChar { it.uppercase() }
                 } else {
-                    nivelRiesgo = "BAJO"
-                    puntajeAssist = 0
-                    fechaUltimoAssist = ""
+                    riskLevel = ""
+                    assistScore = 0
+                    lastAssistDate = ""
                 }
             }
         }
         viewModelScope.launch {
-            bitacoraRepository.observar().collect { entries ->
+            journalRepository.observe().collect { entries ->
                 val today = LocalDate.now(zone)
                 val entryMap = entries.groupBy {
-                    Instant.ofEpochMilli(it.fecha).atZone(zone).toLocalDate()
+                    Instant.ofEpochMilli(it.date).atZone(zone).toLocalDate()
                 }
                 var streak = 0
                 var day = today
                 while (true) {
                     val dayEntries = entryMap[day]
-                    if (dayEntries == null || dayEntries.any { it.consumio }) break
+                    if (dayEntries == null || dayEntries.any { it.consumed }) break
                     streak++
                     day = day.minusDays(1)
                 }
@@ -122,7 +121,7 @@ class PerfilViewModel @Inject constructor(
                 val sortedDates = entryMap.keys.sorted()
                 for (i in sortedDates.indices) {
                     val d = sortedDates[i]
-                    val hasConsumption = entryMap[d]!!.any { it.consumio }
+                    val hasConsumption = entryMap[d]!!.any { it.consumed }
                     if (!hasConsumption) {
                         current = if (i > 0 && sortedDates[i - 1] == d.minusDays(1)) current + 1 else 1
                         if (current > best) best = current
@@ -134,46 +133,48 @@ class PerfilViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            contactoRepository.observar().collect { contactos ->
-                cantidadContactos = contactos.count { it.nombre.isNotBlank() }
+            sosContactRepository.observe().collect { contacts ->
+                contactCount = contacts.count { it.name.isNotBlank() }
             }
         }
     }
 
     fun abrirEditarPerfil() {
-        apodoEditando = apodo
-        fechaNacimientoEditando = fechaNacimiento
+        editingNickname = nickname
+        editingBirthDate = birthDate
         showEditarPerfil = true
     }
     fun cerrarEditarPerfil() { showEditarPerfil = false }
-    fun onApodoChange(v: String) { if (v.length <= 30) apodoEditando = v }
-    fun onFechaNacimientoChange(v: String) { fechaNacimientoEditando = v }
+    fun onApodoChange(v: String) { if (v.length <= 30) editingNickname = v }
+    fun onFechaNacimientoChange(v: String) { editingBirthDate = v }
     fun guardarPerfil() {
-        if (!Validadores.esNombreValido(apodoEditando)) return
+        if (!Validadores.esNombreValido(editingNickname)) return
         viewModelScope.launch {
             val current = cachedUser ?: UserEntity()
-            userRepository.guardar(
+            userRepository.save(
                 current.copy(
-                    apodo = apodoEditando.trim(),
-                    fechaNacimiento = fechaNacimientoEditando,
-                    sustanciasJson = sustanciasSeleccionadas.joinToString(",")
+                    substancesJson = selectedSubstances.joinToString(",")
                 )
             )
-            authRepository.actualizarPerfil(apodoEditando.trim(), fechaNacimientoEditando)
+            val result = authRepository.updateProfile(editingNickname.trim(), editingBirthDate)
+            if (result.isSuccess) {
+                nickname = editingNickname.trim()
+                birthDate = editingBirthDate
+            }
         }
         showEditarPerfil = false
     }
 
     fun toggleSustancia(id: String) {
-        val nuevas = if (sustanciasSeleccionadas.contains(id))
-            sustanciasSeleccionadas - id
+        val nuevas = if (selectedSubstances.contains(id))
+            selectedSubstances - id
         else
-            sustanciasSeleccionadas + id
-        sustanciasSeleccionadas = nuevas
+            selectedSubstances + id
+        selectedSubstances = nuevas
         viewModelScope.launch {
             val current = cachedUser ?: UserEntity()
-            userRepository.guardar(current.copy(sustanciasJson = nuevas.joinToString(",")))
-            authRepository.actualizarSustancias(nuevas)
+            userRepository.save(current.copy(substancesJson = nuevas.joinToString(",")))
+            authRepository.updateSubstances(nuevas)
         }
     }
     fun abrirEditarSustancias() { showEditarSustancias = true }
@@ -183,25 +184,25 @@ class PerfilViewModel @Inject constructor(
     fun abrirLogoutDialog() { showLogoutDialog = true }
     fun cerrarLogoutDialog() { showLogoutDialog = false }
     fun confirmarLogout() {
-        authRepository.cerrarSesion()
+        viewModelScope.launch {
+            authRepository.signOut()
+        }
         cerrarLogoutDialog()
     }
 
-    fun progresoRiesgo(): Float = when (nivelRiesgo) {
-        "BAJO"     -> puntajeAssist / 27f * 0.40f
-        "MODERADO" -> puntajeAssist / 27f * 0.75f
+    fun progresoRiesgo(): Float = when (riskLevel) {
+        "BAJO"     -> assistScore / 27f * 0.40f
+        "MODERADO" -> assistScore / 27f * 0.75f
         "ALTO"     -> 1f
         else       -> 0f
     }
-
-    fun colorNivel(): androidx.compose.ui.graphics.Color = when (nivelRiesgo) {
+    fun colorNivel(): androidx.compose.ui.graphics.Color = when (riskLevel) {
         "BAJO"     -> androidx.compose.ui.graphics.Color(0xFF065F46)
         "MODERADO" -> androidx.compose.ui.graphics.Color(0xFFd97706)
         "ALTO"     -> androidx.compose.ui.graphics.Color(0xFFE24B4A)
         else       -> androidx.compose.ui.graphics.Color(0xFF065F46)
     }
-
-    fun bgColorNivel(): androidx.compose.ui.graphics.Color = when (nivelRiesgo) {
+    fun bgColorNivel(): androidx.compose.ui.graphics.Color = when (riskLevel) {
         "BAJO"     -> androidx.compose.ui.graphics.Color(0xFFD1FAE5)
         "MODERADO" -> androidx.compose.ui.graphics.Color(0xFFfef9c3)
         "ALTO"     -> androidx.compose.ui.graphics.Color(0xFFfde8e8)

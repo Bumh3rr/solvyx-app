@@ -7,10 +7,6 @@ import androidx.room.PrimaryKey
 data class UserEntity(
     @PrimaryKey val id: Int = 1,
     val serverId: String? = null,
-    val apodo: String = "",
-    val email: String? = null,
-    val esAnonimo: Boolean = false,
-    val fechaRegistro: Long = System.currentTimeMillis(),
-    val fechaNacimiento: String = "",
-    val sustanciasJson: String = ""
+    val isAnonymous: Boolean = false,
+    val substancesJson: String = ""
 )

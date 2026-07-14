@@ -8,6 +8,6 @@ import javax.inject.Singleton
 
 @Singleton
 class UserRepository @Inject constructor(private val dao: UserDao) {
-    fun observar(): Flow<UserEntity?> = dao.observar()
-    suspend fun guardar(user: UserEntity) = dao.upsert(user)
+    fun observe(): Flow<UserEntity?> = dao.observe()
+    suspend fun save(user: UserEntity) = dao.upsert(user)
 }

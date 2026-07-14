@@ -133,7 +133,7 @@ fun CustomDrawer(
             Spacer(Modifier.height(20.dp))
 
             // ── RUTINA ────────────────────────────────────
-            DrawerSectionHeader("RUTINA")
+            DrawerSectionHeader("Mi inicio")
             NavigationItem.entries
                 .filter { it.isRutina() }
                 .forEach { item ->
@@ -166,9 +166,7 @@ fun CustomDrawer(
 
             HorizontalDivider(color = Color.White.copy(alpha = 0.12f), thickness = 0.5.dp)
             Spacer(Modifier.height(10.dp))
-
             // ── MI CUENTA ─────────────────────────────────
-            DrawerSectionHeader("MI CUENTA")
             NavigationItem.entries
                 .filter { it.isMiCuenta() }
                 .forEach { item ->

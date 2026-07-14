@@ -33,7 +33,7 @@ class RegisterViewModel @Inject constructor(
         private set
     var email by mutableStateOf("")
         private set
-    var birthdate by mutableStateOf("")
+    var birthDate by mutableStateOf("")
         private set
     var password by mutableStateOf("")
         private set
@@ -47,7 +47,7 @@ class RegisterViewModel @Inject constructor(
 
     fun onNicknameChange(value: String) { nickname = value }
     fun onEmailChange(value: String) { email = value }
-    fun onBirthdateChange(value: String) { birthdate = value }
+    fun onBirthdateChange(value: String) { birthDate = value }
     fun onPasswordChange(value: String) { password = value }
     fun onConfirmPasswordChange(value: String) { confirmPassword = value }
     fun onTermsChange(value: Boolean) { acceptedTerms = value }
@@ -55,7 +55,7 @@ class RegisterViewModel @Inject constructor(
     private fun validar(): String? {
         if (!Validadores.esNombreValido(nickname)) return "Ingresa un apodo de al menos 2 caracteres."
         if (!Validadores.esEmailValido(email)) return "Ingresa un correo válido."
-        if (birthdate.trim().isBlank()) return "Ingresa tu fecha de nacimiento."
+        if (birthDate.trim().isBlank()) return "Ingresa tu fecha de nacimiento."
         if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres."
         if (password != confirmPassword) return "Las contraseñas no coinciden."
         if (!acceptedTerms) return "Debes aceptar los Términos de uso y la Política de privacidad."
@@ -71,20 +71,20 @@ class RegisterViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            val esConversion = authRepository.usuarioActual()?.isAnonymous == true
+            val esConversion = authRepository.currentUser?.isAnonymous == true
             val resultado = if (esConversion) {
-                authRepository.convertirAnonimoAEmail(
-                    apodo = nickname.trim(),
+                authRepository.convertAnonymousToEmail(
+                    nickname = nickname.trim(),
                     email = email.trim(),
                     password = password,
-                    fechaNacimiento = birthdate.trim()
+                    birthDate = birthDate.trim()
                 )
             } else {
-                authRepository.registrarConEmail(
-                    apodo = nickname.trim(),
+                authRepository.registerWithEmail(
+                    nickname = nickname.trim(),
                     email = email.trim(),
                     password = password,
-                    fechaNacimiento = birthdate.trim()
+                    birthDate = birthDate.trim()
                 )
             }
             resultado

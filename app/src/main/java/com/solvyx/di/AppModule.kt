@@ -4,14 +4,16 @@ import android.content.Context
 import androidx.room.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.solvyx.backend.data.local.dao.BitacoraDao
-import com.solvyx.backend.data.local.dao.ContactoSosDao
-import com.solvyx.backend.data.local.dao.LogroDao
+import com.solvyx.backend.data.local.dao.JournalDao
+import com.solvyx.backend.data.local.dao.SosContactDao
+import com.solvyx.backend.data.local.dao.AchievementDao
 import com.solvyx.backend.data.local.dao.PlanDao
 import com.solvyx.backend.data.local.dao.SosEventDao
-import com.solvyx.backend.data.local.dao.UltimoAssistDao
+import com.solvyx.backend.data.local.dao.LastAssistDao
 import com.solvyx.backend.data.local.dao.UserDao
 import com.solvyx.backend.data.local.database.AppDatabase
+import com.solvyx.backend.common.formatter.DateFormatter
+import com.solvyx.backend.common.formatter.DateFormatterImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,20 +42,23 @@ object AppModule {
     fun provideUserDao(db: AppDatabase): UserDao = db.userDao()
 
     @Provides @Singleton
-    fun provideContactoSosDao(db: AppDatabase): ContactoSosDao = db.contactoSosDao()
+    fun provideSosContactDao(db: AppDatabase): SosContactDao = db.sosContactDao()
 
     @Provides @Singleton
-    fun provideUltimoAssistDao(db: AppDatabase): UltimoAssistDao = db.ultimoAssistDao()
+    fun provideLastAssistDao(db: AppDatabase): LastAssistDao = db.lastAssistDao()
 
     @Provides @Singleton
-    fun provideBitacoraDao(db: AppDatabase): BitacoraDao = db.bitacoraDao()
+    fun provideJournalDao(db: AppDatabase): JournalDao = db.journalDao()
 
     @Provides @Singleton
     fun providePlanDao(db: AppDatabase): PlanDao = db.planDao()
 
     @Provides @Singleton
-    fun provideLogroDao(db: AppDatabase): LogroDao = db.logroDao()
+    fun provideAchievementDao(db: AppDatabase): AchievementDao = db.achievementDao()
 
     @Provides @Singleton
     fun provideSosEventDao(db: AppDatabase): SosEventDao = db.sosEventDao()
+
+    @Provides @Singleton
+    fun provideDateFormatter(impl: DateFormatterImpl): DateFormatter = impl
 }

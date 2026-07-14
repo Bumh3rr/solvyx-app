@@ -13,5 +13,5 @@ interface PlanDao {
     suspend fun upsert(plan: PlanEntity)
 
     @Query("SELECT * FROM plan WHERE id = 1")
-    fun observar(): Flow<PlanEntity?>
+    fun observe(): Flow<PlanEntity?>
 }

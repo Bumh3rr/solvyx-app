@@ -130,7 +130,7 @@ fun MainScreen(
         // ── Capa 1: drawer (fijo, debajo en z-order) ──────
         CustomDrawer(
             selectedNavigationItem = selectedItem,
-            userNickname = inicioViewModel.apodo,
+            userNickname = inicioViewModel.nickname,
             onNavigationItemClick = { item ->
                 when (item) {
                     NavigationItem.CerrarSesion -> {
@@ -299,6 +299,7 @@ private fun SolvyxMainContent(
                         onOpenDrawer = onDrawerClick,
                         onNavigateToAssist = onNavigateToAssist,
                         onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) },
+                        onNavigateToAgregarCuenta = onNavigateToCrearCuenta,
                         onLogout = onLogout
                     )
                 NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }

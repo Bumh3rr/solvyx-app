@@ -59,7 +59,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
-import com.solvyx.backend.presentation.viewmodel.DiagnosticoViewModel
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton

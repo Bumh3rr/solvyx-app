@@ -8,216 +8,161 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.solvyx.backend.data.local.database.AppDatabase
 import com.solvyx.backend.data.local.entity.UserEntity
+import com.solvyx.backend.data.remote.datasource.UserRemoteDataSource
+import com.solvyx.backend.data.remote.model.UserRemoteDto
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
+    private val userRemoteDataSource: UserRemoteDataSource,
     private val userRepository: UserRepository,
-    private val assistRepository: AssistRepository
+    private val assistRepository: AssistRepository,
+    private val appDatabase: AppDatabase,
 ) {
 
-    suspend fun registrarConEmail(
-        apodo: String,
+    suspend fun registerWithEmail(
+        nickname: String,
         email: String,
         password: String,
-        fechaNacimiento: String
+        birthDate: String
     ): Result<FirebaseUser> = try {
         val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-        val user = result.user
-            ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
-        crearPerfilFirestore(user.uid, apodo, email, fechaNacimiento)
-        actualizarSesionLocal(
-            serverId = user.uid,
-            apodo = apodo,
-            email = email,
-            esAnonimo = false,
-            fechaNacimiento = fechaNacimiento
+        val user =
+            result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
+        userRemoteDataSource.createProfile(
+            user.uid,
+            UserRemoteDto(nickname = nickname, email = email, birthDate = birthDate)
         )
+        updateLocalSession(serverId = user.uid, isAnonymous = false)
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    suspend fun iniciarSesion(email: String, password: String): Result<FirebaseUser> = try {
+    suspend fun signIn(email: String, password: String): Result<FirebaseUser> = try {
         val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-        val user = result.user
-            ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
-        val doc = firestore.collection("users").document(user.uid).get().await()
-        val fechaNacimientoRemota = doc.getTimestamp("fecha_nacimiento")?.let {
-            SimpleDateFormat("dd/MM/yyyy", Locale("es", "MX")).format(it.toDate())
-        }
-        @Suppress("UNCHECKED_CAST")
-        val sustanciasRemotas = doc.get("sustancias_seleccionadas") as? List<String> ?: emptyList()
-        actualizarSesionLocal(
+        val user =
+            result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
+        val profile = userRemoteDataSource.getProfile(user.uid)
+        updateLocalSession(
             serverId = user.uid,
-            apodo = doc.getString("apodo"),
-            email = user.email,
-            esAnonimo = false,
-            fechaNacimiento = fechaNacimientoRemota,
-            sustancias = sustanciasRemotas
+            isAnonymous = false,
+            substances = profile?.selectedSubstances
         )
-        assistRepository.hidratarDesdeServidor()
+        assistRepository.hydrateFromServer()
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    suspend fun entrarComoAnonimo(): Result<FirebaseUser> = try {
+    suspend fun signInAnonymously(): Result<FirebaseUser> = try {
         val result = firebaseAuth.signInAnonymously().await()
-        val user = result.user
-            ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
-        actualizarSesionLocal(serverId = user.uid, esAnonimo = true)
+        val user =
+            result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
+        userRemoteDataSource.createProfile(user.uid, UserRemoteDto(isAnonymous = true))
+        updateLocalSession(serverId = user.uid, isAnonymous = true)
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    suspend fun enviarRecuperacionContrasena(email: String): Result<Unit> = try {
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit> = try {
         firebaseAuth.sendPasswordResetEmail(email).await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    fun cerrarSesion() {
+    suspend fun signOut() {
         firebaseAuth.signOut()
+        withContext(Dispatchers.IO) {
+            appDatabase.clearAllTables()
+        }
     }
 
-    fun usuarioActual(): FirebaseUser? = firebaseAuth.currentUser
+    val currentUser: FirebaseUser? get() = firebaseAuth.currentUser
 
-    suspend fun convertirAnonimoAEmail(
-        apodo: String,
+    suspend fun convertAnonymousToEmail(
+        nickname: String,
         email: String,
         password: String,
-        fechaNacimiento: String
+        birthDate: String
     ): Result<FirebaseUser> = try {
-        val currentUser = firebaseAuth.currentUser
+        val currentFirebaseUser = firebaseAuth.currentUser
             ?: return Result.failure(Exception("No hay una sesión anónima activa."))
-        val sustanciasLocales = userRepository.observar().first()
-            ?.sustanciasJson?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
-        val ultimoAssistLocal = assistRepository.observarUltimo().first()
-        val assistCompletadoLocal = (ultimoAssistLocal?.totalCompletados ?: 0) > 0
+        val localSubstances = userRepository.observe().first()
+            ?.substancesJson?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
+        val lastAssistLocal = assistRepository.observeLast().first()
+        val localAssistCompleted = (lastAssistLocal?.totalCompleted ?: 0) > 0
         val credential = EmailAuthProvider.getCredential(email, password)
-        val result = currentUser.linkWithCredential(credential).await()
-        val user = result.user
-            ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
-        crearPerfilFirestore(
-            uid = user.uid,
-            apodo = apodo,
-            email = email,
-            fechaNacimiento = fechaNacimiento,
-            sustanciasIniciales = sustanciasLocales,
-            assistCompletadoInicial = assistCompletadoLocal
+        val result = currentFirebaseUser.linkWithCredential(credential).await()
+        val user =
+            result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
+        userRemoteDataSource.createProfile(
+            user.uid,
+            UserRemoteDto(
+                nickname = nickname,
+                email = email,
+                birthDate = birthDate,
+                selectedSubstances = localSubstances,
+                assistCompleted = localAssistCompleted
+            )
         )
-        actualizarSesionLocal(
-            serverId = user.uid,
-            apodo = apodo,
-            email = email,
-            esAnonimo = false,
-            fechaNacimiento = fechaNacimiento
-        )
+        updateLocalSession(serverId = user.uid, isAnonymous = false)
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    suspend fun assistCompletado(uid: String): Boolean = try {
-        firestore.collection("users").document(uid).get().await()
-            .getBoolean("assist_completado") ?: false
-    } catch (e: Exception) {
-        false
+    suspend fun getProfile(): UserRemoteDto? {
+        val user = firebaseAuth.currentUser ?: return null
+        return userRemoteDataSource.getProfile(user.uid)
     }
 
-    suspend fun actualizarSustancias(sustancias: Set<String>): Result<Unit> = try {
+    suspend fun isAssistCompleted(uid: String): Boolean =
+        userRemoteDataSource.isAssistCompleted(uid)
+
+    suspend fun updateSubstances(substances: Set<String>): Result<Unit> = try {
         val user = firebaseAuth.currentUser
             ?: return Result.failure(Exception("No hay sesión activa."))
         if (!user.isAnonymous) {
-            firestore.collection("users").document(user.uid)
-                .set(mapOf("sustancias_seleccionadas" to sustancias.toList()), SetOptions.merge())
-                .await()
+            userRemoteDataSource.updateSubstances(user.uid, substances)
         }
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    suspend fun actualizarPerfil(apodo: String, fechaNacimiento: String): Result<Unit> = try {
+    suspend fun updateProfile(nickname: String, birthDate: String): Result<Unit> = try {
         val user = firebaseAuth.currentUser
             ?: return Result.failure(Exception("No hay sesión activa."))
         if (!user.isAnonymous) {
-            firestore.collection("users").document(user.uid)
-                .set(
-                    mapOf(
-                        "apodo" to apodo,
-                        "fecha_nacimiento" to parseFechaNacimiento(fechaNacimiento)
-                    ),
-                    SetOptions.merge()
-                ).await()
+            userRemoteDataSource.updateProfile(user.uid, nickname, birthDate)
         }
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
-    private suspend fun crearPerfilFirestore(
-        uid: String,
-        apodo: String,
-        email: String,
-        fechaNacimiento: String,
-        sustanciasIniciales: List<String> = emptyList(),
-        assistCompletadoInicial: Boolean = false
-    ) {
-        firestore.collection("users").document(uid).set(
-            hashMapOf(
-                "apodo" to apodo,
-                "email" to email,
-                "fecha_nacimiento" to parseFechaNacimiento(fechaNacimiento),
-                "sustancias_seleccionadas" to sustanciasIniciales,
-                "assist_completado" to assistCompletadoInicial,
-                "es_anonimo" to false,
-                "racha_actual" to 0,
-                "mejor_racha" to 0,
-                "creado_en" to FieldValue.serverTimestamp()
-            ),
-            SetOptions.merge()
-        ).await()
-    }
-
-    private fun parseFechaNacimiento(fechaNacimiento: String): Date? = try {
-        SimpleDateFormat("dd/MM/yyyy", Locale("es", "MX")).parse(fechaNacimiento)
-    } catch (e: Exception) {
-        null
-    }
-
-    private suspend fun actualizarSesionLocal(
+    private suspend fun updateLocalSession(
         serverId: String,
-        esAnonimo: Boolean,
-        apodo: String? = null,
-        email: String? = null,
-        fechaNacimiento: String? = null,
-        sustancias: List<String>? = null
+        isAnonymous: Boolean,
+        substances: List<String>? = null
     ) {
-        val actual = userRepository.observar().first() ?: UserEntity()
-        userRepository.guardar(
-            actual.copy(
+        val current = userRepository.observe().first() ?: UserEntity()
+        userRepository.save(
+            current.copy(
                 serverId = serverId,
-                apodo = apodo ?: actual.apodo,
-                email = email ?: actual.email,
-                esAnonimo = esAnonimo,
-                fechaNacimiento = fechaNacimiento ?: actual.fechaNacimiento,
-                sustanciasJson = sustancias?.joinToString(",") ?: actual.sustanciasJson
+                isAnonymous = isAnonymous,
+                substancesJson = substances?.joinToString(",") ?: current.substancesJson
             )
         )
     }
