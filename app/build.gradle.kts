@@ -54,7 +54,9 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.config)
 
-    implementation("com.google.code.gson:gson:2.10.1")
+    // Rive dependencies
+    implementation(libs.rive)
+    implementation(libs.startup.runtime)
 
     // Coroutines dependencies
     implementation(libs.kotlinx.coroutines.core)

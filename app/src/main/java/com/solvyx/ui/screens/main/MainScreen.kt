@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +44,7 @@ import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
+import com.solvyx.ui.components.haze.LocalHazeState
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,6 +59,7 @@ import com.solvyx.ui.screens.avances.MisAvancesScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
+import dev.chrisbanes.haze.HazeState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -74,6 +77,7 @@ fun MainScreen(
     val inicioViewModel: InicioViewModel = hiltViewModel()
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
+    val hazeState = remember { HazeState() }
 
     LaunchedEffect(openDrawerOnReturn) {
         if (openDrawerOnReturn) {
@@ -155,34 +159,36 @@ fun MainScreen(
         )
 
         // ── Capa 2: contenido principal (animado, encima) ──
-        SolvyxMainContent(
-            modifier = Modifier
-                .offset(x = animatedOffset)
-                .scale(animatedScale)
-                .clip(RoundedCornerShape(animatedRadius))
-                .fillMaxSize()
-                .background(
-                    color = MaterialTheme.colorScheme.background,
-                    shape = RoundedCornerShape(animatedRadius)
-                )
-                .clickable(
-                    enabled = drawerState.isOpened(),
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) {
-                    drawerState = CustomDrawerState.Closed
-                },
-            selectedItem = selectedItem,
-            drawerState = drawerState,
-            onDrawerClick = { drawerState = drawerState.opposite() },
-            onNavigateToChat = onNavigateToChat,
-            onNavigateToSos = onNavigateToSos,
-            onNavigateToAssist = onNavigateToAssist,
-            onNavigateToEjercicio = onNavigateToEjercicio,
-            onNavigateToCrearCuenta = onNavigateToCrearCuenta,
-            onBottomNavNavigate = { item -> selectedItem = item },
-            onLogout = onLogout
-        )
+        CompositionLocalProvider(LocalHazeState provides hazeState) {
+            SolvyxMainContent(
+                modifier = Modifier
+                    .offset(x = animatedOffset)
+                    .scale(animatedScale)
+                    .clip(RoundedCornerShape(animatedRadius))
+                    .fillMaxSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = RoundedCornerShape(animatedRadius)
+                    )
+                    .clickable(
+                        enabled = drawerState.isOpened(),
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        drawerState = CustomDrawerState.Closed
+                    },
+                selectedItem = selectedItem,
+                drawerState = drawerState,
+                onDrawerClick = { drawerState = drawerState.opposite() },
+                onNavigateToChat = onNavigateToChat,
+                onNavigateToSos = onNavigateToSos,
+                onNavigateToAssist = onNavigateToAssist,
+                onNavigateToEjercicio = onNavigateToEjercicio,
+                onNavigateToCrearCuenta = onNavigateToCrearCuenta,
+                onBottomNavNavigate = { item -> selectedItem = item },
+                onLogout = onLogout
+            )
+        }
     }
 }
 
@@ -243,11 +249,14 @@ private fun SolvyxMainContent(
                 )
             }
         }
-    ) { paddingValues ->
+    ) { _ ->
+        // El contenido ignora el paddingValues del bottomBar a propósito: las pantallas
+        // detrás del bottom nav (Home/Plan/Registro/Avances) dibujan a pantalla completa
+        // para que Haze tenga contenido real que difuminar detrás de la barra translúcida.
+        // Cada una deja su propio espacio de respiro (SolvyxBottomNavHeight) al final del scroll.
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
             when (selectedItem) {
                 NavigationItem.Inicio ->

@@ -20,7 +20,6 @@ class PostAuthRouter @Inject constructor(
 ) {
     suspend fun resolver(bloquearSiAssistPendiente: Boolean = false): Destino {
         val user = authRepository.currentUser ?: return Destino.AuthChoice
-        if (user.isAnonymous) return Destino.HomeDirecto
         val assistCompletado = authRepository.isAssistCompleted(user.uid)
         if (!assistCompletado) {
             return if (bloquearSiAssistPendiente) Destino.AssistPendiente else Destino.HomeDirecto

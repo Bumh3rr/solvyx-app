@@ -10,5 +10,6 @@ data class JournalEntity(
     val mood: String,
     val consumed: Boolean,
     val substance: String? = null,
-    val note: String? = null
+    val note: String? = null,
+    val serverId: String? = null
 )

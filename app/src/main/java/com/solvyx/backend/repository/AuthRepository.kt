@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.solvyx.backend.data.local.database.AppDatabase
+import com.solvyx.backend.data.local.entity.PlanEntity
 import com.solvyx.backend.data.local.entity.UserEntity
 import com.solvyx.backend.data.remote.datasource.UserRemoteDataSource
 import com.solvyx.backend.data.remote.model.UserRemoteDto
@@ -25,6 +26,9 @@ class AuthRepository @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
+    private val journalRepository: JournalRepository,
+    private val progressRepository: ProgressRepository,
+    private val planRepository: PlanRepository,
     private val appDatabase: AppDatabase,
 ) {
 
@@ -58,6 +62,17 @@ class AuthRepository @Inject constructor(
             substances = profile?.selectedSubstances
         )
         assistRepository.hydrateFromServer()
+        journalRepository.hydrateFromServer()
+        progressRepository.hydrateAchievements()
+        if (profile?.planGoalIndex != null && profile.planGoalAchievedToday != null) {
+            planRepository.saveLocalOnly(
+                PlanEntity(
+                    goalIndex = profile.planGoalIndex,
+                    goalAchievedToday = profile.planGoalAchievedToday,
+                    date = profile.planDate ?: System.currentTimeMillis()
+                )
+            )
+        }
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
@@ -131,22 +146,16 @@ class AuthRepository @Inject constructor(
         userRemoteDataSource.isAssistCompleted(uid)
 
     suspend fun updateSubstances(substances: Set<String>): Result<Unit> = try {
-        val user = firebaseAuth.currentUser
-            ?: return Result.failure(Exception("No hay sesión activa."))
-        if (!user.isAnonymous) {
-            userRemoteDataSource.updateSubstances(user.uid, substances)
-        }
+        val user = firebaseAuth.currentUser ?: return Result.failure(Exception("No hay sesión activa."))
+        userRemoteDataSource.updateSubstances(user.uid, substances)
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
     suspend fun updateProfile(nickname: String, birthDate: String): Result<Unit> = try {
-        val user = firebaseAuth.currentUser
-            ?: return Result.failure(Exception("No hay sesión activa."))
-        if (!user.isAnonymous) {
-            userRemoteDataSource.updateProfile(user.uid, nickname, birthDate)
-        }
+        val user = firebaseAuth.currentUser?: return Result.failure(Exception("No hay sesión activa."))
+        userRemoteDataSource.updateProfile(user.uid, nickname, birthDate)
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))

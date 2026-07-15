@@ -37,6 +37,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.solvyx.ui.components.haze.LocalHazeState
+import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
+import dev.chrisbanes.haze.haze
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -187,14 +190,21 @@ fun GuiaPanel(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val hazeState = LocalHazeState.current
     Column(
         modifier = modifier
             .fillMaxWidth()
             .offset(y = (-24).dp)
             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+            .haze(
+                hazeState,
+                backgroundColor = MaterialTheme.colorScheme.background,
+                tint = MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
+                blurRadius = 16.dp
+            )
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 56.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = SolvyxBottomNavHeight),
         content = content
     )
 }

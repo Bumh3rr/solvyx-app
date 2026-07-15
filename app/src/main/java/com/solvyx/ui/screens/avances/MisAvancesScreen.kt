@@ -58,11 +58,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
+import com.solvyx.ui.components.haze.LocalHazeState
+import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
 import com.solvyx.ui.screens.guias.components.BorderCard
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealMedium
 import com.solvyx.ui.theme.TealPrimary
+import dev.chrisbanes.haze.haze
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -178,15 +181,22 @@ fun MisAvancesScreen(
             )
         }
 
-        // ── White panel ──────────────────────────────────────────────────────
+        // ── White panel (fuente del blur del bottom nav) ───────────────────────
+        val hazeState = LocalHazeState.current
         Column(
             modifier = Modifier
                 .weight(1f)
                 .offset(y = (-24).dp)
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                .haze(
+                    hazeState,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
+                    blurRadius = 16.dp
+                )
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 56.dp)
+                .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = SolvyxBottomNavHeight)
         ) {
 
             // ── Milestone card (overlapping hero) ─────────────────────────

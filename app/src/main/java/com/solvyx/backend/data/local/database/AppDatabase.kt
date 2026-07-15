@@ -31,7 +31,7 @@ import com.solvyx.backend.data.local.entity.UserEntity
         AchievementEntity::class,
         SosEventEntity::class
     ],
-    version = 6
+    version = 7
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao

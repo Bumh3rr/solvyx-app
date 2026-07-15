@@ -112,13 +112,13 @@ class AvancesViewModel @Inject constructor(
                 val semanaDays = (6 downTo 0).map { today.minusDays(it.toLong()) }
                 val mesDays = (27 downTo 0).map { today.minusDays(it.toLong()) }
                 feelingsDataSemana = semanaDays.map { d ->
-                    entryMap[d]?.firstOrNull()?.let { moodScale[it.mood] } ?: 0f
+                    entryMap[d]?.maxByOrNull { it.id }?.let { moodScale[it.mood] } ?: 0f
                 }
                 consumoSemana = semanaDays.map { d ->
                     if (entryMap[d]?.any { it.consumed } == true) 1f else 0f
                 }
                 feelingsDataMes = mesDays.map { d ->
-                    entryMap[d]?.firstOrNull()?.let { moodScale[it.mood] } ?: 0f
+                    entryMap[d]?.maxByOrNull { it.id }?.let { moodScale[it.mood] } ?: 0f
                 }
                 consumoMes = mesDays.map { d ->
                     if (entryMap[d]?.any { it.consumed } == true) 1f else 0f

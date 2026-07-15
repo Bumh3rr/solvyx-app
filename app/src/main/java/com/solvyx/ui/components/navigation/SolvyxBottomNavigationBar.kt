@@ -29,11 +29,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.solvyx.R
+import com.solvyx.ui.components.haze.LocalHazeState
+import dev.chrisbanes.haze.hazeChild
 
 enum class SolvyxBottomTab { INICIO, PLAN, CHATBOT, AVANCES }
+
+/** Alto total de la barra + margen de respiro. Pantallas cuyo contenido pasa detrás del
+ *  bottom nav (vía [dev.chrisbanes.haze.haze]) deben dejar al menos esto de padding inferior. */
+val SolvyxBottomNavHeight: Dp = 88.dp
 
 @Composable
 fun SolvyxBottomNavigationBar(
@@ -45,6 +52,8 @@ fun SolvyxBottomNavigationBar(
     // Layout: [Inicio][Plan] [Berto-center] [Avances]
     // Berto slot is at position 3/4 (62.5% from left).
     // bertoXOffset shifts the TopCenter overlay (50%) right by 1/8 of width → 62.5%.
+    val hazeState = LocalHazeState.current
+
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
@@ -52,14 +61,14 @@ fun SolvyxBottomNavigationBar(
     ) {
         val bertoXOffset = maxWidth * 0.125f
 
-        // ── Bar background with 4 slots ───────────────
+        // ── Bar background with 4 slots (glass/blur vía Haze) ─
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(72.dp)
                 .align(Alignment.BottomCenter)
-                .background(
-                    color = Color.White.copy(alpha = 0.97f),
+                .hazeChild(
+                    state = hazeState,
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                 )
                 .border(

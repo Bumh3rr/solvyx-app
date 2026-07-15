@@ -14,6 +14,8 @@ import com.solvyx.backend.data.local.dao.UserDao
 import com.solvyx.backend.data.local.database.AppDatabase
 import com.solvyx.backend.common.formatter.DateFormatter
 import com.solvyx.backend.common.formatter.DateFormatterImpl
+import com.solvyx.backend.common.streak.StreakCalculator
+import com.solvyx.backend.common.streak.StreakCalculatorImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -61,4 +63,7 @@ object AppModule {
 
     @Provides @Singleton
     fun provideDateFormatter(impl: DateFormatterImpl): DateFormatter = impl
+
+    @Provides @Singleton
+    fun provideStreakCalculator(impl: StreakCalculatorImpl): StreakCalculator = impl
 }

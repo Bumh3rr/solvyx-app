@@ -34,7 +34,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.haze.LocalHazeState
+import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
 import com.solvyx.ui.theme.SolvyxappTheme
+import dev.chrisbanes.haze.haze
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -90,9 +93,16 @@ fun RegistroEmocionalScreen(
         )
     }
 
+    val hazeState = LocalHazeState.current
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .haze(
+                hazeState,
+                backgroundColor = MaterialTheme.colorScheme.background,
+                tint = MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
+                blurRadius = 16.dp
+            )
             .background(MaterialTheme.colorScheme.background)
     ) {
             // ── Top bar ─────────────────────────────────
@@ -513,12 +523,13 @@ fun RegistroEmocionalScreen(
                 }
             }
 
-            // ── Guardar (sticky, no scrollable) ──────────
+            // ── Guardar (sticky, no scrollable, deja espacio para el bottom nav) ──
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                    .padding(horizontal = 20.dp)
+                    .padding(top = 14.dp, bottom = SolvyxBottomNavHeight),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 SolvyxButton(

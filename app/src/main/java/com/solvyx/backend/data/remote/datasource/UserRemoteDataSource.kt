@@ -29,7 +29,10 @@ class UserRemoteDataSource @Inject constructor(
                 selectedSubstances = substances,
                 assistCompleted = doc.getBoolean(UserRemoteDto.ASSIST_COMPLETED) ?: false,
                 isAnonymous = doc.getBoolean(UserRemoteDto.IS_ANONYMOUS) ?: false,
-                createdAt = doc.getTimestamp(UserRemoteDto.CREATED_AT)?.toDate()?.time
+                createdAt = doc.getTimestamp(UserRemoteDto.CREATED_AT)?.toDate()?.time,
+                planGoalIndex = doc.getLong(UserRemoteDto.PLAN_GOAL_INDEX)?.toInt(),
+                planGoalAchievedToday = doc.getBoolean(UserRemoteDto.PLAN_GOAL_ACHIEVED_TODAY),
+                planDate = doc.getLong(UserRemoteDto.PLAN_DATE)
             )
         }
     } catch (e: Exception) {
@@ -75,5 +78,17 @@ class UserRemoteDataSource @Inject constructor(
             .getBoolean(UserRemoteDto.ASSIST_COMPLETED) ?: false
     } catch (e: Exception) {
         false
+    }
+
+    suspend fun updatePlan(uid: String, goalIndex: Int, goalAchievedToday: Boolean, date: Long) {
+        firestore.collection(UserRemoteDto.USERS).document(uid)
+            .set(
+                mapOf(
+                    UserRemoteDto.PLAN_GOAL_INDEX to goalIndex,
+                    UserRemoteDto.PLAN_GOAL_ACHIEVED_TODAY to goalAchievedToday,
+                    UserRemoteDto.PLAN_DATE to date
+                ),
+                SetOptions.merge()
+            ).await()
     }
 }
