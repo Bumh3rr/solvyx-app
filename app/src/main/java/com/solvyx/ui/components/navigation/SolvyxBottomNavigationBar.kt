@@ -94,8 +94,8 @@ fun SolvyxBottomNavigationBar(
             )
             Spacer(Modifier.weight(1f))   // Berto slot
             BottomNavTab(
-                icon     = R.drawable.ic_trophy,
-                label    = "Avances",
+                icon     = R.drawable.ic_footsteps,
+                label    = "Mi camino",
                 selected = selectedTab == SolvyxBottomTab.AVANCES,
                 onClick  = { onTabSelected(SolvyxBottomTab.AVANCES) },
                 modifier = Modifier.weight(1f)

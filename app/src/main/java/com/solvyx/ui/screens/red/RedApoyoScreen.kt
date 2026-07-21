@@ -1,6 +1,11 @@
 package com.solvyx.ui.screens.red
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -75,6 +80,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.backend.data.local.entity.SosContactEntity
 import com.solvyx.backend.validation.Validadores
+import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealLightest
@@ -84,7 +90,6 @@ import com.solvyx.ui.theme.TealMedium
 fun RedApoyoScreen(
     isSetupMode: Boolean,
     onBack: () -> Unit,
-    onOpenDrawer: () -> Unit,
     onFinishSetup: () -> Unit,
     esOmitible: Boolean = false,
     viewModel: RedApoyoViewModel = hiltViewModel()
@@ -92,7 +97,24 @@ fun RedApoyoScreen(
     val context = LocalContext.current
     val primary = MaterialTheme.colorScheme.primary
     val background = MaterialTheme.colorScheme.background
-    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+
+    val smsPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (!concedido) {
+            Toast.makeText(context,"Sin permiso de SMS no podremos avisarles automáticamente, pero podrás llamarles desde el SOS.",
+                Toast.LENGTH_LONG).show()
+        }
+        viewModel.guardar()
+    }
+
+    fun guardarPidiendoPermisoSms() {
+        val yaConcedido = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.SEND_SMS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (yaConcedido) viewModel.guardar()
+        else smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+    }
 
     LaunchedEffect(viewModel.savedSuccessfully) {
         if (viewModel.savedSuccessfully && !isSetupMode) {
@@ -158,14 +180,8 @@ fun RedApoyoScreen(
                         .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(
-                            painterResource(R.drawable.ic_menu),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                    SolvyxBackButton(onBack)
+
                     Text(
                         "Mi Red de apoyo",
                         Modifier.weight(1f),
@@ -345,7 +361,7 @@ fun RedApoyoScreen(
                     .height(54.dp)
                     .clip(RoundedCornerShape(50.dp))
                     .background(if (buttonEnabled) primary else Color(0xFFB6D7CB))
-                    .clickable(enabled = buttonEnabled) { viewModel.guardar() },
+                    .clickable(enabled = buttonEnabled) { guardarPidiendoPermisoSms() },
                 contentAlignment = Alignment.Center
             ) {
                 if (viewModel.isSaving) {

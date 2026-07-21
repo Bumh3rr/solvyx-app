@@ -3,6 +3,7 @@ package com.solvyx.ui.screens.avances
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.solvyx.ui.theme.TealDark
@@ -38,15 +41,32 @@ import com.solvyx.ui.theme.TealPrimary
 fun FeelingsChart(
     data: List<Float>,  // bienestar values 0-10
     labels: List<String>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPointSelected: ((Int) -> Unit)? = null
 ) {
     if (data.isEmpty()) return
 
+    val density = LocalDensity.current
     Column(modifier = modifier) {
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
+                .then(
+                    if (onPointSelected == null) Modifier
+                    else Modifier.pointerInput(data.size) {
+                        detectTapGestures { offset ->
+                            val leftPad = with(density) { 32.dp.toPx() }
+                            val rightPad = with(density) { 8.dp.toPx() }
+                            val n = data.size
+                            val chartWidth = size.width - leftPad - rightPad
+                            if (n <= 0 || chartWidth <= 0f) return@detectTapGestures
+                            val rel = ((offset.x - leftPad) / chartWidth).coerceIn(0f, 1f)
+                            val index = Math.round(rel * (n - 1).coerceAtLeast(1)).coerceIn(0, n - 1)
+                            onPointSelected(index)
+                        }
+                    }
+                )
         ) {
             val leftPad   = 32.dp.toPx()
             val rightPad  = 8.dp.toPx()

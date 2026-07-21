@@ -7,22 +7,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.solvyx.R
+import com.solvyx.backend.common.streak.StreakCalculator
 import com.solvyx.backend.data.local.entity.AchievementEntity
+import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.repository.ProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.Locale
 import javax.inject.Inject
+
+/** Mínimo de días registrados antes de afirmar cualquier patrón en "Berto dice". */
+private const val MIN_DIAS_PARA_PATRON = 5
 
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class AvancesViewModel @Inject constructor(
-    private val repository: ProgressRepository
+    private val repository: ProgressRepository,
+    private val streakCalculator: StreakCalculator,
+    private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
+
+    val isAnonymous: Boolean get() = firebaseAuth.currentUser?.isAnonymous == true
 
     data class UiLogro(
         val icon: Int,
@@ -51,8 +62,18 @@ class AvancesViewModel @Inject constructor(
         private set
     var uiLogros by mutableStateOf(listOf<UiLogro>())
         private set
+    var bertoInsight by mutableStateOf("")
+        private set
 
-    val milestoneDays = listOf(3, 7, 10, 15, 30)
+    var selectedDay by mutableStateOf<JournalEntry?>(null)
+        private set
+
+    // Días visibles por período y lookup fecha->entrada, para el detalle del día.
+    private var daysSemana: List<LocalDate> = emptyList()
+    private var daysMes: List<LocalDate> = emptyList()
+    private var entriesByDate: Map<LocalDate, JournalEntry> = emptyMap()
+
+    val milestoneDays = AchievementEntity.MILESTONE_DAYS
     val labelsSemana = listOf("L", "M", "X", "J", "V", "S", "D")
     val labelsMes = (1..28).map { it.toString() }
 
@@ -69,72 +90,76 @@ class AvancesViewModel @Inject constructor(
             ) { bitacora, logros -> Pair(bitacora, logros) }
             .collect { (bitacora, logros) ->
                 val today = LocalDate.now(zone)
-                val entryMap = bitacora.groupBy {
-                    Instant.ofEpochMilli(it.date).atZone(zone).toLocalDate()
-                }
+                val entryMap = bitacora.groupBy { it.date }
 
-                // Current racha
-                var streak = 0
-                var day = today
-                while (true) {
-                    val dayEntries = entryMap[day]
-                    if (dayEntries == null || dayEntries.any { it.consumed }) break
-                    streak++
-                    day = day.minusDays(1)
-                }
-                racha = streak
-
-                // Best racha across all data
-                var best = 0
-                var current = 0
-                val sortedDates = entryMap.keys.sorted()
-                for (i in sortedDates.indices) {
-                    val d = sortedDates[i]
-                    val hasConsumption = entryMap[d]!!.any { it.consumed }
-                    if (!hasConsumption) {
-                        current = if (i > 0 && sortedDates[i - 1] == d.minusDays(1)) current + 1 else 1
-                        if (current > best) best = current
-                    } else {
-                        current = 0
-                    }
-                }
-                mejorRacha = maxOf(best, streak)
-
-                // Next milestone
-                val next = milestoneDays.firstOrNull { it > streak }
-                proximoLogro = next ?: milestoneDays.last()
-                milestoneProgress = if (next != null) {
-                    val prev = milestoneDays.lastOrNull { it <= streak } ?: 0
-                    (streak - prev).toFloat() / (next - prev).coerceAtLeast(1)
-                } else 1f
+                val stats = streakCalculator.compute(bitacora, today)
+                racha = stats.current
+                mejorRacha = stats.best
+                proximoLogro = stats.nextMilestone
+                milestoneProgress = stats.progress
 
                 // Chart data
                 val semanaDays = (6 downTo 0).map { today.minusDays(it.toLong()) }
                 val mesDays = (27 downTo 0).map { today.minusDays(it.toLong()) }
+                daysSemana = semanaDays
+                daysMes = mesDays
+                entriesByDate = bitacora.associateBy { it.date }
                 feelingsDataSemana = semanaDays.map { d ->
-                    entryMap[d]?.maxByOrNull { it.id }?.let { moodScale[it.mood] } ?: 0f
+                    entryMap[d]?.firstOrNull()?.mood?.let { m -> moodScale[m] } ?: 0f
                 }
                 consumoSemana = semanaDays.map { d ->
-                    if (entryMap[d]?.any { it.consumed } == true) 1f else 0f
+                    if (entryMap[d]?.any { it.consumed == true } == true) 1f else 0f
                 }
                 feelingsDataMes = mesDays.map { d ->
-                    entryMap[d]?.maxByOrNull { it.id }?.let { moodScale[it.mood] } ?: 0f
+                    entryMap[d]?.firstOrNull()?.mood?.let { m -> moodScale[m] } ?: 0f
                 }
                 consumoMes = mesDays.map { d ->
-                    if (entryMap[d]?.any { it.consumed } == true) 1f else 0f
+                    if (entryMap[d]?.any { it.consumed == true } == true) 1f else 0f
                 }
+
+                // Insight de Berto — calculado desde la bitácora real, nunca inventado
+                bertoInsight = buildInsight(entryMap)
 
                 // Logros
                 uiLogros = logros.map { mapLogro(it) }
-                autoUnlock(logros, streak)
+                autoUnlock(logros, stats.current)
             }
         }
     }
 
+    /**
+     * Texto de la tarjeta "Berto dice". Se deriva únicamente de la bitácora real: si no hay
+     * datos suficientes lo dice en vez de afirmar un patrón que no existe.
+     */
+    private fun buildInsight(entryMap: Map<LocalDate, List<JournalEntry>>): String {
+        val totalDias = entryMap.size
+        if (totalDias < MIN_DIAS_PARA_PATRON) {
+            return "Aún no tengo suficientes registros para ver patrones. " +
+                "Registra unos días más y aquí te muestro lo que encuentre."
+        }
+
+        val diasConConsumo = entryMap.filterValues { dia -> dia.any { it.consumed == true } }.keys
+        if (diasConConsumo.isEmpty()) {
+            return "En $totalDias días registrados no reportaste consumo. " +
+                "Ese es un patrón que vale la pena sostener."
+        }
+
+        val porDiaSemana = diasConConsumo.groupingBy { it.dayOfWeek }.eachCount()
+        val (diaTop, veces) = porDiaSemana.maxByOrNull { it.value }!!
+        if (veces >= 2) {
+            val nombreDia = diaTop.getDisplayName(TextStyle.FULL, Locale("es", "MX"))
+            return "Los $nombreDia concentran tu mayor consumo registrado " +
+                "($veces de ${diasConConsumo.size} días con consumo). " +
+                "Planear algo distinto ese día puede ayudarte."
+        }
+
+        return "Llevas ${diasConConsumo.size} de $totalDias días registrados con consumo, " +
+            "sin repetirse en un mismo día de la semana. Sigue registrando para ver tus patrones."
+    }
+
     private fun autoUnlock(logros: List<AchievementEntity>, currentRacha: Int) {
-        val thresholds = mapOf("racha_3" to 3, "racha_7" to 7, "racha_10" to 10, "racha_15" to 15, "racha_30" to 30)
         logros.filter { !it.unlocked }.forEach { logro ->
-            val threshold = thresholds[logro.id] ?: return@forEach
+            val threshold = AchievementEntity.STREAK_THRESHOLDS[logro.id] ?: return@forEach
             if (currentRacha >= threshold) {
                 viewModelScope.launch { repository.unlockAchievement(logro.id) }
             }
@@ -154,4 +179,13 @@ class AvancesViewModel @Inject constructor(
     }
 
     fun selectTab(index: Int) { selectedTab = index }
+
+    /** Abre el detalle del día tocado en la gráfica. Ignora días sin registro. */
+    fun onChartPointSelected(index: Int) {
+        val days = if (selectedTab == 0) daysSemana else daysMes
+        val date = dateForChartIndex(index, days) ?: return
+        entriesByDate[date]?.let { selectedDay = it }
+    }
+
+    fun dismissDayDetail() { selectedDay = null }
 }

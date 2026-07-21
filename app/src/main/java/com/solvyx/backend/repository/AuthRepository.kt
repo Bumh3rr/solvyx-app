@@ -26,7 +26,6 @@ class AuthRepository @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
-    private val journalRepository: JournalRepository,
     private val progressRepository: ProgressRepository,
     private val planRepository: PlanRepository,
     private val appDatabase: AppDatabase,
@@ -39,8 +38,7 @@ class AuthRepository @Inject constructor(
         birthDate: String
     ): Result<FirebaseUser> = try {
         val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-        val user =
-            result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
+        val user = result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
         userRemoteDataSource.createProfile(
             user.uid,
             UserRemoteDto(nickname = nickname, email = email, birthDate = birthDate)
@@ -53,8 +51,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun signIn(email: String, password: String): Result<FirebaseUser> = try {
         val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-        val user =
-            result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
+        val user = result.user ?: return Result.failure(Exception("Algo salió mal. Intenta de nuevo."))
         val profile = userRemoteDataSource.getProfile(user.uid)
         updateLocalSession(
             serverId = user.uid,
@@ -62,7 +59,6 @@ class AuthRepository @Inject constructor(
             substances = profile?.selectedSubstances
         )
         assistRepository.hydrateFromServer()
-        journalRepository.hydrateFromServer()
         progressRepository.hydrateAchievements()
         if (profile?.planGoalIndex != null && profile.planGoalAchievedToday != null) {
             planRepository.saveLocalOnly(
@@ -101,6 +97,10 @@ class AuthRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             appDatabase.clearAllTables()
         }
+        // `clearAllTables()` borra también las filas base de logros, y el SEED_CALLBACK de Room
+        // solo corre al crear la DB. Se reponen aquí para que la siguiente sesión —incluida una
+        // anónima, que nunca pasa por hydrateAchievements()— tenga logros que desbloquear.
+        progressRepository.ensureAchievementsSeeded()
     }
 
     val currentUser: FirebaseUser? get() = firebaseAuth.currentUser
@@ -147,15 +147,20 @@ class AuthRepository @Inject constructor(
 
     suspend fun updateSubstances(substances: Set<String>): Result<Unit> = try {
         val user = firebaseAuth.currentUser ?: return Result.failure(Exception("No hay sesión activa."))
-        userRemoteDataSource.updateSubstances(user.uid, substances)
+        // Un usuario anónimo no sincroniza a Firestore: solo funciones offline (ver Firebase.md).
+        if (!user.isAnonymous) {
+            userRemoteDataSource.updateSubstances(user.uid, substances)
+        }
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))
     }
 
     suspend fun updateProfile(nickname: String, birthDate: String): Result<Unit> = try {
-        val user = firebaseAuth.currentUser?: return Result.failure(Exception("No hay sesión activa."))
-        userRemoteDataSource.updateProfile(user.uid, nickname, birthDate)
+        val user = firebaseAuth.currentUser ?: return Result.failure(Exception("No hay sesión activa."))
+        if (!user.isAnonymous) {
+            userRemoteDataSource.updateProfile(user.uid, nickname, birthDate)
+        }
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))

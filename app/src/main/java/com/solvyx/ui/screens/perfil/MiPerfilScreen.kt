@@ -378,7 +378,8 @@ fun MiPerfilScreen(
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = viewModel.riskLevel,
+                                text = if (viewModel.hasAssistData) viewModel.riskLevel
+                                       else "SIN DATOS",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.ExtraBold,
                                     letterSpacing = 0.06.sp
@@ -388,8 +389,13 @@ fun MiPerfilScreen(
                         }
                     }
 
+                    // Sin un ASSIST completado no hay nivel de riesgo que mostrar: antes esta
+                    // tarjeta renderizaba "Riesgo  detectado" (vacío) en verde, insinuando riesgo bajo.
                     Text(
-                        text = "Riesgo ${viewModel.riskLevel.lowercase()} detectado",
+                        text = if (viewModel.hasAssistData)
+                            "Riesgo ${viewModel.riskLevel.lowercase()} detectado"
+                        else
+                            "Aún no tienes un diagnóstico",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -397,43 +403,49 @@ fun MiPerfilScreen(
                         modifier = Modifier.padding(top = 10.dp)
                     )
                     Text(
-                        text = "Última evaluación: ${viewModel.lastAssistDate}",
+                        text = if (viewModel.hasAssistData)
+                            "Última evaluación: ${viewModel.lastAssistDate}"
+                        else
+                            "Completa el ASSIST para conocer tu nivel de riesgo.",
                         style = MaterialTheme.typography.bodySmall,
                         color = TealMedium,
                         modifier = Modifier.padding(top = 2.dp)
                     )
 
-                    LinearProgressIndicator(
-                        progress = { viewModel.progresoRiesgo() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 14.dp)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(50.dp)),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    if (viewModel.hasAssistData) {
+                        LinearProgressIndicator(
+                            progress = { viewModel.progresoRiesgo() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 14.dp)
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(50.dp)),
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.primaryContainer
+                        )
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 6.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "0 · Bajo",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TealMedium
-                        )
-                        Text(
-                            text = "27+ · Alto",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TealMedium
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "0 · Bajo",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TealMedium
+                            )
+                            Text(
+                                text = "27+ · Alto",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TealMedium
+                            )
+                        }
                     }
 
                     SolvyxOutlinedButton(
-                        text = "Repetir diagnóstico",
+                        text = if (viewModel.hasAssistData) "Repetir diagnóstico"
+                               else "Hacer diagnóstico",
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_refresh),

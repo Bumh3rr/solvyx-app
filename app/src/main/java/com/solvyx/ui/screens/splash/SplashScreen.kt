@@ -20,10 +20,13 @@ import kotlinx.coroutines.flow.first
 @Composable
 fun SplashScreen(
     nav: NavHostController,
+    skipBranding: Boolean = false,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
-        delay(1500)
+        // La pausa es solo de marca. Cuando se entra por un acceso directo de crisis se omite:
+        // el destino real se apila encima en cuanto esta pantalla resuelve la base.
+        if (!skipBranding) delay(1500)
         val destination = viewModel.destination.first { it !is SplashViewModel.Destination.Loading }
         val route = when (destination) {
             is SplashViewModel.Destination.Onboarding -> Routes.ONBOARDING

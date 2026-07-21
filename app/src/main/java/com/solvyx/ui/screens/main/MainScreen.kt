@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -45,23 +44,19 @@ import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isOpened
 import com.solvyx.ui.components.drawer.model.opposite
 import com.solvyx.ui.components.haze.LocalHazeState
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.solvyx.ui.screens.bitacora.RegistroEmocionalScreen
-import com.solvyx.ui.screens.home.InicioViewModel
+import com.solvyx.ui.screens.home.HomeViewModel
 import com.solvyx.ui.screens.directorio.DirectorioRootScreen
 import com.solvyx.ui.screens.perfil.PerfilNavGraph
 import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
-import com.solvyx.ui.screens.home.InicioScreen
+import com.solvyx.ui.screens.home.HomeScreen
 import com.solvyx.ui.screens.plan.PlanNavGraph
-import com.solvyx.ui.screens.avances.MisAvancesScreen
+import com.solvyx.ui.screens.avances.AvancesScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
 import dev.chrisbanes.haze.HazeState
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
@@ -74,7 +69,7 @@ fun MainScreen(
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {}
 ) {
-    val inicioViewModel: InicioViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
     val hazeState = remember { HazeState() }
@@ -134,13 +129,9 @@ fun MainScreen(
         // ── Capa 1: drawer (fijo, debajo en z-order) ──────
         CustomDrawer(
             selectedNavigationItem = selectedItem,
-            userNickname = inicioViewModel.nickname,
+            userNickname = homeViewModel.nickname,
             onNavigationItemClick = { item ->
                 when (item) {
-                    NavigationItem.CerrarSesion -> {
-                        inicioViewModel.cerrarSesion()
-                        onLogout()
-                    }
                     NavigationItem.Berto -> {
                         drawerState = CustomDrawerState.Closed
                         (onNavigateToChatFromDrawer ?: onNavigateToChat)()
@@ -209,8 +200,7 @@ private fun SolvyxMainContent(
     var showSosDialog by remember { mutableStateOf(false) }
 
     val showBottomBar = selectedItem in listOf(
-        NavigationItem.Inicio, NavigationItem.Plan,
-        NavigationItem.RegistroEmocional, NavigationItem.Avances
+        NavigationItem.Inicio, NavigationItem.Plan, NavigationItem.Avances
     )
 
     val selectedTab = when (selectedItem) {
@@ -239,10 +229,10 @@ private fun SolvyxMainContent(
                     selectedTab = selectedTab,
                     onTabSelected = { tab ->
                         when (tab) {
-                            SolvyxBottomTab.CHATBOT  -> onNavigateToChat()
-                            SolvyxBottomTab.PLAN     -> onBottomNavNavigate(NavigationItem.Plan)
-                            SolvyxBottomTab.AVANCES  -> onBottomNavNavigate(NavigationItem.Avances)
                             SolvyxBottomTab.INICIO   -> onBottomNavNavigate(NavigationItem.Inicio)
+                            SolvyxBottomTab.PLAN     -> onBottomNavNavigate(NavigationItem.Plan)
+                            SolvyxBottomTab.CHATBOT  -> onNavigateToChat()
+                            SolvyxBottomTab.AVANCES  -> onBottomNavNavigate(NavigationItem.Avances)
                         }
                     },
                     onSosClick = { showSosDialog = true }
@@ -250,26 +240,21 @@ private fun SolvyxMainContent(
             }
         }
     ) { _ ->
-        // El contenido ignora el paddingValues del bottomBar a propósito: las pantallas
-        // detrás del bottom nav (Home/Plan/Registro/Avances) dibujan a pantalla completa
-        // para que Haze tenga contenido real que difuminar detrás de la barra translúcida.
-        // Cada una deja su propio espacio de respiro (SolvyxBottomNavHeight) al final del scroll.
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             when (selectedItem) {
                 NavigationItem.Inicio ->
-                    InicioScreen(
+                    HomeScreen(
                         onOpenDrawer = onDrawerClick,
                         drawerState = drawerState,
                         onNavigateToRedApoyo  = { onBottomNavNavigate(NavigationItem.RedApoyo) },
                         onNavigateToChat      = onNavigateToChat,
                         onNavigateToSos       = onNavigateToSos,
-                        onNavigateToDirectorio = { onBottomNavNavigate(NavigationItem.Directorio) },
                         onNavigateToEjercicio = onNavigateToEjercicio,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
-                        onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.RegistroEmocional) },
+                        onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.Avances) },
                         onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) },
                         onNavigateToAssist    = onNavigateToAssist,
                         onNavigateToCrearCuenta = onNavigateToCrearCuenta
@@ -281,10 +266,11 @@ private fun SolvyxMainContent(
                         onNavigateToSos = onNavigateToSos,
                         onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) }
                     )
-                NavigationItem.RegistroEmocional ->
-                    RegistroEmocionalScreen(onOpenDrawer = onDrawerClick)
                 NavigationItem.Avances ->
-                    MisAvancesScreen(onOpenDrawer = onDrawerClick)
+                    AvancesScreen(
+                        onOpenDrawer = onDrawerClick,
+                        onCrearCuenta = onNavigateToCrearCuenta
+                    )
                 NavigationItem.GuiasPrimerosAuxilios ->
                     GuiasNavGraph(
                         onOpenDrawer = onDrawerClick,
@@ -294,8 +280,7 @@ private fun SolvyxMainContent(
                 NavigationItem.RedApoyo ->
                     RedApoyoScreen(
                         isSetupMode = false,
-                        onBack = {},
-                        onOpenDrawer = onDrawerClick,
+                        onBack = { onBottomNavNavigate(NavigationItem.Inicio) },
                         onFinishSetup = {}
                     )
                 NavigationItem.Directorio ->
@@ -312,7 +297,6 @@ private fun SolvyxMainContent(
                         onLogout = onLogout
                     )
                 NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }
-                NavigationItem.CerrarSesion -> { /* manejado en MainScreen */ }
             }
         }
     }

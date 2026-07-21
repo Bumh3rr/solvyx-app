@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.solvyx.backend.data.local.dao.JournalDao
 import com.solvyx.backend.data.local.dao.SosContactDao
 import com.solvyx.backend.data.local.dao.AchievementDao
 import com.solvyx.backend.data.local.dao.PlanDao
@@ -48,9 +47,6 @@ object AppModule {
 
     @Provides @Singleton
     fun provideLastAssistDao(db: AppDatabase): LastAssistDao = db.lastAssistDao()
-
-    @Provides @Singleton
-    fun provideJournalDao(db: AppDatabase): JournalDao = db.journalDao()
 
     @Provides @Singleton
     fun providePlanDao(db: AppDatabase): PlanDao = db.planDao()

@@ -24,12 +24,27 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Solvyxapp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Accesos directos de crisis. singleTop (arriba): la app es de una sola Activity,
+                 así que MainActivity siempre está al tope; tocar el shortcut con la app abierta
+                 entra por onNewIntent en vez de apilar una segunda instancia. -->
+            <intent-filter>
+                <action android:name="com.solvyx.action.SHORTCUT_SOS" />
+                <action android:name="com.solvyx.action.SHORTCUT_BERTO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <provider

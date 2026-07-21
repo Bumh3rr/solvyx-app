@@ -1,11 +1,21 @@
+// app/src/main/java/com/solvyx/backend/data/remote/datasource/JournalRemoteDataSource.kt
 package com.solvyx.backend.data.remote.datasource
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.data.remote.model.JournalRemoteDto
 import com.solvyx.backend.data.remote.model.UserRemoteDto
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,37 +23,69 @@ import javax.inject.Singleton
 class JournalRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-    suspend fun saveEntry(uid: String, dto: JournalRemoteDto): String {
-        val ref = firestore.collection(UserRemoteDto.USERS).document(uid)
-            .collection(JournalRemoteDto.JOURNAL).add(
-                hashMapOf(
-                    JournalRemoteDto.DATE to dto.date,
-                    JournalRemoteDto.MOOD to dto.mood,
-                    JournalRemoteDto.CONSUMED to dto.consumed,
-                    JournalRemoteDto.SUBSTANCE to dto.substance,
-                    JournalRemoteDto.NOTE to dto.note,
-                    JournalRemoteDto.CREATED_AT to FieldValue.serverTimestamp()
-                )
-            ).await()
-        return ref.id
-    }
+    private val zone = ZoneId.systemDefault()
+    private fun dateId(date: LocalDate): String = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-    suspend fun getAll(uid: String): List<Pair<String, JournalRemoteDto>> {
-        return firestore.collection(UserRemoteDto.USERS).document(uid)
+    private fun journalCol(uid: String) =
+        firestore.collection(UserRemoteDto.USERS).document(uid)
             .collection(JournalRemoteDto.JOURNAL)
-            .get().await()
-            .documents.mapNotNull { doc -> doc.toJournalRemoteDto()?.let { doc.id to it } }
+
+    /**
+     * Merge a nivel de campo: solo escribe los campos de registro no nulos + updated_at. Nunca
+     * escribe meta_lograda (eso es setMetaLograda). Así el ánimo rápido no borra un consumed
+     * previo y un registro completo no borra un meta_lograda previo.
+     */
+    suspend fun saveEntry(uid: String, entry: JournalEntry) {
+        val data = buildMap<String, Any?> {
+            put(JournalRemoteDto.DATE, entry.date.atStartOfDay(zone).toInstant().toEpochMilli())
+            entry.mood?.let { put(JournalRemoteDto.MOOD, it) }
+            entry.note?.let { put(JournalRemoteDto.NOTE, it) }
+            entry.consumed?.let { put(JournalRemoteDto.CONSUMED, it) }
+            entry.substance?.let { put(JournalRemoteDto.SUBSTANCE, it) }
+            entry.cantidadAprox?.let { put(JournalRemoteDto.CANTIDAD_APROX, it) }
+            entry.notaContexto?.let { put(JournalRemoteDto.NOTA_CONTEXTO, it) }
+            put(JournalRemoteDto.UPDATED_AT, FieldValue.serverTimestamp())
+            put(JournalRemoteDto.CREATED_AT, FieldValue.serverTimestamp())
+        }
+        journalCol(uid).document(dateId(entry.date)).set(data, SetOptions.merge()).await()
     }
 
-    private fun DocumentSnapshot.toJournalRemoteDto(): JournalRemoteDto? {
-        val mood = getString(JournalRemoteDto.MOOD) ?: return null
-        val date = getLong(JournalRemoteDto.DATE) ?: return null
-        return JournalRemoteDto(
-            date = date,
-            mood = mood,
-            consumed = getBoolean(JournalRemoteDto.CONSUMED) ?: false,
+    suspend fun getEntry(uid: String, date: LocalDate): JournalEntry? =
+        journalCol(uid).document(dateId(date)).get().await().toJournalEntry()
+
+    fun observeAll(uid: String): Flow<List<JournalEntry>> = callbackFlow {
+        val registration = journalCol(uid).addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) {
+                trySend(snapshot.documents.mapNotNull { it.toJournalEntry() })
+            }
+        }
+        awaitClose { registration.remove() }
+    }
+
+    suspend fun setMetaLograda(uid: String, date: LocalDate, value: Boolean) {
+        journalCol(uid).document(dateId(date)).set(
+            mapOf(
+                JournalRemoteDto.META_LOGRADA to value,
+                JournalRemoteDto.DATE to date.atStartOfDay(zone).toInstant().toEpochMilli(),
+                JournalRemoteDto.UPDATED_AT to FieldValue.serverTimestamp()
+            ),
+            SetOptions.merge()
+        ).await()
+    }
+
+    private fun DocumentSnapshot.toJournalEntry(): JournalEntry? {
+        val dateMillis = getLong(JournalRemoteDto.DATE)
+            ?: runCatching { LocalDate.parse(id).atStartOfDay(zone).toInstant().toEpochMilli() }.getOrNull()
+            ?: return null
+        return JournalEntry(
+            date = Instant.ofEpochMilli(dateMillis).atZone(zone).toLocalDate(),
+            mood = getString(JournalRemoteDto.MOOD),
+            note = getString(JournalRemoteDto.NOTE),
+            consumed = getBoolean(JournalRemoteDto.CONSUMED),
             substance = getString(JournalRemoteDto.SUBSTANCE),
-            note = getString(JournalRemoteDto.NOTE)
+            cantidadAprox = getString(JournalRemoteDto.CANTIDAD_APROX),
+            notaContexto = getString(JournalRemoteDto.NOTA_CONTEXTO),
+            metaLograda = getBoolean(JournalRemoteDto.META_LOGRADA) ?: false
         )
     }
 }

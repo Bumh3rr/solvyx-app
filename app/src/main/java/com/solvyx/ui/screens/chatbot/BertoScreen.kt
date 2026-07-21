@@ -887,7 +887,7 @@ private fun BertoStateTransitionBanner(state: BertoState) {
     val cfg = when (state) {
         BertoState.TRANQUILO  -> BannerCfg(R.drawable.ic_check_circle, "Berto está aquí para ti",       TealLightest,                 TealPrimary)
         BertoState.PREOCUPADO -> BannerCfg(R.drawable.ic_heart_pulse,  "Berto se preocupa por ti",       Color(0xFFFFF3E0),             Color(0xFFBF360C))
-        BertoState.CELEBRANDO -> BannerCfg(R.drawable.ic_trophy,       "¡Berto celebra este logro! 🎉",  TealLightest,                 TealPrimary)
+        BertoState.CELEBRANDO -> BannerCfg(R.drawable.ic_trophy,       "¡Berto celebra este logro!",     TealLightest,                 TealPrimary)
         BertoState.CRISIS     -> BannerCfg(R.drawable.ic_alert_triangle,"Berto activó el apoyo de crisis",CrisisRed.copy(alpha = 0.10f), CrisisRed)
     }
     Row(

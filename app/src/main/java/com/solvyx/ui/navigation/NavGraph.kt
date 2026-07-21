@@ -1,6 +1,7 @@
 package com.solvyx.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -8,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
@@ -36,13 +38,35 @@ fun Destino.aRuta(): String = when (this) {
 
 @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.O)
 @Composable
-fun SolvyxNavGraph(navController: NavHostController) {
+fun SolvyxNavGraph(
+    navController: NavHostController,
+    pendingShortcut: ShortcutDestination? = null,
+    onShortcutHandled: () -> Unit = {}
+) {
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    // Un App Shortcut se apila sobre la pantalla base en vez de reemplazarla, para que
+    // "Cancelar" en el SOS o "atrás" en Berto regresen a donde el usuario estaría normalmente
+    // en vez de tirarlo fuera de la app.
+    //
+    // Cubre los dos casos con una sola regla:
+    //  - Arranque en frío: espera a que el Splash resuelva la base y recién ahí apila.
+    //  - App ya abierta (onNewIntent): la base ya existe, así que apila de inmediato.
+    LaunchedEffect(pendingShortcut, currentRoute) {
+        val destino = pendingShortcut ?: return@LaunchedEffect
+        if (currentRoute == null || currentRoute == Routes.SPLASH) return@LaunchedEffect
+        if (currentRoute != destino.route) {
+            navController.navigate(destino.route)
+        }
+        onShortcutHandled()
+    }
+
     NavHost(
         navController = navController,
         startDestination = Routes.SPLASH
     ) {
         composable(Routes.SPLASH) {
-            SplashScreen(navController)
+            SplashScreen(navController, skipBranding = pendingShortcut != null)
         }
         composable(Routes.ONBOARDING) {
             OnboardingScreen(navController)
@@ -92,7 +116,6 @@ fun SolvyxNavGraph(navController: NavHostController) {
                 isSetupMode = true,
                 esOmitible = omitible,
                 onBack = { navController.navigateUp() },
-                onOpenDrawer = {},
                 onFinishSetup = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }

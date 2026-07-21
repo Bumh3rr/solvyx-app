@@ -23,15 +23,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import com.solvyx.R
+import com.solvyx.ui.screens.auth.login.LoginScreen
+import com.solvyx.ui.theme.SolvyxappTheme
+import com.solvyx.ui.theme.TextMuted
+
+@Preview(name = "SOS Confirmation Dialog — Light", showSystemUi = true)
+@Composable
+private fun SosConfirmationDialogPreviewLight() {
+    SolvyxappTheme(darkTheme = false) {
+        SosConfirmationDialog(
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
+}
 
 @Composable
 fun SosConfirmationDialog(
@@ -85,8 +103,8 @@ fun SosConfirmationDialog(
 
                 Text(
                     text = "Se enviará un SMS a tus contactos de confianza con tu ubicación.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextMuted,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
@@ -97,8 +115,13 @@ fun SosConfirmationDialog(
                     onClick = onConfirm,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(50.dp),
+                        .height(52.dp)
+                        .shadow(
+                            elevation = 14.dp,
+                            shape = RoundedCornerShape(50.dp),
+                            ambientColor = sosRed.copy(alpha = 0.35f),
+                            spotColor = sosRed.copy(alpha = 0.55f)
+                        ),                    shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = sosRed,
                         contentColor = Color.White
@@ -118,8 +141,8 @@ fun SosConfirmationDialog(
                 TextButton(onClick = onDismiss) {
                     Text(
                         text = "Cancelar",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextMuted
                     )
                 }
             }

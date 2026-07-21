@@ -32,7 +32,9 @@ class UserRemoteDataSource @Inject constructor(
                 createdAt = doc.getTimestamp(UserRemoteDto.CREATED_AT)?.toDate()?.time,
                 planGoalIndex = doc.getLong(UserRemoteDto.PLAN_GOAL_INDEX)?.toInt(),
                 planGoalAchievedToday = doc.getBoolean(UserRemoteDto.PLAN_GOAL_ACHIEVED_TODAY),
-                planDate = doc.getLong(UserRemoteDto.PLAN_DATE)
+                planDate = doc.getLong(UserRemoteDto.PLAN_DATE),
+                currentStreak = (doc.getLong(UserRemoteDto.CURRENT_STREAK) ?: 0L).toInt(),
+                bestStreak = (doc.getLong(UserRemoteDto.BEST_STREAK) ?: 0L).toInt()
             )
         }
     } catch (e: Exception) {
@@ -87,6 +89,17 @@ class UserRemoteDataSource @Inject constructor(
                     UserRemoteDto.PLAN_GOAL_INDEX to goalIndex,
                     UserRemoteDto.PLAN_GOAL_ACHIEVED_TODAY to goalAchievedToday,
                     UserRemoteDto.PLAN_DATE to date
+                ),
+                SetOptions.merge()
+            ).await()
+    }
+
+    suspend fun updateStreak(uid: String, current: Int, best: Int) {
+        firestore.collection(UserRemoteDto.USERS).document(uid)
+            .set(
+                mapOf(
+                    UserRemoteDto.CURRENT_STREAK to current,
+                    UserRemoteDto.BEST_STREAK to best
                 ),
                 SetOptions.merge()
             ).await()

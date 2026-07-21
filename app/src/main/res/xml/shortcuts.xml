@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Accesos directos de crisis (mantener presionado el ícono de la app).
+
+  Son *estáticos* a propósito, no dinámicos: los estáticos se declaran en el APK y existen desde
+  la instalación, sin depender de que la app haya corrido antes para registrarlos. Un acceso de
+  crisis tiene que estar ahí la primera vez que se necesita.
+
+  El orden importa: el launcher muestra el último elemento más cerca del dedo, así que SOS va
+  al final para quedar más accesible al mantener presionado.
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="berto"
+        android:enabled="true"
+        android:icon="@drawable/ic_chat"
+        android:shortcutShortLabel="@string/shortcut_berto_short"
+        android:shortcutLongLabel="@string/shortcut_berto_long">
+        <intent
+            android:action="com.solvyx.action.SHORTCUT_BERTO"
+            android:targetPackage="com.solvyx"
+            android:targetClass="com.solvyx.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="sos"
+        android:enabled="true"
+        android:icon="@drawable/ic_sos"
+        android:shortcutShortLabel="@string/shortcut_sos_short"
+        android:shortcutLongLabel="@string/shortcut_sos_long">
+        <intent
+            android:action="com.solvyx.action.SHORTCUT_SOS"
+            android:targetPackage="com.solvyx"
+            android:targetClass="com.solvyx.MainActivity" />
+    </shortcut>
+
+</shortcuts>

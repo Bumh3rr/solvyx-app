@@ -1,6 +1,7 @@
 package com.solvyx.ui.screens.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,8 +23,6 @@ import com.solvyx.ui.theme.TealLight
 
 @Composable
 fun HomeHeroSection(
-    nickname: String,
-    fechaHoy: String,
     estadoAnimo: String,
     rachaActual: Int,
     modifier: Modifier = Modifier
@@ -31,7 +30,7 @@ fun HomeHeroSection(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 20.dp)
+            .padding(top = 10.dp, bottom = 10.dp)
     ) {
         Image(
             painter = painterResource(R.drawable.ic_header_hero),
@@ -47,25 +46,8 @@ fun HomeHeroSection(
             estadoAnimo = estadoAnimo,
             rachaActual = rachaActual,
             modifier = Modifier
-                .size(130.dp)
+                .size(300.dp)
                 .align(Alignment.CenterEnd)
         )
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(end = 140.dp)
-        ) {
-            Text(
-                text = "Hola, $nickname",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = fechaHoy,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
     }
 }

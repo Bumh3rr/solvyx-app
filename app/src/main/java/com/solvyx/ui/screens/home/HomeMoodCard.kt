@@ -5,7 +5,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.common.SolvyxCard
 import com.solvyx.ui.theme.MoodAnsioso
 import com.solvyx.ui.theme.MoodBien
 import com.solvyx.ui.theme.MoodEuforico
@@ -63,13 +61,7 @@ fun HomeMoodCard(
     onNavigateToRedApoyo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceDim),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
-    ) {
+    SolvyxCard(modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Row(
                 Modifier.fillMaxWidth(),
@@ -162,7 +154,7 @@ fun HomeMoodCard(
             }
             Spacer(Modifier.height(10.dp))
             Text(
-                "Tu registro es privado y nunca sale de este teléfono.",
+                "Tu registro se guarda de forma privada en tu cuenta.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

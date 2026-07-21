@@ -1,82 +1,50 @@
 package com.solvyx.backend.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.google.firebase.auth.FirebaseAuth
-import com.solvyx.backend.data.local.dao.JournalDao
-import com.solvyx.backend.data.local.entity.JournalEntity
+import com.solvyx.backend.common.streak.StreakCalculator
+import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.data.remote.datasource.JournalRemoteDataSource
-import com.solvyx.backend.data.remote.model.JournalRemoteDto
+import com.solvyx.backend.data.remote.datasource.UserRemoteDataSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import java.time.Instant
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class JournalRepository @Inject constructor(
-    private val dao: JournalDao,
     private val firebaseAuth: FirebaseAuth,
-    private val remoteDataSource: JournalRemoteDataSource
+    private val remoteDataSource: JournalRemoteDataSource,
+    private val userRemoteDataSource: UserRemoteDataSource,
+    private val streakCalculator: StreakCalculator
 ) {
-    fun observe(): Flow<List<JournalEntity>> = dao.observe()
-
-    suspend fun save(entry: JournalEntity) {
-        val localId = dao.insert(entry)
-        syncToRemote(localId, entry)
+    /** Todas las entradas del usuario en tiempo real. Vacío si anónimo o sin sesión. */
+    fun observeAll(): Flow<List<JournalEntry>> {
+        val user = firebaseAuth.currentUser
+        if (user == null || user.isAnonymous) return flowOf(emptyList())
+        return remoteDataSource.observeAll(user.uid)
     }
 
-    private suspend fun syncToRemote(localId: Long, entry: JournalEntity) {
+    suspend fun getToday(): JournalEntry? {
+        val user = firebaseAuth.currentUser ?: return null
+        if (user.isAnonymous) return null
+        return remoteDataSource.getEntry(user.uid, LocalDate.now())
+    }
+
+    suspend fun hasRegisteredToday(): Boolean = getToday()?.isRegistered == true
+
+    /** Escribe el registro y recalcula/persiste la racha del usuario. No-op para anónimos. */
+    suspend fun save(entry: JournalEntry) {
         val user = firebaseAuth.currentUser ?: return
         if (user.isAnonymous) return
+        remoteDataSource.saveEntry(user.uid, entry)
         try {
-            val serverId = remoteDataSource.saveEntry(
-                user.uid,
-                JournalRemoteDto(
-                    date = entry.date,
-                    mood = entry.mood,
-                    consumed = entry.consumed,
-                    substance = entry.substance,
-                    note = entry.note
-                )
-            )
-            dao.setServerId(localId.toInt(), serverId)
+            val all = remoteDataSource.observeAll(user.uid).first()
+            val stats = streakCalculator.compute(all, LocalDate.now())
+            userRemoteDataSource.updateStreak(user.uid, stats.current, stats.best)
         } catch (e: Exception) {
-            // best-effort: la entrada ya está en Room. Si esto falla, la entrada queda local-only
-            // (nunca se reintenta el push — hydrateFromServer solo trae datos, no reenvía)
+            // best-effort: el registro ya quedó; la racha se recalcula en el próximo save/lectura.
         }
     }
-
-    suspend fun hydrateFromServer() {
-        val user = firebaseAuth.currentUser ?: return
-        if (user.isAnonymous) return
-        try {
-            val existingServerIds = dao.getSyncedServerIds().toSet()
-            remoteDataSource.getAll(user.uid).forEach { (docId, dto) ->
-                if (docId in existingServerIds) return@forEach
-                dao.insert(
-                    JournalEntity(
-                        date = dto.date,
-                        mood = dto.mood,
-                        consumed = dto.consumed,
-                        substance = dto.substance,
-                        note = dto.note,
-                        serverId = docId
-                    )
-                )
-            }
-        } catch (e: Exception) {
-            // best-effort
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun observeDates(): Flow<Set<LocalDate>> =
-        dao.observeDates().map { millis ->
-            millis.map {
-                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
-            }.toSet()
-        }
 }

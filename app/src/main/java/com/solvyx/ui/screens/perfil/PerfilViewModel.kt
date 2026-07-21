@@ -9,22 +9,18 @@ import com.solvyx.backend.common.formatter.DateFormatter
 import com.solvyx.backend.data.local.entity.UserEntity
 import com.solvyx.backend.repository.AssistRepository
 import com.solvyx.backend.repository.AuthRepository
-import com.solvyx.backend.repository.JournalRepository
 import com.solvyx.backend.repository.SosContactRepository
 import com.solvyx.backend.repository.UserRepository
 import com.solvyx.backend.validation.Validadores
+import com.solvyx.ui.theme.TextMuted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
 class PerfilViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
-    private val journalRepository: JournalRepository,
     private val sosContactRepository: SosContactRepository,
     private val authRepository: AuthRepository,
     private val dateFormatter: DateFormatter
@@ -68,7 +64,6 @@ class PerfilViewModel @Inject constructor(
         private set
 
     private var cachedUser: UserEntity? = null
-    private val zone = ZoneId.systemDefault()
 
     init {
         viewModelScope.launch {
@@ -102,35 +97,9 @@ class PerfilViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            journalRepository.observe().collect { entries ->
-                val today = LocalDate.now(zone)
-                val entryMap = entries.groupBy {
-                    Instant.ofEpochMilli(it.date).atZone(zone).toLocalDate()
-                }
-                var streak = 0
-                var day = today
-                while (true) {
-                    val dayEntries = entryMap[day]
-                    if (dayEntries == null || dayEntries.any { it.consumed }) break
-                    streak++
-                    day = day.minusDays(1)
-                }
-                rachaActual = streak
-                var best = 0
-                var current = 0
-                val sortedDates = entryMap.keys.sorted()
-                for (i in sortedDates.indices) {
-                    val d = sortedDates[i]
-                    val hasConsumption = entryMap[d]!!.any { it.consumed }
-                    if (!hasConsumption) {
-                        current = if (i > 0 && sortedDates[i - 1] == d.minusDays(1)) current + 1 else 1
-                        if (current > best) best = current
-                    } else {
-                        current = 0
-                    }
-                }
-                mejorRacha = maxOf(best, streak)
-            }
+            val profile = authRepository.getProfile()
+            rachaActual = profile?.currentStreak ?: 0
+            mejorRacha = profile?.bestStreak ?: 0
         }
         viewModelScope.launch {
             sosContactRepository.observe().collect { contacts ->
@@ -190,6 +159,13 @@ class PerfilViewModel @Inject constructor(
         cerrarLogoutDialog()
     }
 
+    /**
+     * `false` mientras no exista un resultado ASSIST en Room: usuario que aún no lo completó, o
+     * cuenta convertida de anónimo cuyo detalle nunca se subió (gap documentado en Pendientes).
+     * La UI **no** debe pintar un nivel de riesgo en ese caso: sin dato no hay riesgo que afirmar.
+     */
+    val hasAssistData: Boolean get() = riskLevel.isNotBlank()
+
     fun progresoRiesgo(): Float = when (riskLevel) {
         "BAJO"     -> assistScore / 27f * 0.40f
         "MODERADO" -> assistScore / 27f * 0.75f
@@ -200,12 +176,13 @@ class PerfilViewModel @Inject constructor(
         "BAJO"     -> androidx.compose.ui.graphics.Color(0xFF065F46)
         "MODERADO" -> androidx.compose.ui.graphics.Color(0xFFd97706)
         "ALTO"     -> androidx.compose.ui.graphics.Color(0xFFE24B4A)
-        else       -> androidx.compose.ui.graphics.Color(0xFF065F46)
+        // Sin datos: neutro. Antes caía en el verde de "BAJO", insinuando riesgo bajo sin evaluar.
+        else       -> TextMuted
     }
     fun bgColorNivel(): androidx.compose.ui.graphics.Color = when (riskLevel) {
         "BAJO"     -> androidx.compose.ui.graphics.Color(0xFFD1FAE5)
         "MODERADO" -> androidx.compose.ui.graphics.Color(0xFFfef9c3)
         "ALTO"     -> androidx.compose.ui.graphics.Color(0xFFfde8e8)
-        else       -> androidx.compose.ui.graphics.Color(0xFFD1FAE5)
+        else       -> TextMuted.copy(alpha = 0.15f)
     }
 }

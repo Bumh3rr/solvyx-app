@@ -156,73 +156,39 @@ fun MiPlanHubScreen(
                         )
                     }
                 }
-            }
 
-            Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(12.dp))
 
-            // ── Mi progreso esta semana ───────────────────────────────────
-            CardLabel(iconRes = R.drawable.ic_calendar, text = "Mi progreso esta semana")
-            Spacer(Modifier.height(8.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceDim)
-                    .border(
-                        width = 0.5.dp,
-                        color = TealLight,
-                        shape = RoundedCornerShape(16.dp)
-                    )
-            ) {
-                val days = listOf("L", "M", "X", "J", "V", "S", "D")
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    days.forEachIndexed { index, day ->
-                        val completed = index < 3
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            if (completed) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primaryContainer),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_check_circle),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.surfaceDim)
-                                        .border(
-                                            width = 0.5.dp,
-                                            color = MaterialTheme.colorScheme.outline,
-                                            shape = CircleShape
-                                        )
-                                )
-                            }
-                            Text(
-                                text = day,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (completed) TealDark
-                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                // Acción principal del plan: comprometerse con la meta de hoy.
+                // Persiste en `plan.goalAchievedToday` (Room + Firestore).
+                if (viewModel.metaLogradaHoy) {
+                    SolvyxOutlinedButton(
+                        text = "Lograda hoy",
+                        onClick = { viewModel.toggleMetaLograda() },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_check_circle),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
-                    }
+                    )
+                } else {
+                    SolvyxButton(
+                        text = "Marcar como lograda hoy",
+                        onClick = { viewModel.toggleMetaLograda() },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_check_circle),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    )
                 }
             }
 

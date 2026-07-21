@@ -2,6 +2,7 @@ package com.solvyx.ui.screens.avances
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -12,6 +13,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.solvyx.ui.theme.CrisisRed
@@ -22,14 +25,30 @@ import com.solvyx.ui.theme.TealPrimary
 fun ConsumptionChart(
     data: List<Float>,       // 0 = no use, 1 = light, 2 = heavy
     labels: List<String>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPointSelected: ((Int) -> Unit)? = null
 ) {
     if (data.isEmpty()) return
 
+    val density = LocalDensity.current
     Canvas(
         modifier = modifier
             .fillMaxWidth()
             .height(160.dp)
+            .then(
+                if (onPointSelected == null) Modifier
+                else Modifier.pointerInput(data.size) {
+                    detectTapGestures { offset ->
+                        val sidePad = with(density) { 8.dp.toPx() }
+                        val n = data.size
+                        val chartWidth = size.width - sidePad * 2
+                        if (n <= 0 || chartWidth <= 0f) return@detectTapGestures
+                        val barSlot = chartWidth / n
+                        val index = (((offset.x - sidePad) / barSlot).toInt()).coerceIn(0, n - 1)
+                        onPointSelected(index)
+                    }
+                }
+            )
     ) {
         val bottomPad = 24.dp.toPx()
         val topPad    = 8.dp.toPx()

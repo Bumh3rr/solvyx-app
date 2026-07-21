@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Solvyx</string>
 
+    <!-- App Shortcuts (mantener presionado el ícono). Estáticos a propósito: existen desde la
+         instalación, sin depender de que la app haya corrido antes para registrarlos. -->
+    <string name="shortcut_sos_short">SOS</string>
+    <string name="shortcut_sos_long">Avisar a mi red de apoyo</string>
+    <string name="shortcut_berto_short">Berto</string>
+    <string name="shortcut_berto_long">Hablar con Berto ahora</string>
+
     <!-- TTS: Ejercicio 5-4-3-2-1 -->
     <string name="tts_intro">Hola. Soy Berto y estoy aquí contigo. Vamos a hacer juntas el ejercicio cinco cuatro tres dos uno. Es una técnica de anclaje que trae tu mente al presente. Respira profundo y cuando estés lista, presiona comenzar.</string>
     <string name="tts_step_ver">Muy bien. Primer sentido: la vista. Busca cinco cosas que puedas ver ahora mismo a tu alrededor. Pueden ser objetos, colores, luces, o cualquier cosa visible. Toca cada burbuja cuando encuentres una.</string>

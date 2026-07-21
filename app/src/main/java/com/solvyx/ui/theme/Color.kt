@@ -3,7 +3,7 @@ package com.solvyx.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ── Paleta principal Solvyx ──────────────────────────
-val TealPrimary       = Color(0xFF2E6B4F)  // Botones, headers, elementos activos
+val TealPrimary       = Color(0xFF1D9E75)  // Botones, headers, elementos activos
 val TealMedium        = Color(0xFF4C8B6E)  // Textos secundarios, bordes
 val TealLight         = Color(0xFFB8DDC7)  // Bordes suaves, shapes decorativos
 val TealLightest      = Color(0xFFFEFEFE)  // Fondos de cards, chips activos

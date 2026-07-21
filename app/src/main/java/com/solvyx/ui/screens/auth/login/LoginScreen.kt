@@ -61,14 +61,6 @@ private fun LoginScreenPreviewLight() {
     }
 }
 
-@Preview(name = "Login — Dark", showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun LoginScreenPreviewDark() {
-    SolvyxappTheme(darkTheme = true) {
-        LoginScreen(nav = NavHostController(LocalContext.current))
-    }
-}
-
 @Composable
 fun LoginScreen(
     nav: NavHostController,

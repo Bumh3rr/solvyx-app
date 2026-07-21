@@ -39,7 +39,7 @@ fun PrivacidadDatosScreen(onBack: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Toda tu información se almacena exclusivamente en este dispositivo. Nunca compartimos tus datos con terceros.",
+                text = "Tu información se guarda de forma privada en tu cuenta y nunca se comparte con terceros.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = TealDark
             )

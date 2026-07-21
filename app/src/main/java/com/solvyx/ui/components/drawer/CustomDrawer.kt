@@ -37,7 +37,6 @@ import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isHerramientas
-import com.solvyx.ui.components.drawer.model.isMiCuenta
 import com.solvyx.ui.components.drawer.model.isRutina
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealMedium
@@ -115,7 +114,7 @@ fun CustomDrawer(
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Hola, $userNickname 👋",
+                        text = "Hola, $userNickname",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -161,25 +160,6 @@ fun CustomDrawer(
                     )
                     Spacer(Modifier.height(2.dp))
                 }
-
-            Spacer(Modifier.weight(1f))
-
-            HorizontalDivider(color = Color.White.copy(alpha = 0.12f), thickness = 0.5.dp)
-            Spacer(Modifier.height(10.dp))
-            // ── MI CUENTA ─────────────────────────────────
-            NavigationItem.entries
-                .filter { it.isMiCuenta() }
-                .forEach { item ->
-                    NavigationItemView(
-                        navigationItem = item,
-                        selected = item == selectedNavigationItem,
-                        isDestructive = item == NavigationItem.CerrarSesion,
-                        onClick = { onNavigationItemClick(item) }
-                    )
-                    Spacer(Modifier.height(2.dp))
-                }
-
-            Spacer(Modifier.height(20.dp))
         }
     }
 }

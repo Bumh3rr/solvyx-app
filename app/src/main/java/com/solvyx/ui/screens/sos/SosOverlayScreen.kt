@@ -84,6 +84,7 @@ import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealMedium
 import com.solvyx.ui.theme.TealPrimary
+import com.solvyx.ui.theme.WarnAmberDark
 import kotlinx.coroutines.delay
 
 private val LINEA_VIDA = "8009112000"
@@ -128,13 +129,17 @@ fun SosOverlayScreen(
                     }
                 )
 
-                SosState.SENT -> {
+                SosState.SENT, SosState.NO_CONTACTS, SosState.SEND_FAILED -> {
                     val context = LocalContext.current
                     SosPostSend(
                         viewModel = viewModel,
+                        outcome = state,
                         onHablarConBerto = onHablarConBerto,
                         onLlamar = {
-                            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$LINEA_VIDA"))
+                            // ACTION_DIAL no requiere permiso: si el SMS falló, llamar al contacto
+                            // sigue siendo posible. Si no hay contacto, va a la Línea de la Vida.
+                            val destino = viewModel.fallbackContactPhone.ifBlank { LINEA_VIDA }
+                            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$destino"))
                             context.startActivity(intent)
                         },
                         onClose = onClose
@@ -338,10 +343,13 @@ fun CountdownRing(value: Int, total: Int, size: Dp) {
 @Composable
 fun SosPostSend(
     viewModel: SosViewModel,
+    /** Resultado real del intento. La pantalla solo dice "enviada" cuando de verdad se envió. */
+    outcome: SosState,
     onHablarConBerto: () -> Unit,
     onLlamar: () -> Unit,
     onClose: () -> Unit
 ) {
+    val sentToContacts = outcome == SosState.SENT
     var badgeVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -365,11 +373,17 @@ fun SosPostSend(
                 modifier = Modifier
                     .size(52.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(
+                        if (sentToContacts) MaterialTheme.colorScheme.primary
+                        else WarnAmberDark
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    painter = painterResource(
+                        if (sentToContacts) R.drawable.ic_check_circle
+                        else R.drawable.ic_alert_triangle
+                    ),
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(26.dp)
@@ -380,7 +394,11 @@ fun SosPostSend(
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "Alerta enviada.",
+            text = when (outcome) {
+                SosState.SENT -> "Alerta enviada."
+                SosState.SEND_FAILED -> "No se pudo enviar."
+                else -> "No se avisó a nadie."
+            },
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
             color = Color.White,
@@ -388,10 +406,18 @@ fun SosPostSend(
         )
 
         Text(
-            text = "Tus contactos han sido notificados.",
+            text = when (outcome) {
+                SosState.SENT ->
+                    "Tus contactos han sido notificados."
+                SosState.SEND_FAILED ->
+                    "El SMS no salió. Puedes llamar a ${viewModel.fallbackContactName.ifBlank { "tu contacto" }} directamente."
+                else ->
+                    "No tienes contactos de apoyo configurados. Estas líneas atienden 24/7."
+            },
             fontSize = 13.sp,
             color = Color.White.copy(alpha = 0.75f),
-            modifier = Modifier.padding(top = 4.dp)
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 4.dp, start = 32.dp, end = 32.dp)
         )
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -497,7 +523,17 @@ fun SosPostSend(
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Llamar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    // Si el SMS falló, el destino de la llamada es el contacto del usuario, no la
+                    // línea de ayuda: el botón tiene que decir a quién marca.
+                    Text(
+                        text = if (outcome == SosState.SEND_FAILED &&
+                            viewModel.fallbackContactName.isNotBlank()
+                        ) "Llamar a ${viewModel.fallbackContactName.substringBefore(' ')}"
+                        else "Llamar",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
                 }
 
                 OutlinedButton(

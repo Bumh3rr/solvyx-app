@@ -1,6 +1,6 @@
 package com.solvyx.backend.common.streak
 
-import com.solvyx.backend.data.local.entity.JournalEntity
+import com.solvyx.backend.data.model.JournalEntry
 import java.time.LocalDate
 
 data class StreakStats(
@@ -11,5 +11,5 @@ data class StreakStats(
 )
 
 interface StreakCalculator {
-    fun compute(entries: List<JournalEntity>, today: LocalDate): StreakStats
+    fun compute(entries: List<JournalEntry>, today: LocalDate): StreakStats
 }
