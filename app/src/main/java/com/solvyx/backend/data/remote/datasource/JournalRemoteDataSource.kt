@@ -54,7 +54,14 @@ class JournalRemoteDataSource @Inject constructor(
         journalCol(uid).document(dateId(date)).get().await().toJournalEntry()
 
     fun observeAll(uid: String): Flow<List<JournalEntry>> = callbackFlow {
-        val registration = journalCol(uid).addSnapshotListener { snapshot, _ ->
+        val registration = journalCol(uid).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                // Firestore stops retrying permanent errors (permission denied, expired session)
+                // on its own; without this the Flow would never emit again and Journey would be
+                // stuck on "Loading" forever instead of falling back to an empty state.
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
             if (snapshot != null) {
                 trySend(snapshot.documents.mapNotNull { it.toJournalEntry() })
             }

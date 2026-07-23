@@ -10,7 +10,11 @@ import androidx.navigation.compose.composable
 fun DiagnosticoNavGraph(
     navController: NavHostController,
     onFinishAssist: () -> Unit,
-    onNavigateToHome: () -> Unit = {}
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToChat: () -> Unit = onNavigateToHome,
+    onNavigateToRedApoyo: () -> Unit = onNavigateToHome,
+    onNavigateToJourney: () -> Unit = onNavigateToHome,
+    onNavigateToDirectorio: () -> Unit = onNavigateToHome
 ) {
     val viewModel: DiagnosticoViewModel = hiltViewModel()
 
@@ -53,13 +57,15 @@ fun DiagnosticoNavGraph(
                     navController.navigate("history")
                 },
                 onFinish = onFinishAssist,
-                onNavigateToChat = onNavigateToHome,
-                onNavigateToBitacora = onNavigateToHome,
-                onNavigateToAvances = onNavigateToHome,
-                onNavigateToManejoCraving = onNavigateToHome,
-                onNavigateToInfoSustancia = onNavigateToHome,
-                onNavigateToDirectorio = onNavigateToHome,
-                onNavigateToRedApoyo = onNavigateToHome
+                onNavigateToChat = onNavigateToChat,
+                onNavigateToBitacora = onNavigateToJourney,
+                onNavigateToAvances = onNavigateToJourney,
+                onNavigateToDirectorio = onNavigateToDirectorio,
+                // Berto ya tiene árboles de craving/información por sustancia; no existen pantallas
+                // dedicadas separadas, así que Chat es el destino real correcto para ambas.
+                onNavigateToManejoCraving = onNavigateToChat,
+                onNavigateToInfoSustancia = onNavigateToChat,
+                onNavigateToRedApoyo = onNavigateToRedApoyo
             )
         }
 

@@ -34,8 +34,15 @@ class SplashViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val prefs = context.solvyxDataStore.data.first()
-            val onboardingDone = prefs[ONBOARDING_DONE] ?: false
+            val onboardingDone = try {
+                context.solvyxDataStore.data.first()[ONBOARDING_DONE] ?: false
+            } catch (e: Exception) {
+                // DataStore documenta IOException en lecturas fallidas; sin este catch,
+                // _destination se quedaba en Loading para siempre y la app no abría.
+                // Asumir "ya se hizo" es lo menos disruptivo: la mayoría de los arranques
+                // no son el primero.
+                true
+            }
             _destination.value = if (!onboardingDone) {
                 Destination.Onboarding
             } else {

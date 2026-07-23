@@ -88,7 +88,6 @@ private fun fondoBadgeTipo(tipo: TipoDirectorio): Color = when (tipo) {
 }
 
 // ── Root ──────────────────────────────────────────────
-
 @Composable
 fun DirectorioRootScreen(
     modifier: Modifier = Modifier,
@@ -131,7 +130,6 @@ fun DirectorioRootScreen(
 }
 
 // ── Hub Screen ────────────────────────────────────────
-
 @Composable
 private fun DirectorioHubScreen(
     viewModel: DirectorioViewModel,
@@ -251,7 +249,6 @@ private fun DirectorioHubScreen(
 }
 
 // ── Filtro Chip ───────────────────────────────────────
-
 @Composable
 private fun FiltroChip(label: String, isActive: Boolean, onClick: () -> Unit) {
     Box(
@@ -272,7 +269,6 @@ private fun FiltroChip(label: String, isActive: Boolean, onClick: () -> Unit) {
 }
 
 // ── Card ──────────────────────────────────────────────
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DirectorioCard(

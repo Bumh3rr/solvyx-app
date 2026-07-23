@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.solvyx.backend.data.local.dao.SosContactDao
-import com.solvyx.backend.data.local.dao.AchievementDao
 import com.solvyx.backend.data.local.dao.PlanDao
 import com.solvyx.backend.data.local.dao.SosEventDao
 import com.solvyx.backend.data.local.dao.LastAssistDao
@@ -36,7 +35,6 @@ object AppModule {
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, "solvyx_database")
             .fallbackToDestructiveMigration()
-            .addCallback(AppDatabase.SEED_CALLBACK)
             .build()
 
     @Provides @Singleton
@@ -50,9 +48,6 @@ object AppModule {
 
     @Provides @Singleton
     fun providePlanDao(db: AppDatabase): PlanDao = db.planDao()
-
-    @Provides @Singleton
-    fun provideAchievementDao(db: AppDatabase): AchievementDao = db.achievementDao()
 
     @Provides @Singleton
     fun provideSosEventDao(db: AppDatabase): SosEventDao = db.sosEventDao()

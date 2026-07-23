@@ -1,6 +1,6 @@
 package com.solvyx.backend.common.streak
 
-import com.solvyx.backend.data.local.entity.AchievementEntity
+import com.solvyx.backend.data.model.Achievement
 import com.solvyx.backend.data.model.JournalEntry
 import java.time.LocalDate
 import javax.inject.Inject
@@ -9,7 +9,7 @@ import javax.inject.Singleton
 @Singleton
 class StreakCalculatorImpl @Inject constructor() : StreakCalculator {
 
-    private val milestoneDays = AchievementEntity.MILESTONE_DAYS
+    private val milestoneDays = Achievement.MILESTONE_DAYS
 
     override fun compute(entries: List<JournalEntry>, today: LocalDate): StreakStats {
         // Con doc-por-día hay a lo sumo una entrada por fecha; groupBy queda en grupos de 1.

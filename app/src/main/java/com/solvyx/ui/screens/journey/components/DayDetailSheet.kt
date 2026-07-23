@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.avances.components
+package com.solvyx.ui.screens.journey.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,9 +40,9 @@ private val faceLabels = mapOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiaDetalleSheet(entry: JournalEntry, onDismiss: () -> Unit) {
+fun DayDetailSheet(entry: JournalEntry, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val fecha = entry.date
+    val formattedDate = entry.date
         .format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", Locale("es", "MX")))
         .replaceFirstChar { it.uppercase() }
     val mood = entry.mood ?: "neutral"
@@ -60,13 +60,13 @@ fun DiaDetalleSheet(entry: JournalEntry, onDismiss: () -> Unit) {
                 .padding(bottom = 32.dp)
         ) {
             Text(
-                text = fecha,
+                text = formattedDate,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = TealDark
             )
             Spacer(Modifier.height(16.dp))
 
-            // Ánimo
+            // Mood
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     painter = painterResource(faceIcons[mood] ?: R.drawable.ic_face_neutral),
@@ -83,21 +83,21 @@ fun DiaDetalleSheet(entry: JournalEntry, onDismiss: () -> Unit) {
             }
             Spacer(Modifier.height(12.dp))
 
-            // Consumo
-            DetalleLinea(
-                etiqueta = "Consumo",
-                valor = if (entry.consumed == true)
+            // Use
+            DetailRow(
+                label = "Consumo",
+                value = if (entry.consumed == true)
                     "Sí — ${entry.substance?.replaceFirstChar { it.uppercase() } ?: "sustancia"}"
                 else "Sin consumo"
             )
             entry.cantidadAprox?.takeIf { it.isNotBlank() }?.let {
-                DetalleLinea(etiqueta = "Cantidad", valor = it)
+                DetailRow(label = "Cantidad", value = it)
             }
             entry.notaContexto?.takeIf { it.isNotBlank() }?.let {
-                DetalleLinea(etiqueta = "Contexto", valor = it)
+                DetailRow(label = "Contexto", value = it)
             }
             entry.note?.takeIf { it.isNotBlank() }?.let {
-                DetalleLinea(etiqueta = "Nota", valor = it)
+                DetailRow(label = "Nota", value = it)
             }
             if (entry.metaLograda) {
                 Spacer(Modifier.height(8.dp))
@@ -121,15 +121,15 @@ fun DiaDetalleSheet(entry: JournalEntry, onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun DetalleLinea(etiqueta: String, valor: String) {
+private fun DetailRow(label: String, value: String) {
     Column(modifier = Modifier.padding(top = 10.dp)) {
         Text(
-            text = etiqueta,
+            text = label,
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = valor,
+            text = value,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

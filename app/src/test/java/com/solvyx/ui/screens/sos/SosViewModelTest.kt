@@ -54,8 +54,29 @@ class SosViewModelTest {
     }
 
     @Test
-    fun `SosState has exactly two values`() {
-        assertEquals(2, SosState.entries.size)
+    fun `SosState has a NO_CONTACTS value`() {
+        // Sin contactos no se envía ningún SMS, así que "enviado" no puede ser el estado final:
+        // la pantalla afirmaría "Tus contactos han sido notificados" sin haber notificado a nadie.
+        val state: SosState = SosState.NO_CONTACTS
+        assertNotNull(state)
+    }
+
+    @Test
+    fun `NO_CONTACTS is distinct from SENT`() {
+        assertNotEquals(SosState.NO_CONTACTS, SosState.SENT)
+    }
+
+    @Test
+    fun `SosState has a SEND_FAILED value distinct from SENT`() {
+        // Tener contactos no garantiza el envío: SEND_SMS es un permiso dangerous y el sistema
+        // puede fallar. "Con contactos" nunca debe colapsarse a "enviado".
+        assertNotEquals(SosState.SEND_FAILED, SosState.SENT)
+        assertNotEquals(SosState.SEND_FAILED, SosState.NO_CONTACTS)
+    }
+
+    @Test
+    fun `SosState has exactly four values`() {
+        assertEquals(4, SosState.entries.size)
     }
 
     // ── Countdown logic ───────────────────────────────────────────────────────

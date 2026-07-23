@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.avances.components
+package com.solvyx.ui.screens.journey.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,8 +23,8 @@ import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 
 @Composable
-fun CuentaRequeridaState(
-    onCrearCuenta: () -> Unit,
+fun AccountRequiredState(
+    onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -58,7 +58,7 @@ fun CuentaRequeridaState(
         )
         SolvyxButton(
             text = "Crear cuenta",
-            onClick = onCrearCuenta,
+            onClick = onCreateAccount,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)

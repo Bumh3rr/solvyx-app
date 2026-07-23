@@ -51,3 +51,6 @@ build/generated/ksp/
 
 # Ignore Google Services configuration file
 app/google-services.json
+
+# capertas
+/docs

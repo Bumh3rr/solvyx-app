@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.solvyx.R
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.components.drawer.model.isHerramientas
@@ -104,11 +106,11 @@ fun CustomDrawer(
                         .border(2.dp, Color.White, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.berto_saludando),
-                        contentDescription = null,
-                        modifier = Modifier.size(44.dp),
-                        contentScale = ContentScale.Fit
+                    BertoPoseAnimation(
+                        pose = BertoPose.CENTER_IDLE_HELLO,
+                        riveFileRes = R.raw.berto_poses,
+                        modifier = Modifier.size(48.dp),
+                        fallback = R.drawable.berto_feliz
                     )
                 }
                 Spacer(Modifier.width(12.dp))

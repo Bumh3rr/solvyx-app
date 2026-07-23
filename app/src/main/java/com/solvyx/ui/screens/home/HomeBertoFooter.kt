@@ -25,6 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxCard
 
 /**
@@ -43,14 +45,11 @@ fun HomeBertoFooter(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(R.drawable.berto_tranquilo),
-                contentDescription = "Berto",
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.background),
-                contentScale = ContentScale.Fit
+            BertoPoseAnimation(
+                pose = BertoPose.CENTER_IDLE_TO_RIGHT,
+                riveFileRes = R.raw.berto_poses,
+                modifier = Modifier.size(48.dp),
+                fallback = R.drawable.berto_dedo_der
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {

@@ -51,7 +51,7 @@ import com.solvyx.ui.screens.perfil.PerfilNavGraph
 import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
 import com.solvyx.ui.screens.home.HomeScreen
 import com.solvyx.ui.screens.plan.PlanNavGraph
-import com.solvyx.ui.screens.avances.AvancesScreen
+import com.solvyx.ui.screens.journey.JourneyScreen
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
@@ -67,17 +67,31 @@ fun MainScreen(
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
-    onDrawerOpened: () -> Unit = {}
+    onDrawerOpened: () -> Unit = {},
+    initialTab: NavigationItem? = null,
+    onInitialTabConsumed: () -> Unit = {}
 ) {
     val homeViewModel: HomeViewModel = hiltViewModel()
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
+    var previousItem by remember { mutableStateOf<NavigationItem?>(null) }
+    fun navigateToTab(item: NavigationItem) {
+        previousItem = selectedItem
+        selectedItem = item
+    }
     val hazeState = remember { HazeState() }
 
     LaunchedEffect(openDrawerOnReturn) {
         if (openDrawerOnReturn) {
             drawerState = CustomDrawerState.Opened
             onDrawerOpened()
+        }
+    }
+
+    LaunchedEffect(initialTab) {
+        if (initialTab != null) {
+            selectedItem = initialTab
+            onInitialTabConsumed()
         }
     }
 
@@ -137,14 +151,14 @@ fun MainScreen(
                         (onNavigateToChatFromDrawer ?: onNavigateToChat)()
                     }
                     else -> {
-                        selectedItem = item
+                        navigateToTab(item)
                         drawerState = CustomDrawerState.Closed
                     }
                 }
             },
             onCloseClick = { drawerState = CustomDrawerState.Closed },
             onProfileClick = {
-                selectedItem = NavigationItem.MiPerfil
+                navigateToTab(NavigationItem.MiPerfil)
                 drawerState = CustomDrawerState.Closed
             }
         )
@@ -169,6 +183,7 @@ fun MainScreen(
                         drawerState = CustomDrawerState.Closed
                     },
                 selectedItem = selectedItem,
+                previousItem = previousItem,
                 drawerState = drawerState,
                 onDrawerClick = { drawerState = drawerState.opposite() },
                 onNavigateToChat = onNavigateToChat,
@@ -176,7 +191,7 @@ fun MainScreen(
                 onNavigateToAssist = onNavigateToAssist,
                 onNavigateToEjercicio = onNavigateToEjercicio,
                 onNavigateToCrearCuenta = onNavigateToCrearCuenta,
-                onBottomNavNavigate = { item -> selectedItem = item },
+                onBottomNavNavigate = { item -> navigateToTab(item) },
                 onLogout = onLogout
             )
         }
@@ -187,6 +202,7 @@ fun MainScreen(
 private fun SolvyxMainContent(
     modifier: Modifier = Modifier,
     selectedItem: NavigationItem,
+    previousItem: NavigationItem?,
     drawerState: CustomDrawerState,
     onDrawerClick: () -> Unit,
     onNavigateToChat: () -> Unit,
@@ -200,12 +216,12 @@ private fun SolvyxMainContent(
     var showSosDialog by remember { mutableStateOf(false) }
 
     val showBottomBar = selectedItem in listOf(
-        NavigationItem.Inicio, NavigationItem.Plan, NavigationItem.Avances
+        NavigationItem.Inicio, NavigationItem.Plan, NavigationItem.Journey
     )
 
     val selectedTab = when (selectedItem) {
         NavigationItem.Plan    -> SolvyxBottomTab.PLAN
-        NavigationItem.Avances -> SolvyxBottomTab.AVANCES
+        NavigationItem.Journey -> SolvyxBottomTab.JOURNEY
         else                   -> SolvyxBottomTab.INICIO
     }
 
@@ -232,7 +248,7 @@ private fun SolvyxMainContent(
                             SolvyxBottomTab.INICIO   -> onBottomNavNavigate(NavigationItem.Inicio)
                             SolvyxBottomTab.PLAN     -> onBottomNavNavigate(NavigationItem.Plan)
                             SolvyxBottomTab.CHATBOT  -> onNavigateToChat()
-                            SolvyxBottomTab.AVANCES  -> onBottomNavNavigate(NavigationItem.Avances)
+                            SolvyxBottomTab.JOURNEY  -> onBottomNavNavigate(NavigationItem.Journey)
                         }
                     },
                     onSosClick = { showSosDialog = true }
@@ -254,7 +270,7 @@ private fun SolvyxMainContent(
                         onNavigateToSos       = onNavigateToSos,
                         onNavigateToEjercicio = onNavigateToEjercicio,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
-                        onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.Avances) },
+                        onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.Journey) },
                         onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) },
                         onNavigateToAssist    = onNavigateToAssist,
                         onNavigateToCrearCuenta = onNavigateToCrearCuenta
@@ -266,10 +282,10 @@ private fun SolvyxMainContent(
                         onNavigateToSos = onNavigateToSos,
                         onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) }
                     )
-                NavigationItem.Avances ->
-                    AvancesScreen(
+                NavigationItem.Journey ->
+                    JourneyScreen(
                         onOpenDrawer = onDrawerClick,
-                        onCrearCuenta = onNavigateToCrearCuenta
+                        onCreateAccount = onNavigateToCrearCuenta
                     )
                 NavigationItem.GuiasPrimerosAuxilios ->
                     GuiasNavGraph(
@@ -280,7 +296,7 @@ private fun SolvyxMainContent(
                 NavigationItem.RedApoyo ->
                     RedApoyoScreen(
                         isSetupMode = false,
-                        onBack = { onBottomNavNavigate(NavigationItem.Inicio) },
+                        onBack = { onBottomNavNavigate(previousItem ?: NavigationItem.Inicio) },
                         onFinishSetup = {}
                     )
                 NavigationItem.Directorio ->

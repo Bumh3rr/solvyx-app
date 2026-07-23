@@ -26,7 +26,6 @@ class AuthRepository @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
-    private val progressRepository: ProgressRepository,
     private val planRepository: PlanRepository,
     private val appDatabase: AppDatabase,
 ) {
@@ -59,7 +58,6 @@ class AuthRepository @Inject constructor(
             substances = profile?.selectedSubstances
         )
         assistRepository.hydrateFromServer()
-        progressRepository.hydrateAchievements()
         if (profile?.planGoalIndex != null && profile.planGoalAchievedToday != null) {
             planRepository.saveLocalOnly(
                 PlanEntity(
@@ -97,10 +95,6 @@ class AuthRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             appDatabase.clearAllTables()
         }
-        // `clearAllTables()` borra también las filas base de logros, y el SEED_CALLBACK de Room
-        // solo corre al crear la DB. Se reponen aquí para que la siguiente sesión —incluida una
-        // anónima, que nunca pasa por hydrateAchievements()— tenga logros que desbloquear.
-        progressRepository.ensureAchievementsSeeded()
     }
 
     val currentUser: FirebaseUser? get() = firebaseAuth.currentUser

@@ -60,9 +60,14 @@ class RedApoyoViewModel @Inject constructor(
         if (!canSave()) return
         viewModelScope.launch {
             isSaving = true
-            repository.saveAll(contactos)
-            isSaving = false
-            savedSuccessfully = true
+            try {
+                repository.saveAll(contactos)
+                savedSuccessfully = true
+            } finally {
+                // Sin el finally, una excepción en saveAll() dejaba isSaving en true para
+                // siempre: el botón Guardar quedaba deshabilitado y el spinner no paraba.
+                isSaving = false
+            }
         }
     }
 

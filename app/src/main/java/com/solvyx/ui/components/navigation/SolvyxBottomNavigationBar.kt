@@ -36,7 +36,7 @@ import com.solvyx.R
 import com.solvyx.ui.components.haze.LocalHazeState
 import dev.chrisbanes.haze.hazeChild
 
-enum class SolvyxBottomTab { INICIO, PLAN, CHATBOT, AVANCES }
+enum class SolvyxBottomTab { INICIO, PLAN, CHATBOT, JOURNEY }
 
 /** Alto total de la barra + margen de respiro. Pantallas cuyo contenido pasa detrás del
  *  bottom nav (vía [dev.chrisbanes.haze.haze]) deben dejar al menos esto de padding inferior. */
@@ -49,9 +49,6 @@ fun SolvyxBottomNavigationBar(
     onSosClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Layout: [Inicio][Plan] [Berto-center] [Avances]
-    // Berto slot is at position 3/4 (62.5% from left).
-    // bertoXOffset shifts the TopCenter overlay (50%) right by 1/8 of width → 62.5%.
     val hazeState = LocalHazeState.current
 
     BoxWithConstraints(
@@ -60,8 +57,6 @@ fun SolvyxBottomNavigationBar(
             .height(80.dp)
     ) {
         val bertoXOffset = maxWidth * 0.125f
-
-        // ── Bar background with 4 slots (glass/blur vía Haze) ─
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -79,25 +74,25 @@ fun SolvyxBottomNavigationBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             BottomNavTab(
-                icon     = R.drawable.ic_home,
-                label    = "Inicio",
+                icon = R.drawable.ic_home,
+                label = "Inicio",
                 selected = selectedTab == SolvyxBottomTab.INICIO,
-                onClick  = { onTabSelected(SolvyxBottomTab.INICIO) },
+                onClick = { onTabSelected(SolvyxBottomTab.INICIO) },
                 modifier = Modifier.weight(1f)
             )
             BottomNavTab(
-                icon     = R.drawable.ic_plan,
-                label    = "Plan",
+                icon = R.drawable.ic_plan,
+                label = "Plan",
                 selected = selectedTab == SolvyxBottomTab.PLAN,
-                onClick  = { onTabSelected(SolvyxBottomTab.PLAN) },
+                onClick = { onTabSelected(SolvyxBottomTab.PLAN) },
                 modifier = Modifier.weight(1f)
             )
             Spacer(Modifier.weight(1f))   // Berto slot
             BottomNavTab(
-                icon     = R.drawable.ic_footsteps,
-                label    = "Mi camino",
-                selected = selectedTab == SolvyxBottomTab.AVANCES,
-                onClick  = { onTabSelected(SolvyxBottomTab.AVANCES) },
+                icon = R.drawable.ic_footsteps,
+                label = "Mi camino",
+                selected = selectedTab == SolvyxBottomTab.JOURNEY,
+                onClick = { onTabSelected(SolvyxBottomTab.JOURNEY) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -170,7 +165,7 @@ private fun BottomNavTab(
             painter = painterResource(icon),
             contentDescription = label,
             tint = if (selected) MaterialTheme.colorScheme.primary
-                   else MaterialTheme.colorScheme.onSurfaceVariant,
+            else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(22.dp)
         )
         Spacer(Modifier.height(3.dp))
@@ -180,7 +175,7 @@ private fun BottomNavTab(
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
             ),
             color = if (selected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
+            else MaterialTheme.colorScheme.onSurfaceVariant
         )
         if (selected) {
             Box(
@@ -197,28 +192,33 @@ private fun BottomNavTab(
 @Composable
 fun SolvyxSosButton(onClick: () -> Unit) {
     val sosRed = Color(0xFFE24B4A)
+    val hazeState = LocalHazeState.current
+
     Box(
         modifier = Modifier
-            .size(52.dp)
+            .size(56.dp)
             .clip(CircleShape)
             .background(sosRed.copy(alpha = 0.15f)),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .size(42.dp)
+                .size(45.dp)
                 .clip(CircleShape)
                 .background(sosRed)
+                .border(3.dp, Color.White, CircleShape)
+                .hazeChild(
+                    state = hazeState,
+                    shape = CircleShape
+                )
                 .clickable { onClick() },
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "SOS",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = 11.sp
-                ),
-                color = Color.White
+            Icon(
+                painter = painterResource(R.drawable.ic_alert_triangle),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(22.dp)
             )
         }
     }

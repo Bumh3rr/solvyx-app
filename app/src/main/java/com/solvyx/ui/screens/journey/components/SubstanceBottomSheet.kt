@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.bitacora
+package com.solvyx.ui.screens.journey.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,14 +18,14 @@ import com.solvyx.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SustanciaBottomSheet(
-    sustanciaSeleccionada: String?,
-    onSustanciaSelected: (String) -> Unit,
+fun SubstanceBottomSheet(
+    selectedSubstance: String?,
+    onSubstanceSelected: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val sustancias = listOf(
+    val substances = listOf(
         Triple("alcohol", "Alcohol",  R.drawable.ic_bottle),
         Triple("cristal", "Cristal",  R.drawable.ic_gem),
         Triple("vape",    "Vape",     R.drawable.ic_vape),
@@ -52,12 +52,12 @@ fun SustanciaBottomSheet(
             )
             Spacer(Modifier.height(16.dp))
 
-            sustancias.forEachIndexed { idx, (id, label, iconRes) ->
+            substances.forEachIndexed { idx, (id, label, iconRes) ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable { onSustanciaSelected(id) }
+                        .clickable { onSubstanceSelected(id) }
                         .padding(vertical = 12.dp, horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -84,15 +84,15 @@ fun SustanciaBottomSheet(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     RadioButton(
-                        selected = sustanciaSeleccionada == id,
-                        onClick = { onSustanciaSelected(id) },
+                        selected = selectedSubstance == id,
+                        onClick = { onSubstanceSelected(id) },
                         colors = RadioButtonDefaults.colors(
                             selectedColor = MaterialTheme.colorScheme.primary,
                             unselectedColor = MaterialTheme.colorScheme.outline
                         )
                     )
                 }
-                if (idx < sustancias.lastIndex) {
+                if (idx < substances.lastIndex) {
                     HorizontalDivider(
                         color = MaterialTheme.colorScheme.outlineVariant,
                         thickness = 0.5.dp

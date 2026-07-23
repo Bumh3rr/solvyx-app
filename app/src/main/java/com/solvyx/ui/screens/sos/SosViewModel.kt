@@ -20,6 +20,7 @@ import com.solvyx.backend.data.local.entity.SosContactEntity
 import com.solvyx.backend.repository.SosRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -83,8 +84,17 @@ class SosViewModel @Inject constructor(
             // Espera la primera emisión REAL de Room en vez de leer `cachedContactos`, que en un
             // arranque en frío (p. ej. entrando por el App Shortcut de crisis) todavía está vacío
             // aunque el usuario sí tenga contactos: leerlo aquí se saltaba el SMS en silencio.
-            val contactos = repository.observeContacts().first()
-                .filter { it.phone.isNotBlank() }
+            val contactos = try {
+                repository.observeContacts().first().filter { it.phone.isNotBlank() }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Sin este catch, un fallo leyendo Room dejaba sosState congelado en COUNTDOWN
+                // para siempre (el countdown deja de avanzar pero la pantalla nunca resuelve).
+                // Tratamos "no pude leer contactos" igual que "no hay contactos": no se afirma
+                // ningún envío y se ofrecen las líneas de ayuda + Berto.
+                emptyList()
+            }
 
             if (contactos.isEmpty()) {
                 // Nada que enviar: no se corre la cuenta regresiva ni se afirma que se avisó.

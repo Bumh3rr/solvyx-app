@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.avances.components
+package com.solvyx.ui.screens.journey.components
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -46,10 +46,10 @@ import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 
 @Composable
-fun RegistroExitosoDialog(
-    estadoAnimo: String?,
-    consumio: Boolean,
-    sustancia: String?,
+fun CheckInSuccessDialog(
+    mood: String?,
+    used: Boolean,
+    substance: String?,
     onDismiss: () -> Unit
 ) {
     val faceIcons = mapOf(
@@ -63,7 +63,7 @@ fun RegistroExitosoDialog(
         "triste" to "Triste", "ansioso" to "Ansioso",
         "neutral" to "Neutral", "bien" to "Bien", "euforico" to "Eufórico"
     )
-    val mensaje = when (estadoAnimo) {
+    val message = when (mood) {
         "bien"     -> "¡Qué bueno escuchar eso!\nSigue cuidándote así."
         "euforico" -> "¡Qué energía! Aprovéchala\ncon sabiduría."
         "neutral"  -> "Un día tranquilo también\ncuenta. Gracias por registrar."
@@ -138,7 +138,7 @@ fun RegistroExitosoDialog(
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            mensaje,
+                            message,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -146,7 +146,7 @@ fun RegistroExitosoDialog(
 
                         Spacer(Modifier.height(20.dp))
 
-                        // ── Resumen ───────────────────────────
+                        // ── Summary ───────────────────────────
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -156,11 +156,11 @@ fun RegistroExitosoDialog(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Ánimo
+                            // Mood
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
                                     painter = painterResource(
-                                        faceIcons[estadoAnimo] ?: R.drawable.ic_face_neutral
+                                        faceIcons[mood] ?: R.drawable.ic_face_neutral
                                     ),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
@@ -168,7 +168,7 @@ fun RegistroExitosoDialog(
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    emoLabels[estadoAnimo] ?: "—",
+                                    emoLabels[mood] ?: "—",
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
@@ -183,22 +183,22 @@ fun RegistroExitosoDialog(
                                     .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                             )
 
-                            // Consumo
+                            // Use
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
                                     painter = painterResource(
-                                        if (consumio) R.drawable.ic_alert_circle
+                                        if (used) R.drawable.ic_alert_circle
                                         else R.drawable.ic_check_circle
                                     ),
                                     contentDescription = null,
-                                    tint = if (consumio) sosRed
+                                    tint = if (used) sosRed
                                            else MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(28.dp)
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    if (consumio)
-                                        sustancia?.replaceFirstChar { it.uppercase() } ?: "Sí"
+                                    if (used)
+                                        substance?.replaceFirstChar { it.uppercase() } ?: "Sí"
                                     else "Sin consumo",
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = FontWeight.SemiBold
@@ -221,7 +221,7 @@ fun RegistroExitosoDialog(
                     }
                 }
 
-                // ── Badge checkmark solapando el header ───
+                // ── Badge checkmark overlapping the header ───
                 Box(
                     modifier = Modifier
                         .size(48.dp)

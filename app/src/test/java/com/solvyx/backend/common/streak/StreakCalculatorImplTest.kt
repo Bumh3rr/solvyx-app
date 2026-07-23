@@ -1,6 +1,6 @@
 package com.solvyx.backend.common.streak
 
-import com.solvyx.backend.data.local.entity.JournalEntity
+import com.solvyx.backend.data.model.JournalEntry
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate
@@ -12,8 +12,8 @@ class StreakCalculatorImplTest {
     private val calculator = StreakCalculatorImpl()
 
     private fun entryFor(daysAgo: Int, today: LocalDate, consumed: Boolean, mood: String = "neutral") =
-        JournalEntity(
-            date = today.minusDays(daysAgo.toLong()).atStartOfDay(zone).toInstant().toEpochMilli(),
+        JournalEntry(
+            date = today.minusDays(daysAgo.toLong()),
             mood = mood,
             consumed = consumed
         )

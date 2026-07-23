@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.home
+package com.solvyx.ui.screens.journey.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -11,13 +11,14 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.solvyx.backend.data.model.Achievement
@@ -53,22 +55,20 @@ import com.solvyx.ui.components.common.textoAvanceRacha
 import com.solvyx.ui.theme.StreakFlame
 import com.solvyx.ui.theme.TealMedium
 
-/** Diameter of the pending (not-yet-reached) end node of the compact segment. */
+/** Diameter of a milestone not yet reached (the full track has intermediate nodes; Home's doesn't). */
 private val NodePending: Dp = 9.dp
 
+/** Fixed width of each label's slot, so it can be centered over its node. */
+private val LabelSlot: Dp = 24.dp
+
 /**
- * Home's streak card: a quick, compact glance, not the full journey. Instead of the 5
- * milestones (3-7-10-15-30, better seen in detail in Progress — "Mi camino"), the track only
- * shows the **current stretch**: the previous milestone and the next one, with the flame
- * traveling between them.
- *
- * The flame is the living marker over the route: it moves as you advance and only breathes
- * while the streak is active. With streak 0 it turns gray — there's nothing burning to
- * celebrate, and lighting a fire over a day of consumption would be a tone-deaf choice in a
- * harm-reduction app.
+ * Progress's streak card ("Mi camino"): the **full** journey of the 5 milestones, unlike Home's
+ * compact version ([com.solvyx.ui.screens.home.HomeStreakCard]) which only shows the current
+ * stretch. Same header (flame, number, subtitle, record) — Progress is where it makes sense to
+ * see the whole journey, not just where you are now.
  */
 @Composable
-fun HomeStreakCard(
+fun StreakJourneyCard(
     streak: Int,
     bestStreak: Int,
     modifier: Modifier = Modifier
@@ -78,16 +78,23 @@ fun HomeStreakCard(
     val isActive = streak > 0
     val hasSurpassedAll = streak >= maxMilestone
 
-    // The milestone and progress are derived from `streak`, not trusted from parameters: if the
-    // caller passes a `streak` that doesn't match its `nextMilestone`/`milestoneProgress` (e.g. a
-    // fixed value for testing), the card would show an impossible text like "0 days left for the
-    // milestone of 3" with streak 10. With the same source (MILESTONE_DAYS) they're always
-    // consistent with each other.
     val targetMilestone = milestones.firstOrNull { it > streak } ?: maxMilestone
     val prevMilestone = milestones.lastOrNull { it <= streak } ?: 0
     val stepProgress = if (hasSurpassedAll) 1f
         else ((streak - prevMilestone).toFloat() /
             (targetMilestone - prevMilestone).coerceAtLeast(1)).coerceIn(0f, 1f)
+
+    // Progress over the FULL route (0..maxMilestone), not toward the next milestone: this is
+    // what lets the flame travel the entire path.
+    val targetRouteProgress = (streak.toFloat() / maxMilestone).coerceIn(0f, 1f)
+
+    var startedRouteAnim by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { startedRouteAnim = true }
+    val routeProgress by animateFloatAsState(
+        targetValue = if (startedRouteAnim) targetRouteProgress else 0f,
+        animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+        label = "StreakRouteProgress"
+    )
 
     val flameTint by animateColorAsState(
         targetValue = if (isActive) StreakFlame else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -112,8 +119,6 @@ fun HomeStreakCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                // The number is the protagonist: when it changes, it slides in upward so the
-                // progress is felt, not just read.
                 AnimatedContent(
                     targetState = streak,
                     transitionSpec = {
@@ -142,19 +147,15 @@ fun HomeStreakCard(
                 )
             }
 
-            // The record is only shown when it says something the user doesn't already see in
-            // the current streak: repeating "Best streak: 1" next to "1 days" is noise.
             if (bestStreak > streak && bestStreak > 0) {
                 BestStreakBadge(bestStreak)
             }
         }
 
-        CompactMilestoneTrack(
-            prevMilestone = prevMilestone,
-            targetMilestone = targetMilestone,
-            maxMilestone = maxMilestone,
-            stepProgress = stepProgress,
-            hasSurpassedAll = hasSurpassedAll,
+        MilestoneTrack(
+            milestones = milestones,
+            streak = streak,
+            routeProgress = routeProgress,
             isActive = isActive,
             flameTint = flameTint,
             modifier = Modifier
@@ -173,38 +174,33 @@ fun HomeStreakCard(
 }
 
 /**
- * Compact track: only the current segment (previous milestone → next), not the full journey of
- * the 5 milestones — that lives in Progress ("Mi camino"), meant for a detailed look. The
- * segment takes its color from the same thermal scale as the full track (based on where in the
- * 0-[maxMilestone] journey this stretch falls), so the thermal metaphor isn't lost even though
- * the other milestones aren't shown.
+ * Milestone route: traveled line + nodes. It's a [Canvas] and not a row of composables because
+ * the flame has to be able to stop at any intermediate point of the stroke, not just on a node.
+ *
+ * The color tells a **thermal journey**: the path is born in the brand's green (calm
+ * constancy), warms up as it advances, and ends in the flame's orange. Each reached node takes
+ * the temperature of its point in the journey, so the 5 milestones stop being identical dots and
+ * read as a scale that progresses.
  */
 @Composable
-private fun CompactMilestoneTrack(
-    prevMilestone: Int,
-    targetMilestone: Int,
-    maxMilestone: Int,
-    stepProgress: Float,
-    hasSurpassedAll: Boolean,
+private fun MilestoneTrack(
+    milestones: List<Int>,
+    streak: Int,
+    routeProgress: Float,
     isActive: Boolean,
     flameTint: Color,
     modifier: Modifier = Modifier
 ) {
+    val maxMilestone = milestones.last()
     val trackColor = MaterialTheme.colorScheme.primaryContainer
     val pendingNode = TealMedium.copy(alpha = 0.45f)
 
-    // Animates from 0 on first composition, just like the full track: without this the segment
-    // would appear abruptly and the sense of progress would be lost.
-    var started by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { started = true }
-    val animatedProgress by animateFloatAsState(
-        targetValue = if (started) stepProgress else 0f,
-        animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
-        label = "CompactStepProgress"
-    )
-
     Column(modifier) {
-        Box(modifier = Modifier.fillMaxWidth().height(StreakTrackHeight)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(StreakTrackHeight)
+        ) {
             Canvas(modifier = Modifier.fillMaxWidth().height(StreakTrackHeight)) {
                 val y = size.height / 2f
                 val startX = StreakNodeReached.toPx() / 2f
@@ -219,81 +215,79 @@ private fun CompactMilestoneTrack(
                     cap = StrokeCap.Round
                 )
 
-                if (hasSurpassedAll) {
-                    // No next milestone to show: the whole track is painted as achieved.
+                val headX = startX + usable * routeProgress
+                if (routeProgress > 0f) {
                     drawLine(
-                        color = StreakFlame,
+                        brush = Brush.horizontalGradient(
+                            colors = StreakHeatStops,
+                            startX = startX,
+                            endX = headX.coerceAtLeast(startX + 1f)
+                        ),
                         start = Offset(startX, y),
-                        end = Offset(endX, y),
+                        end = Offset(headX, y),
                         strokeWidth = 6.dp.toPx(),
                         cap = StrokeCap.Round
                     )
-                } else {
-                    val startColor = heatAt(prevMilestone.toFloat() / maxMilestone, StreakHeatStops)
-                    val endColor = heatAt(targetMilestone.toFloat() / maxMilestone, StreakHeatStops)
-                    val headX = startX + usable * animatedProgress
+                }
 
-                    if (animatedProgress > 0f) {
-                        drawLine(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(startColor, endColor),
-                                startX = startX,
-                                endX = headX.coerceAtLeast(startX + 1f)
-                            ),
-                            start = Offset(startX, y),
-                            end = Offset(headX, y),
-                            strokeWidth = 6.dp.toPx(),
-                            cap = StrokeCap.Round
+                milestones.forEach { day ->
+                    val ratio = day.toFloat() / maxMilestone
+                    val x = startX + usable * ratio
+                    val reached = streak >= day
+
+                    if (reached) {
+                        val heat = heatAt(ratio, StreakHeatStops)
+                        drawCircle(
+                            color = trackColor,
+                            radius = StreakNodeReached.toPx() / 2f + 2.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+                        drawCircle(
+                            color = heat,
+                            radius = StreakNodeReached.toPx() / 2f,
+                            center = Offset(x, y)
+                        )
+                    } else {
+                        drawCircle(
+                            color = trackColor,
+                            radius = NodePending.toPx() / 2f,
+                            center = Offset(x, y)
+                        )
+                        drawCircle(
+                            color = pendingNode,
+                            radius = NodePending.toPx() / 2f,
+                            center = Offset(x, y),
+                            style = Stroke(width = 1.5.dp.toPx())
                         )
                     }
-
-                    // Anchor nodes at both ends of the segment — always visible regardless of
-                    // progress, so the flame always has a clear "from here, to here" to sit on
-                    // instead of floating over an empty-looking track right at 0%.
-                    drawCircle(
-                        color = trackColor,
-                        radius = StreakNodeReached.toPx() / 2f + 2.dp.toPx(),
-                        center = Offset(startX, y)
-                    )
-                    drawCircle(
-                        color = startColor,
-                        radius = StreakNodeReached.toPx() / 2f,
-                        center = Offset(startX, y)
-                    )
-
-                    drawCircle(
-                        color = trackColor,
-                        radius = NodePending.toPx() / 2f,
-                        center = Offset(endX, y)
-                    )
-                    drawCircle(
-                        color = pendingNode,
-                        radius = NodePending.toPx() / 2f,
-                        center = Offset(endX, y),
-                        style = Stroke(width = 1.5.dp.toPx())
-                    )
                 }
             }
 
-            if (isActive && !hasSurpassedAll) {
-                TrackFlameHead(progress = animatedProgress, tint = flameTint)
+            if (isActive) {
+                TrackFlameHead(progress = routeProgress, tint = flameTint)
             }
         }
 
-        if (!hasSurpassedAll) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 2.dp)
+        ) {
+            val usable = maxWidth - StreakNodeReached
+            milestones.forEach { day ->
+                val reached = streak >= day
+                val x = StreakNodeReached / 2 + usable * (day.toFloat() / maxMilestone)
                 Text(
-                    text = "$prevMilestone",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "$targetMilestone",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
+                    text = "$day",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = if (reached) FontWeight.Bold else FontWeight.Normal
+                    ),
+                    color = if (reached) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .width(LabelSlot)
+                        .offset(x = x - LabelSlot / 2),
+                    textAlign = TextAlign.Center
                 )
             }
         }

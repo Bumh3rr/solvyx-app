@@ -9,7 +9,7 @@ enum class NavigationItem(
     // ── Rutina ─────────────────────────────────────────
     Inicio(title = "Inicio",               icon = R.drawable.ic_home),
     Plan(title = "Mi Plan",                icon = R.drawable.ic_plan),
-    Avances(title = "Mi camino",           icon = R.drawable.ic_footsteps),
+    Journey(title = "Mi camino",           icon = R.drawable.ic_footsteps),
 
     // ── Herramientas ───────────────────────────────────
     Berto(title = "Hablar con Berto",      icon = R.drawable.ic_chat),

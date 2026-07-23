@@ -47,6 +47,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,8 +72,13 @@ fun QuestionsScreen(
     onBack: () -> Unit
 ) {
     val preguntas by viewModel.preguntas.collectAsState()
-    var currentIndex by remember { mutableIntStateOf(0) }
-    var answers by remember { mutableStateOf(listOf<Int>()) }
+    // rememberSaveable: sin esto, rotar la pantalla (el ViewModel sobrevive, pero este estado no)
+    // borraba en silencio las respuestas de la sustancia en curso. listSaver porque List<Int> no
+    // es Bundle-saveable directamente (a diferencia de un ArrayList real).
+    var currentIndex by rememberSaveable { mutableIntStateOf(0) }
+    var answers by rememberSaveable(stateSaver = listSaver(save = { it }, restore = { it })) {
+        mutableStateOf(listOf<Int>())
+    }
 
     // Reiniciar estado cuando cargan preguntas de la siguiente sustancia
     LaunchedEffect(preguntas) {

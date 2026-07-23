@@ -65,7 +65,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
 import com.solvyx.R
 import com.solvyx.backend.validation.Validadores
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.common.SolvyxCard
 import com.solvyx.ui.components.common.SolvyxDateField
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
 import com.solvyx.ui.components.common.SolvyxTextField
@@ -170,13 +173,13 @@ fun MiPerfilScreen(
                                 .border(3.dp, Color.White, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Image(
-                                painter = painterResource(R.drawable.berto_saludando),
-                                contentDescription = null,
+                            BertoPoseAnimation(
+                                pose = BertoPose.CENTER_IDLE_HELLO,
+                                riveFileRes = R.raw.berto_poses,
                                 modifier = Modifier
                                     .size(84.dp)
                                     .offset(y = 6.dp),
-                                contentScale = ContentScale.Fit
+                                fallback = R.drawable.berto_feliz
                             )
                         }
                         Box(
@@ -221,14 +224,7 @@ fun MiPerfilScreen(
                 Spacer(Modifier.height(12.dp))
 
                 // ── Stats Strip ───────────────────────
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    border = BorderStroke(0.5.dp, TealLight)
-                ) {
+                SolvyxCard(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -272,14 +268,7 @@ fun MiPerfilScreen(
                 Spacer(Modifier.height(12.dp))
 
                 // ── Sustancias en seguimiento ─────────
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    border = BorderStroke(0.5.dp, TealLight)
-                ) {
+                SolvyxCard(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp)) {
                         Row(
                             Modifier.fillMaxWidth(),
@@ -379,7 +368,7 @@ fun MiPerfilScreen(
                         ) {
                             Text(
                                 text = if (viewModel.hasAssistData) viewModel.riskLevel
-                                       else "SIN DATOS",
+                                else "SIN DATOS",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.ExtraBold,
                                     letterSpacing = 0.06.sp
@@ -445,7 +434,7 @@ fun MiPerfilScreen(
 
                     SolvyxOutlinedButton(
                         text = if (viewModel.hasAssistData) "Repetir diagnóstico"
-                               else "Hacer diagnóstico",
+                        else "Hacer diagnóstico",
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_refresh),
@@ -464,14 +453,7 @@ fun MiPerfilScreen(
                 Spacer(Modifier.height(12.dp))
 
                 // ── Settings List ─────────────────────
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    border = BorderStroke(0.5.dp, TealLight)
-                ) {
+                SolvyxCard(modifier = Modifier.fillMaxWidth()) {
                     Column {
                         SettingsRow(
                             iconRes = R.drawable.ic_bell,
@@ -633,7 +615,7 @@ fun MiPerfilScreen(
 private fun SustanciasChips(viewModel: PerfilViewModel) {
     val sustancias = listOf(
         "alcohol" to "Alcohol",
-        "vape"    to "Vape",
+        "vape" to "Vape",
         "cristal" to "Cristal",
         "cigarro" to "Tabaco"
     )
@@ -898,7 +880,7 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
 
             val sustancias = listOf(
                 "alcohol" to "Alcohol",
-                "vape"    to "Vape",
+                "vape" to "Vape",
                 "cristal" to "Cristal",
                 "cigarro" to "Tabaco"
             )
@@ -923,7 +905,7 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
                                 .border(
                                     width = if (activa) 2.dp else 0.5.dp,
                                     color = if (activa) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.outline,
+                                    else MaterialTheme.colorScheme.outline,
                                     shape = RoundedCornerShape(14.dp)
                                 )
                                 .clickable { viewModel.toggleSustancia(id) },
@@ -953,7 +935,7 @@ private fun EditarSustanciasBottomSheet(viewModel: PerfilViewModel) {
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = if (activa) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.onSurface
+                                    else MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }

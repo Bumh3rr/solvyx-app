@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
 import com.solvyx.ui.screens.sos.SosOverlayScreen
 import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
@@ -103,6 +104,28 @@ fun SolvyxNavGraph(
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
                     }
+                },
+                onNavigateToChat = {
+                    navController.navigate(Routes.CHAT) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                },
+                onNavigateToRedApoyo = {
+                    navController.navigate("${Routes.RED_APOYO_SETUP}?omitible=true") {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                },
+                onNavigateToJourney = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                    navController.currentBackStackEntry?.savedStateHandle?.set("initialTab", NavigationItem.Journey)
+                },
+                onNavigateToDirectorio = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
+                    }
+                    navController.currentBackStackEntry?.savedStateHandle?.set("initialTab", NavigationItem.Directorio)
                 }
             )
         }
@@ -128,10 +151,15 @@ fun SolvyxNavGraph(
             val openDrawer by backStackEntry.savedStateHandle
                 .getStateFlow("openDrawer", false)
                 .collectAsState()
+            val initialTab by backStackEntry.savedStateHandle
+                .getStateFlow<NavigationItem?>("initialTab", null)
+                .collectAsState()
 
             MainScreen(
                 openDrawerOnReturn = openDrawer,
                 onDrawerOpened = { backStackEntry.savedStateHandle["openDrawer"] = false },
+                initialTab = initialTab,
+                onInitialTabConsumed = { backStackEntry.savedStateHandle["initialTab"] = null },
                 onLogout = {
                     navController.navigate(Routes.AUTH_CHOICE) {
                         popUpTo(0) { inclusive = true }
