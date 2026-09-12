@@ -26,15 +26,16 @@ import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.perfil.PrivacidadDatosScreen
 import com.solvyx.ui.screens.perfil.TerminosCondicionesScreen
+import com.solvyx.ui.screens.profilesetup.ProfileSetupNavGraph
+import com.solvyx.ui.screens.profilesetup.ProfileSetupStep
 import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.screens.splash.SplashScreen
 import com.solvyx.backend.router.Destino
 
 fun Destino.aRuta(): String = when (this) {
-    is Destino.AuthChoice -> Routes.AUTH_CHOICE
-    is Destino.HomeDirecto -> Routes.HOME
-    is Destino.AssistPendiente -> Routes.DIAGNOSTICO
-    is Destino.RedApoyoSetupOmitible -> "${Routes.RED_APOYO_SETUP}?omitible=true"
+    is Destino.AuthChoice   -> Routes.AUTH_CHOICE
+    is Destino.HomeDirecto  -> Routes.HOME
+    is Destino.ProfileSetup -> "${Routes.PROFILE_SETUP}?step=${step.name}"
 }
 
 @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.O)
@@ -46,13 +47,6 @@ fun SolvyxNavGraph(
 ) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    // Un App Shortcut se apila sobre la pantalla base en vez de reemplazarla, para que
-    // "Cancelar" en el SOS o "atrás" en Berto regresen a donde el usuario estaría normalmente
-    // en vez de tirarlo fuera de la app.
-    //
-    // Cubre los dos casos con una sola regla:
-    //  - Arranque en frío: espera a que el Splash resuelva la base y recién ahí apila.
-    //  - App ya abierta (onNewIntent): la base ya existe, así que apila de inmediato.
     LaunchedEffect(pendingShortcut, currentRoute) {
         val destino = pendingShortcut ?: return@LaunchedEffect
         if (currentRoute == null || currentRoute == Routes.SPLASH) return@LaunchedEffect
@@ -84,6 +78,22 @@ fun SolvyxNavGraph(
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
         }
+        composable(
+            route = "${Routes.PROFILE_SETUP}?step={step}",
+            arguments = listOf(navArgument("step") { defaultValue = ProfileSetupStep.SUBSTANCES.name })
+        ) { backStackEntry ->
+            val step = ProfileSetupStep.entries.firstOrNull {
+                it.name == backStackEntry.arguments?.getString("step")
+            } ?: ProfileSetupStep.SUBSTANCES
+            ProfileSetupNavGraph(
+                startStep = step,
+                onFinish = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.PROFILE_SETUP) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(Routes.TERMINOS) {
             TerminosCondicionesScreen(onBack = { navController.navigateUp() })
         }
@@ -95,8 +105,9 @@ fun SolvyxNavGraph(
             val diagnosticoNavController = rememberNavController()
             DiagnosticoNavGraph(
                 navController = diagnosticoNavController,
+                isOnboarding = false, // explicit: this call site is always a retake, never the wizard
                 onFinishAssist = {
-                    navController.navigate(Routes.RED_APOYO_SETUP) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.DIAGNOSTICO) { inclusive = true }
                     }
                 },

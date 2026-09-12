@@ -1,13 +1,10 @@
 package com.solvyx.ui.screens.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -24,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
-import com.solvyx.ui.theme.CrisisRed
 
 /**
  * Barra superior de Home: menú (drawer), el wordmark "Solvyx" centrado y la campana con su punto
@@ -66,22 +61,15 @@ fun HomeTopBar(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        Box(contentAlignment = Alignment.TopEnd) {
-            IconButton(onClick = onNotificationsClick) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_bell),
-                    contentDescription = "Notificaciones",
-                    tint = Color.Black,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(CrisisRed)
-                    .align(Alignment.TopEnd)
-                    .offset(x = (-16).dp, y = 16.dp)
+        // No unread-notifications dot here: there's no notifications feature/data source behind
+        // this button yet, so a permanent "you have something new" badge would just be
+        // misleading. Add it back once there's a real hasUnreadNotifications state to gate it on.
+        IconButton(onClick = onNotificationsClick) {
+            Icon(
+                painter = painterResource(R.drawable.ic_bell),
+                contentDescription = "Notificaciones",
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
             )
         }
     }

@@ -77,6 +77,10 @@ class DiagnosticoViewModel @Inject constructor(
             sustanciasSeleccionadas + id
     }
 
+    fun preseleccionar(substances: Set<String>) {
+        sustanciasSeleccionadas = substances.toList()
+    }
+
     fun iniciarCuestionario() {
         sustanciaActualIndex = 0
         answersMap = emptyMap()
@@ -119,3 +123,15 @@ class DiagnosticoViewModel @Inject constructor(
  */
 fun needsQuestionReload(sustanciasSeleccionadas: List<String>, preguntasActuales: List<Pregunta>): Boolean =
     sustanciasSeleccionadas.isNotEmpty() && preguntasActuales.isEmpty()
+
+/**
+ * True only on a fresh entry into the profile setup wizard: there are substances preloaded from
+ * the previous step (SUBSTANCES) and this ViewModel hasn't chosen any yet. False if a selection
+ * already exists (process restored mid-questionnaire, see needsQuestionReload) — avoids resetting
+ * iniciarCuestionario() and losing progress.
+ */
+fun shouldPreselectSubstances(
+    isOnboarding: Boolean,
+    currentSelection: List<String>,
+    preselected: Set<String>
+): Boolean = isOnboarding && currentSelection.isEmpty() && preselected.isNotEmpty()

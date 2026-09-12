@@ -43,7 +43,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.common.WizardProgressDots
 import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
 import com.solvyx.ui.screens.journey.WizardStep
 import com.solvyx.ui.screens.journey.CheckInViewModel
@@ -78,26 +80,11 @@ fun CheckInWizard(
             .background(MaterialTheme.colorScheme.background)
     ) {
         // ── Progress (dots) ──
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val total = viewModel.totalSteps()
-            repeat(total) { i ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(
-                            if (i <= viewModel.wizardStep) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.primaryContainer
-                        )
-                )
-            }
-        }
+        WizardProgressDots(
+            currentStep = viewModel.wizardStep,
+            totalSteps = viewModel.totalSteps(),
+            onBack = null
+        )
 
         // ── Berto + step content (scrollable) ──
         Column(
@@ -180,15 +167,12 @@ private fun stepTitle(step: WizardStep): String = when (step) {
 
 @Composable
 private fun MoodStep(viewModel: CheckInViewModel) {
-    val moods = listOf(
-        "triste" to R.drawable.ic_face_sad, "ansioso" to R.drawable.ic_face_anxious,
-        "neutral" to R.drawable.ic_face_neutral, "bien" to R.drawable.ic_face_happy,
-        "euforico" to R.drawable.ic_face_euphoric
-    )
-    val labels = listOf("Triste", "Ansioso", "Neutral", "Bien", "Eufórico")
+    // Same per-mood palette as HomeMoodCard's "¿Cómo te sientes hoy?" — each mood keeps its
+    // own real color instead of everything sharing the theme's single primary green, so the
+    // wizard's mood step reads consistently with the rest of the app.
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        moods.forEachIndexed { idx, (id, icon) ->
-            val selected = viewModel.mood == id
+        MoodOptions.forEach { option ->
+            val selected = viewModel.mood == option.id
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -196,34 +180,32 @@ private fun MoodStep(viewModel: CheckInViewModel) {
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
-                    ) { viewModel.updateMood(id) }
+                    ) { viewModel.updateMood(option.id) }
             ) {
                 Box(
                     modifier = Modifier
                         .size(52.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .background(if (selected) option.color else option.color.copy(alpha = 0.15f))
                         .then(
-                            if (selected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            if (!selected) Modifier.border(1.5.dp, option.color.copy(alpha = 0.4f), CircleShape)
                             else Modifier
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(icon),
-                        contentDescription = labels[idx],
-                        tint = if (selected) MaterialTheme.colorScheme.primary
-                               else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        painter = painterResource(option.icon),
+                        contentDescription = option.label,
+                        tint = if (selected) Color.White else option.color,
                         modifier = Modifier.size(26.dp)
                     )
                 }
                 Text(
-                    text = labels[idx],
+                    text = option.label,
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                     ),
-                    color = if (selected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (selected) option.color else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 6.dp),
                     textAlign = TextAlign.Center
                 )

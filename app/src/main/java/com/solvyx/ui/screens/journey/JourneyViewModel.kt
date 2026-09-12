@@ -13,6 +13,7 @@ import com.solvyx.backend.common.streak.StreakCalculator
 import com.solvyx.backend.data.model.Achievement
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.repository.ProgressRepository
+import com.solvyx.ui.components.common.MoodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -58,6 +59,13 @@ class JourneyViewModel @Inject constructor(
     var selectedDay by mutableStateOf<JournalEntry?>(null)
         private set
 
+    // Exposed so CheckInViewModel doesn't need its own separate live listener on the same
+    // journal collection just to know whether today is already logged (was a 3rd redundant
+    // Firestore subscription for this one screen; collapsed to the one this ViewModel already
+    // holds for progressState/achievementsState).
+    var todayEntry by mutableStateOf<JournalEntry?>(null)
+        private set
+
     // Visible days per period and date->entry lookup, for the day detail sheet.
     private var daysWeek: List<LocalDate> = emptyList()
     private var daysMonth: List<LocalDate> = emptyList()
@@ -67,9 +75,7 @@ class JourneyViewModel @Inject constructor(
     val labelsWeek = listOf("L", "M", "X", "J", "V", "S", "D")
     val labelsMonth = (1..28).map { it.toString() }
 
-    private val moodScale = mapOf(
-        "triste" to 1f, "ansioso" to 3f, "neutral" to 5f, "bien" to 7f, "euforico" to 10f
-    )
+    private val moodScale = MoodOptions.associate { it.id to it.value }
     private val zone = ZoneId.systemDefault()
 
     init {
@@ -82,6 +88,7 @@ class JourneyViewModel @Inject constructor(
             .collect { (journalEntries, achievementEntities) ->
                 val today = LocalDate.now(zone)
                 val entryMap = journalEntries.groupBy { it.date }
+                todayEntry = journalEntries.firstOrNull { it.date == today }
 
                 val stats = streakCalculator.compute(journalEntries, today)
 

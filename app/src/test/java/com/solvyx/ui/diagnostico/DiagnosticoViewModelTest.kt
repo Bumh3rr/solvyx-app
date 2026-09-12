@@ -27,4 +27,43 @@ class DiagnosticoViewModelTest {
     fun `does not need reload when there are no substances selected`() {
         assertFalse(needsQuestionReload(sustanciasSeleccionadas = emptyList(), preguntasActuales = emptyList()))
     }
+
+    @Test
+    fun `should preselect when onboarding, nothing chosen yet, and there is something to preselect`() {
+        assertTrue(shouldPreselectSubstances(
+            isOnboarding = true,
+            currentSelection = emptyList(),
+            preselected = setOf("alcohol")
+        ))
+    }
+
+    @Test
+    fun `should not preselect outside onboarding even with nothing chosen yet`() {
+        assertFalse(shouldPreselectSubstances(
+            isOnboarding = false,
+            currentSelection = emptyList(),
+            preselected = setOf("alcohol")
+        ))
+    }
+
+    @Test
+    fun `should not preselect when a selection already exists (process-death restore)`() {
+        // This is the case that actually matters: without this guard, restoring
+        // sustanciasSeleccionadas via SavedStateHandle after a process death mid-questionnaire would
+        // trigger iniciarCuestionario() again, resetting the question index and losing progress.
+        assertFalse(shouldPreselectSubstances(
+            isOnboarding = true,
+            currentSelection = listOf("alcohol"),
+            preselected = setOf("alcohol")
+        ))
+    }
+
+    @Test
+    fun `should not preselect when there is nothing preselected to use`() {
+        assertFalse(shouldPreselectSubstances(
+            isOnboarding = true,
+            currentSelection = emptyList(),
+            preselected = emptySet()
+        ))
+    }
 }

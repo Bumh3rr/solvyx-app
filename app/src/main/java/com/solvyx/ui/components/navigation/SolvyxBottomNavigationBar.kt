@@ -1,6 +1,9 @@
 package com.solvyx.ui.components.navigation
 
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -21,22 +25,32 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.solvyx.R
 import com.solvyx.ui.components.haze.LocalHazeState
 import dev.chrisbanes.haze.hazeChild
 
-enum class SolvyxBottomTab { INICIO, PLAN, CHATBOT, JOURNEY }
+enum class SolvyxBottomTab { INICIO, PLAN, JOURNEY }
+
+private val SolvyxBottomTab.slotIndex: Int
+    get() = when (this) {
+        SolvyxBottomTab.INICIO -> 0
+        SolvyxBottomTab.PLAN -> 1
+        SolvyxBottomTab.JOURNEY -> 2
+    }
+
+private const val TAB_COUNT = 3
 
 /** Alto total de la barra + margen de respiro. Pantallas cuyo contenido pasa detrás del
  *  bottom nav (vía [dev.chrisbanes.haze.haze]) deben dejar al menos esto de padding inferior. */
@@ -51,13 +65,12 @@ fun SolvyxBottomNavigationBar(
 ) {
     val hazeState = LocalHazeState.current
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .height(80.dp)
     ) {
-        val bertoXOffset = maxWidth * 0.125f
-        Row(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(72.dp)
@@ -70,70 +83,63 @@ fun SolvyxBottomNavigationBar(
                     width = 0.5.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                )
+        ) {
+            // One shared dot that travels to whichever tab is selected, instead of each tab
+            // drawing its own — the selection reads as movement across the bar, not a pop in a
+            // new spot. Position is a fraction of the bar's own measured width (3 equal slots),
+            // so it stays correct regardless of screen size.
+            val dotSize = 5.dp
+            val slotWidth = maxWidth / TAB_COUNT
+            val targetDotX = slotWidth * selectedTab.slotIndex + slotWidth / 2 - dotSize / 2
+            val dotX by animateDpAsState(
+                targetValue = targetDotX,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
                 ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BottomNavTab(
-                icon = R.drawable.ic_home,
-                label = "Inicio",
-                selected = selectedTab == SolvyxBottomTab.INICIO,
-                onClick = { onTabSelected(SolvyxBottomTab.INICIO) },
-                modifier = Modifier.weight(1f)
+                label = "NavIndicatorX"
             )
-            BottomNavTab(
-                icon = R.drawable.ic_plan,
-                label = "Plan",
-                selected = selectedTab == SolvyxBottomTab.PLAN,
-                onClick = { onTabSelected(SolvyxBottomTab.PLAN) },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(Modifier.weight(1f))   // Berto slot
-            BottomNavTab(
-                icon = R.drawable.ic_footsteps,
-                label = "Mi camino",
-                selected = selectedTab == SolvyxBottomTab.JOURNEY,
-                onClick = { onTabSelected(SolvyxBottomTab.JOURNEY) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        // ── Berto elevated button ─────────────────────
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(x = bertoXOffset),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
             Box(
                 modifier = Modifier
-                    .size(56.dp)
+                    .align(Alignment.BottomStart)
+                    .offset(x = dotX, y = (-6).dp)
+                    .size(dotSize)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
-                    .border(3.dp, Color.White, CircleShape)
-                    .clickable { onTabSelected(SolvyxBottomTab.CHATBOT) },
-                contentAlignment = Alignment.Center
+            )
+
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(R.drawable.berto_cabeza),
-                    contentDescription = "Berto",
-                    modifier = Modifier.size(40.dp),
-                    contentScale = ContentScale.Fit
+                BottomNavTab(
+                    icon = R.drawable.ic_home,
+                    label = "Inicio",
+                    selected = selectedTab == SolvyxBottomTab.INICIO,
+                    onClick = { onTabSelected(SolvyxBottomTab.INICIO) },
+                    modifier = Modifier.weight(1f)
+                )
+                BottomNavTab(
+                    icon = R.drawable.ic_plan,
+                    label = "Plan",
+                    selected = selectedTab == SolvyxBottomTab.PLAN,
+                    onClick = { onTabSelected(SolvyxBottomTab.PLAN) },
+                    modifier = Modifier.weight(1f)
+                )
+                BottomNavTab(
+                    icon = R.drawable.ic_footsteps,
+                    label = "Mi camino",
+                    selected = selectedTab == SolvyxBottomTab.JOURNEY,
+                    onClick = { onTabSelected(SolvyxBottomTab.JOURNEY) },
+                    modifier = Modifier.weight(1f)
                 )
             }
-            Text(
-                text = "Berto",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = if (selectedTab == SolvyxBottomTab.CHATBOT)
-                        FontWeight.Bold else FontWeight.Normal
-                ),
-                color = if (selectedTab == SolvyxBottomTab.CHATBOT)
-                    MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
-            )
         }
 
-        // ── SOS floating button ───────────────────────
+        // ── SOS floating button ─────────────────────── This one genuinely IS a one-off
+        // action floating above the bar (not a peer destination like the tabs), so it keeps
+        // its own overlay treatment.
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -152,6 +158,17 @@ private fun BottomNavTab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Same "pop" language as the achievements' unlock celebration elsewhere in the app: a quick
+    // bounce past 1x settling back to 1x, played once whenever this tab lands on "selected" —
+    // gives the traveling dot's arrival a matching beat on the icon itself.
+    val iconScale = remember { Animatable(1f) }
+    LaunchedEffect(selected) {
+        if (selected) {
+            iconScale.animateTo(1.22f, spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium))
+            iconScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium))
+        }
+    }
+
     Column(
         modifier = modifier
             .clickable(
@@ -166,7 +183,9 @@ private fun BottomNavTab(
             contentDescription = label,
             tint = if (selected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier
+                .size(22.dp)
+                .scale(iconScale.value)
         )
         Spacer(Modifier.height(3.dp))
         Text(
@@ -177,15 +196,7 @@ private fun BottomNavTab(
             color = if (selected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant
         )
-        if (selected) {
-            Box(
-                Modifier
-                    .padding(top = 3.dp)
-                    .size(4.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-            )
-        }
+        // No longer draws its own dot here — the shared traveling indicator above owns that job.
     }
 }
 

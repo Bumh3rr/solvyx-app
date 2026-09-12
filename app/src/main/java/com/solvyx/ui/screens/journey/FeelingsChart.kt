@@ -40,49 +40,18 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.solvyx.R
-import com.solvyx.ui.theme.MoodAnsioso
-import com.solvyx.ui.theme.MoodBien
-import com.solvyx.ui.theme.MoodEuforico
-import com.solvyx.ui.theme.MoodNeutral
-import com.solvyx.ui.theme.MoodTriste
+import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLightest
 import com.solvyx.ui.theme.TealMedium
 
 /**
- * Real mood color for a value in the series. The values are exactly the 5 from
- * `JourneyViewModel.moodScale` (1/3/5/7/10) plus 0f for "no check-in that day" — they're never
- * computed or summed, so the exact Float comparison is safe here.
+ * Real mood color for a value in the series. The values are exactly MoodOptions' 5 (1/3/5/7/10)
+ * plus 0f for "no check-in that day" — they're never computed or summed, so the exact Float
+ * comparison is safe here.
  */
-private fun moodColor(value: Float): Color = when (value) {
-    1f -> MoodTriste
-    3f -> MoodAnsioso
-    5f -> MoodNeutral
-    7f -> MoodBien
-    10f -> MoodEuforico
-    else -> TealMedium.copy(alpha = 0.3f)
-}
-
-/**
- * Face icon for a value in the series, or null for "no check-in that day" (0f) — that case keeps
- * the plain dot look, since there's no mood to show a face for.
- */
-private fun moodPainter(
-    value: Float,
-    sad: Painter,
-    anxious: Painter,
-    neutral: Painter,
-    happy: Painter,
-    euphoric: Painter
-): Painter? = when (value) {
-    1f -> sad
-    3f -> anxious
-    5f -> neutral
-    7f -> happy
-    10f -> euphoric
-    else -> null
-}
+private fun moodColor(value: Float): Color =
+    MoodOptions.firstOrNull { it.value == value }?.color ?: TealMedium.copy(alpha = 0.3f)
 
 @Composable
 fun FeelingsChart(
@@ -94,11 +63,10 @@ fun FeelingsChart(
     if (data.isEmpty()) return
 
     val density = LocalDensity.current
-    val sadPainter = painterResource(R.drawable.ic_face_sad)
-    val anxiousPainter = painterResource(R.drawable.ic_face_anxious)
-    val neutralPainter = painterResource(R.drawable.ic_face_neutral)
-    val happyPainter = painterResource(R.drawable.ic_face_happy)
-    val euphoricPainter = painterResource(R.drawable.ic_face_euphoric)
+    // Painters must be loaded here (composable context), paired with each mood's own value so
+    // a chart point can look up "its" face icon without a second hand-written value->icon table.
+    val moodPainters = MoodOptions.map { it.value to painterResource(it.icon) }
+    fun painterFor(value: Float): Painter? = moodPainters.firstOrNull { it.first == value }?.second
     Column(modifier = modifier) {
         Canvas(
             modifier = Modifier
@@ -186,7 +154,7 @@ fun FeelingsChart(
             val faceIconSize = 18.dp.toPx()
             data.forEachIndexed { i, v ->
                 val center = Offset(xAt(i), yAt(v))
-                val painter = moodPainter(v, sadPainter, anxiousPainter, neutralPainter, happyPainter, euphoricPainter)
+                val painter = painterFor(v)
                 if (painter != null) {
                     val color = moodColor(v)
                     drawCircle(color = Color.White, radius = pointRadius, center = center)
@@ -228,17 +196,16 @@ fun FeelingsChart(
         }
 
         // ── Legend: an icon (not just color) per mood, since 2 of the 5 mood colors
+        // (Neutral/Bien) are both greens and can be hard to tell apart at a glance.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 32.dp, top = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            MoodLegendIcon(MoodTriste, R.drawable.ic_face_sad, "Triste")
-            MoodLegendIcon(MoodAnsioso, R.drawable.ic_face_anxious, "Ansioso")
-            MoodLegendIcon(MoodNeutral, R.drawable.ic_face_neutral, "Neutral")
-            MoodLegendIcon(MoodBien, R.drawable.ic_face_happy, "Bien")
-            MoodLegendIcon(MoodEuforico, R.drawable.ic_face_euphoric, "Eufórico")
+            MoodOptions.forEach { option ->
+                MoodLegendIcon(option.color, option.icon, option.label)
+            }
         }
     }
 }

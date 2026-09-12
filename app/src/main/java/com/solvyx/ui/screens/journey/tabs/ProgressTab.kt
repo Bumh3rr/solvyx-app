@@ -60,7 +60,6 @@ fun ProgressTab(
             .padding(horizontal = 20.dp)
             .padding(bottom = SolvyxBottomNavHeight)
     ) {
-        // ── Day check-in (replaces the old "Hoy" tab) ───────────
         Spacer(Modifier.height(16.dp))
         CheckInCard(
             todayEntry = todayEntry,

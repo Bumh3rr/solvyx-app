@@ -26,7 +26,7 @@ import com.solvyx.ui.components.common.SolvyxCard
 
 private const val QuickAccessColumns = 3
 
-class AccesoItem(val titulo: String, val subtitulo: String, val iconRes: Int, val usePrimary: Boolean = true, val onClick: () -> Unit = {})
+data class AccesoItem(val titulo: String, val subtitulo: String, val iconRes: Int, val usePrimary: Boolean = true, val onClick: () -> Unit = {})
 
 /**
  * Sección "Accesos rápidos" de Home: el título y la rejilla de 3 columnas con los seis atajos.
@@ -41,11 +41,12 @@ fun HomeQuickAccess(
     onNavigateToGuias: () -> Unit,
     onNavigateToRegistro: () -> Unit,
     onNavigateToRedApoyo: () -> Unit,
+    onNavigateToEjercicio: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val accesos = listOf(
         AccesoItem("Mi Plan",           "Meta de hoy lista",             R.drawable.ic_target,      usePrimary = true,  onClick = onNavigateToPlan),
-        AccesoItem("Técnicas",          "Manejo y reducción",            R.drawable.ic_brain,       usePrimary = false, onClick = onNavigateToPlan),
+        AccesoItem("Técnicas",          "Manejo y reducción",            R.drawable.ic_brain,       usePrimary = false, onClick = onNavigateToEjercicio),
         AccesoItem("Hablar con Berto",  "Disponible ahora",              R.drawable.ic_chat,        usePrimary = true,  onClick = onNavigateToChat),
         AccesoItem("Primeros Auxilios", "Sin conexión a internet",       R.drawable.ic_guide,       usePrimary = false, onClick = onNavigateToGuias),
         AccesoItem("Mi Registro",       "Registrar hoy o ver historial", R.drawable.ic_trending_up, usePrimary = true,  onClick = onNavigateToRegistro),

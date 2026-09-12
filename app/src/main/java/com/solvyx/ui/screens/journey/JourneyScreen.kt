@@ -22,7 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -176,8 +175,7 @@ private fun TabsScreen(
             return@Column
         }
 
-        val todayEntry = checkInVM.entries.collectAsState().value
-            .firstOrNull { it.date == checkInVM.today }
+        val todayEntry = journeyVM.todayEntry
 
         var selectedTab by rememberSaveable { mutableIntStateOf(TAB_PROGRESS) }
 

@@ -1,12 +1,5 @@
 package com.solvyx.ui.screens.journey.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,16 +31,7 @@ import com.solvyx.ui.components.berto.BertoPose
 import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxCard
-
-private val faceIcons = mapOf(
-    "triste" to R.drawable.ic_face_sad, "ansioso" to R.drawable.ic_face_anxious,
-    "neutral" to R.drawable.ic_face_neutral, "bien" to R.drawable.ic_face_happy,
-    "euforico" to R.drawable.ic_face_euphoric
-)
-private val faceLabels = mapOf(
-    "triste" to "Triste", "ansioso" to "Ansioso", "neutral" to "Neutral",
-    "bien" to "Bien", "euforico" to "Eufórico"
-)
+import com.solvyx.ui.components.common.moodOption
 
 /**
  * Day check-in at the top of the Progress tab. Replaces the old "Hoy" tab: logging is a
@@ -71,12 +56,8 @@ fun CheckInCard(
 @Composable
 private fun PendingCard(streak: Int, onRegister: () -> Unit, modifier: Modifier = Modifier) {
     val greeting = if (streak > 0) "Vas $streak días. ¿Cómo estuvo hoy?" else "¿Cómo estuvo tu día?"
-    SolvyxCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+    SolvyxCard(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BertoPoseAnimation(
                     pose = BertoPose.RIGHT,
@@ -108,7 +89,7 @@ private fun PendingCard(streak: Int, onRegister: () -> Unit, modifier: Modifier 
                     Icon(
                         painter = painterResource(R.drawable.ic_heart),
                         contentDescription = null,
-                        tint = androidx.compose.ui.graphics.Color.White,
+                        tint = Color.White,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -119,7 +100,7 @@ private fun PendingCard(streak: Int, onRegister: () -> Unit, modifier: Modifier 
 
 @Composable
 private fun LoggedRow(entry: JournalEntry, onEdit: () -> Unit, modifier: Modifier = Modifier) {
-    val mood = entry.mood ?: "neutral"
+    val mood = moodOption(entry.mood)
     SolvyxCard(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -135,7 +116,7 @@ private fun LoggedRow(entry: JournalEntry, onEdit: () -> Unit, modifier: Modifie
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(faceIcons[mood] ?: R.drawable.ic_face_neutral),
+                    painter = painterResource(mood.icon),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
@@ -159,7 +140,7 @@ private fun LoggedRow(entry: JournalEntry, onEdit: () -> Unit, modifier: Modifie
                 }
                 Text(
                     text = buildString {
-                        append(faceLabels[mood] ?: "Neutral")
+                        append(mood.label)
                         append(" · ")
                         append(if (entry.consumed == true) "Con consumo" else "Sin consumo")
                     },

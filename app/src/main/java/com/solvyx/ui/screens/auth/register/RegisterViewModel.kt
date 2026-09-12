@@ -89,11 +89,12 @@ class RegisterViewModel @Inject constructor(
             }
             resultado
                 .onSuccess {
-                    val destino = if (esConversion) {
-                        postAuthRouter.resolver(bloquearSiAssistPendiente = true)
-                    } else {
-                        Destino.AssistPendiente
-                    }
+                    // Before: new registration hardcoded Destino.AssistPendiente and only
+                    // anonymous-to-email conversion called the router. Now both cases calculate the first
+                    // missing step the same way—a new account has nothing completed, so it goes to
+                    // ProfileSetup(SUBSTANCES); a conversion with progress already made as anonymous goes to
+                    // whichever step is actually missing, or directly to Home if nothing is missing.
+                    val destino = postAuthRouter.resolver(forzarOnboarding = true)
                     _uiState.update { it.copy(isLoading = false, destino = destino) }
                 }
                 .onFailure { e ->

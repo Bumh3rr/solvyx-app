@@ -17,13 +17,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
+import com.solvyx.ui.components.common.GuestLockOverlay
 import com.solvyx.ui.components.haze.LocalHazeState
 import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
 import com.solvyx.ui.screens.red.RedApoyoViewModel
@@ -40,7 +40,6 @@ fun HomeScreen(
     drawerState: CustomDrawerState,
     onNavigateToRedApoyo: () -> Unit = {},
     onNavigateToChat: () -> Unit = {},
-    onNavigateToSos: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToPlan: () -> Unit = {},
     onNavigateToRegistro: () -> Unit = {},
@@ -52,17 +51,9 @@ fun HomeScreen(
     val redApoyoViewModel: RedApoyoViewModel = hiltViewModel()
     val contactCount = redApoyoViewModel.contactos.count { it.name.isNotBlank() }
 
-    var showSosDialog by remember { mutableStateOf(false) }
-    var sosBannerDescartado by remember { mutableStateOf(false) }
-    var assistBannerDescartado by remember { mutableStateOf(false) }
-    var registroBannerDescartado by remember { mutableStateOf(false) }
-
-    if (showSosDialog) {
-        SosConfirmationDialog(
-            onConfirm = { showSosDialog = false; onNavigateToSos() },
-            onDismiss = { showSosDialog = false }
-        )
-    }
+    var sosBannerDescartado by rememberSaveable { mutableStateOf(false) }
+    var assistBannerDescartado by rememberSaveable { mutableStateOf(false) }
+    var registroBannerDescartado by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -117,21 +108,33 @@ fun HomeScreen(
                 )
             }
 
-            HomeStreakCard(
-                streak = viewModel.streak,
-                bestStreak = viewModel.bestStreak
-            )
+            GuestLockOverlay(
+                locked = viewModel.isAnonymous,
+                message = "Crea una cuenta para llevar tu racha de bienestar",
+                onUnlock = onNavigateToCrearCuenta
+            ) {
+                HomeStreakCard(
+                    streak = viewModel.streak,
+                    bestStreak = viewModel.bestStreak
+                )
+            }
 
             Spacer(Modifier.height(12.dp))
 
-            HomeMoodCard(
-                moodToday = viewModel.moodToday,
-                onMoodSelected = { viewModel.logMood(it) },
-                onNavigateToChat = onNavigateToChat,
-                onNavigateToEjercicio = onNavigateToEjercicio,
-                onNavigateToRegistro = onNavigateToRegistro,
-                onNavigateToRedApoyo = onNavigateToRedApoyo
-            )
+            GuestLockOverlay(
+                locked = viewModel.isAnonymous,
+                message = "Crea una cuenta para registrar cómo te sientes",
+                onUnlock = onNavigateToCrearCuenta
+            ) {
+                HomeMoodCard(
+                    moodToday = viewModel.moodToday,
+                    onMoodSelected = { viewModel.logMood(it) },
+                    onNavigateToChat = onNavigateToChat,
+                    onNavigateToEjercicio = onNavigateToEjercicio,
+                    onNavigateToRegistro = onNavigateToRegistro,
+                    onNavigateToRedApoyo = onNavigateToRedApoyo
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
 
@@ -140,7 +143,8 @@ fun HomeScreen(
                 onNavigateToChat = onNavigateToChat,
                 onNavigateToGuias = onNavigateToGuias,
                 onNavigateToRegistro = onNavigateToRegistro,
-                onNavigateToRedApoyo = onNavigateToRedApoyo
+                onNavigateToRedApoyo = onNavigateToRedApoyo,
+                onNavigateToEjercicio = onNavigateToEjercicio
             )
 
             Spacer(Modifier.height(20.dp))

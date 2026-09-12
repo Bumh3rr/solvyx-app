@@ -1,7 +1,6 @@
 // app/src/main/java/com/solvyx/ui/screens/journey/JourneyLogic.kt
 package com.solvyx.ui.screens.journey
 
-import com.solvyx.backend.data.model.JournalEntry
 import java.time.LocalDate
 
 const val TAB_PROGRESS = 0
@@ -29,10 +28,6 @@ fun canAdvanceWizard(
     WizardStep.SUBSTANCE.ordinal -> used != true || substance != null
     else -> false
 }
-
-/** "Logged today" for the check-in card: today's doc with mood AND consumed both non-null. */
-fun isDayComplete(entries: List<JournalEntry>, today: LocalDate): Boolean =
-    entries.any { it.date == today && it.mood != null && it.consumed != null }
 
 fun dateForChartIndex(index: Int, days: List<LocalDate>): LocalDate? = days.getOrNull(index)
 

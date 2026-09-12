@@ -72,8 +72,6 @@ private fun AchievementsGrid(
     onConsumeJustUnlocked: (String) -> Unit
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        // Seeded from the pre-unlock count so returning from the check-in wizard (which disposes
-        // this whole tab) still animates the counter up instead of snapping straight to the target.
         val unlockedCount = remember { Animatable((state.unlockedCount - justUnlockedIds.size).toFloat()) }
         LaunchedEffect(state.unlockedCount) {
             unlockedCount.animateTo(state.unlockedCount.toFloat(), tween(600))
@@ -94,7 +92,6 @@ private fun AchievementsGrid(
             contentPadding = PaddingValues(top = 8.dp, bottom = SolvyxBottomNavHeight)
         ) {
             itemsIndexed(state.achievements, key = { _, achievement -> achievement.id }) { index, achievement ->
-                // Staggered spring entrance: fade + scale + a short vertical settle.
                 var visible by remember { mutableStateOf(false) }
                 LaunchedEffect(Unit) {
                     kotlinx.coroutines.delay(index * 40L)

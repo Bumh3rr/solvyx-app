@@ -1,7 +1,6 @@
 // app/src/test/java/com/solvyx/ui/screens/journey/JourneyLogicTest.kt
 package com.solvyx.ui.screens.journey
 
-import com.solvyx.backend.data.model.JournalEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -50,21 +49,6 @@ class JourneyLogicTest {
     @Test fun canAdvance_sustancia_requiereSustanciaSiConsumio() {
         assertFalse(canAdvanceWizard(WizardStep.SUBSTANCE.ordinal, "bien", true, null))
         assertTrue(canAdvanceWizard(WizardStep.SUBSTANCE.ordinal, "bien", true, "alcohol"))
-    }
-
-    @Test fun esRegistroCompleto_true_conMoodYConsumed() {
-        val entries = listOf(JournalEntry(date = today, mood = "bien", consumed = false))
-        assertTrue(isDayComplete(entries, today))
-    }
-
-    @Test fun esRegistroCompleto_false_animoRapido_consumedNull() {
-        val entries = listOf(JournalEntry(date = today, mood = "bien", consumed = null))
-        assertFalse(isDayComplete(entries, today))
-    }
-
-    @Test fun esRegistroCompleto_false_sinEntradaDeHoy() {
-        val entries = listOf(JournalEntry(date = today.minusDays(1), mood = "bien", consumed = false))
-        assertFalse(isDayComplete(entries, today))
     }
 
     @Test fun tabConstants_progresoPrimeroLogrosSegundo() {

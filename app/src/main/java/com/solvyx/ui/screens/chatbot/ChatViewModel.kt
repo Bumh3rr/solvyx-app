@@ -385,8 +385,16 @@ class ChatViewModel @Inject constructor(
     fun toggleSosDialog() { showSosDialog = !showSosDialog }
 
     override fun onCleared() {
-        tts?.stop()
-        tts?.shutdown()
+        // Best-effort: if the user backs out fast (before the async TextToSpeech engine
+        // finishes connecting, or mid-utterance), shutdown() can race the engine's own
+        // connection setup. On some OEM TTS engines that race throws from a background
+        // binder thread, which crashes the whole process instead of just this cleanup —
+        // never worth that for releasing a resource that's about to be garbage collected.
+        try {
+            tts?.stop()
+            tts?.shutdown()
+        } catch (e: Exception) {
+        }
         tts = null
         super.onCleared()
     }

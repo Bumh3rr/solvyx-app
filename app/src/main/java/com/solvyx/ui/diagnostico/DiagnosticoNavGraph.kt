@@ -1,6 +1,7 @@
 package com.solvyx.ui.diagnostico
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -14,11 +15,23 @@ fun DiagnosticoNavGraph(
     onNavigateToChat: () -> Unit = onNavigateToHome,
     onNavigateToRedApoyo: () -> Unit = onNavigateToHome,
     onNavigateToJourney: () -> Unit = onNavigateToHome,
-    onNavigateToDirectorio: () -> Unit = onNavigateToHome
+    onNavigateToDirectorio: () -> Unit = onNavigateToHome,
+    isOnboarding: Boolean = false,
+    preselectedSubstances: Set<String> = emptySet()
 ) {
     val viewModel: DiagnosticoViewModel = hiltViewModel()
 
-    NavHost(navController = navController, startDestination = "selection") {
+    LaunchedEffect(Unit) {
+        if (shouldPreselectSubstances(isOnboarding, viewModel.sustanciasSeleccionadas, preselectedSubstances)) {
+            viewModel.preseleccionar(preselectedSubstances)
+            viewModel.iniciarCuestionario()
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = if (isOnboarding && preselectedSubstances.isNotEmpty()) "questions" else "selection"
+    ) {
 
         composable("selection") {
             SubstanceSelectionScreen(
@@ -48,6 +61,7 @@ fun DiagnosticoNavGraph(
         composable("result") {
             ResultScreen(
                 viewModel = viewModel,
+                isOnboarding = isOnboarding,
                 onReiniciar = {
                     navController.navigate("selection") {
                         popUpTo("selection") { inclusive = true }

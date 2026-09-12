@@ -34,22 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.components.common.SolvyxCard
-import com.solvyx.ui.theme.MoodAnsioso
-import com.solvyx.ui.theme.MoodBien
-import com.solvyx.ui.theme.MoodEuforico
-import com.solvyx.ui.theme.MoodNeutral
-import com.solvyx.ui.theme.MoodTriste
-
-private data class MoodOption(val id: String, val label: String, val icon: Int, val color: Color)
-
-private val moodOptions = listOf(
-    MoodOption("triste", "Triste", R.drawable.ic_face_sad, MoodTriste),
-    MoodOption("ansioso", "Ansioso", R.drawable.ic_face_anxious, MoodAnsioso),
-    MoodOption("neutral", "Neutral", R.drawable.ic_face_neutral, MoodNeutral),
-    MoodOption("bien", "Bien", R.drawable.ic_face_happy, MoodBien),
-    MoodOption("euforico", "Eufórico", R.drawable.ic_face_euphoric, MoodEuforico)
-)
 
 @Composable
 fun HomeMoodCard(
@@ -93,7 +79,7 @@ fun HomeMoodCard(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                moodOptions.forEach { option ->
+                MoodOptions.forEach { option ->
                     val selected = moodToday == option.id
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,

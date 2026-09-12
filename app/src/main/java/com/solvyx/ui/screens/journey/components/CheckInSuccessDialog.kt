@@ -44,6 +44,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.common.moodOption
 
 @Composable
 fun CheckInSuccessDialog(
@@ -52,17 +53,6 @@ fun CheckInSuccessDialog(
     substance: String?,
     onDismiss: () -> Unit
 ) {
-    val faceIcons = mapOf(
-        "triste"   to R.drawable.ic_face_sad,
-        "ansioso"  to R.drawable.ic_face_anxious,
-        "neutral"  to R.drawable.ic_face_neutral,
-        "bien"     to R.drawable.ic_face_happy,
-        "euforico" to R.drawable.ic_face_euphoric
-    )
-    val emoLabels = mapOf(
-        "triste" to "Triste", "ansioso" to "Ansioso",
-        "neutral" to "Neutral", "bien" to "Bien", "euforico" to "Eufórico"
-    )
     val message = when (mood) {
         "bien"     -> "¡Qué bueno escuchar eso!\nSigue cuidándote así."
         "euforico" -> "¡Qué energía! Aprovéchala\ncon sabiduría."
@@ -159,16 +149,14 @@ fun CheckInSuccessDialog(
                             // Mood
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
-                                    painter = painterResource(
-                                        faceIcons[mood] ?: R.drawable.ic_face_neutral
-                                    ),
+                                    painter = painterResource(moodOption(mood).icon),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(28.dp)
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    emoLabels[mood] ?: "—",
+                                    moodOption(mood).label,
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
@@ -222,13 +210,15 @@ fun CheckInSuccessDialog(
                 }
 
                 // ── Badge checkmark overlapping the header ───
+                // Matches the Card's own containerColor (not a hardcoded white) so the badge
+                // reads as a cutout of the card itself, not a fixed-color disc on top of it.
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .align(Alignment.TopCenter)
                         .offset(y = 140.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(MaterialTheme.colorScheme.background)
                         .border(3.dp, MaterialTheme.colorScheme.primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {

@@ -55,6 +55,7 @@ fun ResultScreen(
     onReiniciar: () -> Unit,
     onVerHistorial: () -> Unit,
     onFinish: () -> Unit,
+    isOnboarding: Boolean = false,
     onNavigateToChat: () -> Unit = {},
     onNavigateToBitacora: () -> Unit = {},
     onNavigateToAvances: () -> Unit = {},
@@ -144,17 +145,19 @@ fun ResultScreen(
             items(resultados) { resultado ->
                 ResultadoCard(resultado)
             }
-            item {
-                AccionesSugeridas(
-                    nivel = peorNivel,
-                    onNavigateToChat = onNavigateToChat,
-                    onNavigateToBitacora = onNavigateToBitacora,
-                    onNavigateToAvances = onNavigateToAvances,
-                    onNavigateToManejoCraving = onNavigateToManejoCraving,
-                    onNavigateToInfoSustancia = onNavigateToInfoSustancia,
-                    onNavigateToDirectorio = onNavigateToDirectorio,
-                    onNavigateToRedApoyo = onNavigateToRedApoyo
-                )
+            if (!isOnboarding) {
+                item {
+                    AccionesSugeridas(
+                        nivel = peorNivel,
+                        onNavigateToChat = onNavigateToChat,
+                        onNavigateToBitacora = onNavigateToBitacora,
+                        onNavigateToAvances = onNavigateToAvances,
+                        onNavigateToManejoCraving = onNavigateToManejoCraving,
+                        onNavigateToInfoSustancia = onNavigateToInfoSustancia,
+                        onNavigateToDirectorio = onNavigateToDirectorio,
+                        onNavigateToRedApoyo = onNavigateToRedApoyo
+                    )
+                }
             }
         }
 
@@ -170,7 +173,7 @@ fun ResultScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             SolvyxButton(
-                text = "Continuar",
+                text = if (isOnboarding) "Continuar →" else "Continuar",
                 onClick = onFinish,
                 modifier = Modifier.fillMaxWidth()
             )

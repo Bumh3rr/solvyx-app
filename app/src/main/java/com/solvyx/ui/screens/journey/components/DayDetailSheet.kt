@@ -22,21 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.backend.data.model.JournalEntry
+import com.solvyx.ui.components.common.moodOption
 import com.solvyx.ui.theme.TealDark
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
-private val faceIcons = mapOf(
-    "triste" to R.drawable.ic_face_sad,
-    "ansioso" to R.drawable.ic_face_anxious,
-    "neutral" to R.drawable.ic_face_neutral,
-    "bien" to R.drawable.ic_face_happy,
-    "euforico" to R.drawable.ic_face_euphoric
-)
-private val faceLabels = mapOf(
-    "triste" to "Triste", "ansioso" to "Ansioso",
-    "neutral" to "Neutral", "bien" to "Bien", "euforico" to "Eufórico"
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +34,7 @@ fun DayDetailSheet(entry: JournalEntry, onDismiss: () -> Unit) {
     val formattedDate = entry.date
         .format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", Locale("es", "MX")))
         .replaceFirstChar { it.uppercase() }
-    val mood = entry.mood ?: "neutral"
+    val mood = moodOption(entry.mood)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -69,14 +58,14 @@ fun DayDetailSheet(entry: JournalEntry, onDismiss: () -> Unit) {
             // Mood
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painter = painterResource(faceIcons[mood] ?: R.drawable.ic_face_neutral),
+                    painter = painterResource(mood.icon),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(Modifier.size(10.dp))
                 Text(
-                    text = faceLabels[mood] ?: "Neutral",
+                    text = mood.label,
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )

@@ -135,8 +135,11 @@ class EjercicioGuiadoViewModel @Inject constructor(
     // ── Ciclo de vida ────────────────────────────────────────────────────────
     override fun onCleared() {
         speakJob?.cancel()
-        tts?.stop()
-        tts?.shutdown()
+        try {
+            tts?.stop()
+            tts?.shutdown()
+        } catch (e: Exception) {
+        }
         super.onCleared()
     }
 }

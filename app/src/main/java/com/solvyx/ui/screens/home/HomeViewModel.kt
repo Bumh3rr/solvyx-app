@@ -15,11 +15,8 @@ import com.solvyx.backend.repository.JournalRepository
 import com.solvyx.backend.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -48,10 +45,6 @@ class HomeViewModel @Inject constructor(
 
     var isAnonymous by mutableStateOf(false)
         private set
-
-    val fechaHoy: String = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "MX"))
-        .format(Date())
-        .replaceFirstChar { it.uppercase() }
 
     private val zone = ZoneId.systemDefault()
 
@@ -85,9 +78,15 @@ class HomeViewModel @Inject constructor(
 
     fun logMood(mood: String) {
         viewModelScope.launch {
-            journalRepository.save(
-                JournalEntry(date = LocalDate.now(zone), mood = mood, consumed = null)
-            )
+            try {
+                journalRepository.save(
+                    JournalEntry(date = LocalDate.now(zone), mood = mood, consumed = null)
+                )
+            } catch (e: Exception) {
+                // Same guard as CheckInViewModel.save() (BUG-20): a network/Firestore hiccup
+                // here shouldn't crash the app, just silently fail to log — the mood card
+                // stays showing "not registered yet" and the user can tap again.
+            }
         }
     }
 }

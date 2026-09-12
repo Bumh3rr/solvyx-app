@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxButton
 
 @Composable
@@ -35,11 +38,11 @@ fun AccountRequiredState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(R.drawable.berto_saludando),
-            contentDescription = null,
-            modifier = Modifier.height(140.dp),
-            contentScale = ContentScale.Fit
+        BertoPoseAnimation(
+            pose = BertoPose.CENTER_IDLE,
+            riveFileRes = R.raw.berto_poses,
+            modifier = Modifier.size(140.dp),
+            fallback = R.drawable.berto_saludando
         )
         Spacer(Modifier.height(16.dp))
         Text(

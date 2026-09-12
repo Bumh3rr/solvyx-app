@@ -11,10 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.repository.JournalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -48,16 +44,6 @@ class CheckInViewModel @Inject constructor(
     /** Current wizard step (0-based, see [com.solvyx.ui.screens.journey.WizardStep]). */
     var wizardStep by mutableIntStateOf(0)
         private set
-
-    val entries: StateFlow<List<JournalEntry>> =
-        repository.observeAll()
-            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-
-    /** True only with a complete entry for today (mood AND consumed both non-null); a quick mood doesn't count. */
-    val isDayCompleted: StateFlow<Boolean> =
-        repository.observeAll()
-            .map { isDayComplete(it, LocalDate.now()) }
-            .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     fun canAdvance(): Boolean =
         canAdvanceWizard(wizardStep, mood, used, substance)

@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,9 +73,9 @@ fun MainScreen(
     onInitialTabConsumed: () -> Unit = {}
 ) {
     val homeViewModel: HomeViewModel = hiltViewModel()
-    var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
-    var selectedItem by remember { mutableStateOf(NavigationItem.Inicio) }
-    var previousItem by remember { mutableStateOf<NavigationItem?>(null) }
+    var drawerState by rememberSaveable { mutableStateOf(CustomDrawerState.Closed) }
+    var selectedItem by rememberSaveable { mutableStateOf(NavigationItem.Inicio) }
+    var previousItem by rememberSaveable { mutableStateOf<NavigationItem?>(null) }
     fun navigateToTab(item: NavigationItem) {
         previousItem = selectedItem
         selectedItem = item
@@ -117,6 +118,10 @@ fun MainScreen(
 
     BackHandler(enabled = drawerState.isOpened()) {
         drawerState = CustomDrawerState.Closed
+    }
+
+    BackHandler(enabled = !drawerState.isOpened() && selectedItem != NavigationItem.Inicio) {
+        navigateToTab(NavigationItem.Inicio)
     }
 
     Box(
@@ -247,7 +252,6 @@ private fun SolvyxMainContent(
                         when (tab) {
                             SolvyxBottomTab.INICIO   -> onBottomNavNavigate(NavigationItem.Inicio)
                             SolvyxBottomTab.PLAN     -> onBottomNavNavigate(NavigationItem.Plan)
-                            SolvyxBottomTab.CHATBOT  -> onNavigateToChat()
                             SolvyxBottomTab.JOURNEY  -> onBottomNavNavigate(NavigationItem.Journey)
                         }
                     },
@@ -267,7 +271,6 @@ private fun SolvyxMainContent(
                         drawerState = drawerState,
                         onNavigateToRedApoyo  = { onBottomNavNavigate(NavigationItem.RedApoyo) },
                         onNavigateToChat      = onNavigateToChat,
-                        onNavigateToSos       = onNavigateToSos,
                         onNavigateToEjercicio = onNavigateToEjercicio,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
                         onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.Journey) },
