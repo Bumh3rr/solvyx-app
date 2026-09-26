@@ -87,7 +87,7 @@ fun SolvyxSegmentedControl(
                     .clip(RoundedCornerShape(10.dp))
                     .background(if (selected) colors.selected else Color.Transparent)
                     .clickable { onSelect(i) }
-                    .padding(10.dp),
+                    .padding(horizontal = 4.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -95,7 +95,8 @@ fun SolvyxSegmentedControl(
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
-                    color = if (selected) colors.selectedLabel else colors.unselectedLabel
+                    color = if (selected) colors.selectedLabel else colors.unselectedLabel,
+                    maxLines = 1
                 )
             }
         }

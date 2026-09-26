@@ -47,9 +47,9 @@ import com.solvyx.ui.components.drawer.model.opposite
 import com.solvyx.ui.components.haze.LocalHazeState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.ui.screens.home.HomeViewModel
-import com.solvyx.ui.screens.directorio.DirectorioRootScreen
+import com.solvyx.ui.screens.directory.DirectoryScreen
 import com.solvyx.ui.screens.perfil.PerfilNavGraph
-import com.solvyx.ui.screens.guias.navigation.GuiasNavGraph
+import com.solvyx.ui.screens.firstaid.navigation.FirstAidNavGraph
 import com.solvyx.ui.screens.home.HomeScreen
 import com.solvyx.ui.screens.plan.PlanNavGraph
 import com.solvyx.ui.screens.journey.JourneyScreen
@@ -273,7 +273,7 @@ private fun SolvyxMainContent(
                         onNavigateToChat      = onNavigateToChat,
                         onNavigateToEjercicio = onNavigateToEjercicio,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
-                        onNavigateToRegistro  = { onBottomNavNavigate(NavigationItem.Journey) },
+                        onNavigateToJourney   = { onBottomNavNavigate(NavigationItem.Journey) },
                         onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) },
                         onNavigateToAssist    = onNavigateToAssist,
                         onNavigateToCrearCuenta = onNavigateToCrearCuenta
@@ -291,10 +291,11 @@ private fun SolvyxMainContent(
                         onCreateAccount = onNavigateToCrearCuenta
                     )
                 NavigationItem.GuiasPrimerosAuxilios ->
-                    GuiasNavGraph(
+                    FirstAidNavGraph(
                         onOpenDrawer = onDrawerClick,
                         onNavigateToChat = onNavigateToChat,
-                        onNavigateToSos = onNavigateToSos
+                        onNavigateToSos = onNavigateToSos,
+                        onNavigateToDirectory = { onBottomNavNavigate(NavigationItem.Directorio) }
                     )
                 NavigationItem.RedApoyo ->
                     RedApoyoScreen(
@@ -303,7 +304,7 @@ private fun SolvyxMainContent(
                         onFinishSetup = {}
                     )
                 NavigationItem.Directorio ->
-                    DirectorioRootScreen(
+                    DirectoryScreen(
                         onOpenDrawer = onDrawerClick,
                         onNavigateToChat = onNavigateToChat
                     )

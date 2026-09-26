@@ -48,8 +48,7 @@ fun InfoSustanciaScreen(
     ) {
         GuiaTopBar(
             title = "Info por sustancia",
-            onBack = onBack,
-            showBertoBadge = false
+            onBack = onBack
         )
 
         HeroSideBerto(

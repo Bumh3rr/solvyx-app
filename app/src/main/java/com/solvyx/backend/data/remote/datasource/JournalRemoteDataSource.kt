@@ -8,6 +8,7 @@ import com.google.firebase.firestore.SetOptions
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.data.remote.model.JournalRemoteDto
 import com.solvyx.backend.data.remote.model.UserRemoteDto
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -50,8 +51,18 @@ class JournalRemoteDataSource @Inject constructor(
         journalCol(uid).document(dateId(entry.date)).set(data, SetOptions.merge()).await()
     }
 
-    suspend fun getEntry(uid: String, date: LocalDate): JournalEntry? =
+    /**
+     * Día de la bitácora, o null si no existe **o no se pudo leer**. Una lectura de documento sin
+     * conexión (y sin copia en caché) lanza "client is offline"; tratarla como "sin registro" evita
+     * que quien llame desde un `viewModelScope.launch` tumbe la app (BUG-26: abrir Mi Plan offline).
+     */
+    suspend fun getEntry(uid: String, date: LocalDate): JournalEntry? = try {
         journalCol(uid).document(dateId(date)).get().await().toJournalEntry()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    }
 
     fun observeAll(uid: String): Flow<List<JournalEntry>> = callbackFlow {
         val registration = journalCol(uid).addSnapshotListener { snapshot, error ->

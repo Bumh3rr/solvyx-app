@@ -34,8 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.components.common.SolvyxCard
+
+private const val SuggestionTintAlpha = 0.35f
 
 @Composable
 fun HomeMoodCard(
@@ -43,7 +46,7 @@ fun HomeMoodCard(
     onMoodSelected: (String) -> Unit,
     onNavigateToChat: () -> Unit,
     onNavigateToEjercicio: () -> Unit,
-    onNavigateToRegistro: () -> Unit,
+    onNavigateToJourney: () -> Unit,
     onNavigateToRedApoyo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -133,7 +136,7 @@ fun HomeMoodCard(
                         mood = moodToday ?: "neutral",
                         onNavigateToChat = onNavigateToChat,
                         onNavigateToEjercicio = onNavigateToEjercicio,
-                        onNavigateToRegistro = onNavigateToRegistro,
+                        onNavigateToJourney = onNavigateToJourney,
                         onNavigateToRedApoyo = onNavigateToRedApoyo
                     )
                 }
@@ -155,11 +158,11 @@ private fun EmocionSugerenciaCard(
     mood: String,
     onNavigateToChat: () -> Unit,
     onNavigateToEjercicio: () -> Unit,
-    onNavigateToRegistro: () -> Unit,
+    onNavigateToJourney: () -> Unit,
     onNavigateToRedApoyo: () -> Unit
 ) {
     val iconRes = when (mood) {
-        "bien", "neutral" -> R.drawable.ic_trending_up
+        "bien", "neutral" -> R.drawable.ic_footsteps
         "ansioso"         -> R.drawable.ic_wind
         "euforico"        -> R.drawable.ic_people
         else              -> R.drawable.ic_chat
@@ -173,13 +176,13 @@ private fun EmocionSugerenciaCard(
         else       -> "¡Qué energía! Aprovéchala con sabiduría."
     }
     val accion = when (mood) {
-        "bien", "neutral" -> "Ir al registro"
+        "bien", "neutral" -> "Ir a Mi camino"
         "ansioso"         -> "Respirar ahora"
         "euforico"        -> "Ver mi red"
         else              -> "Hablar con Berto"
     }
     val onAccion: () -> Unit = when (mood) {
-        "bien", "neutral" -> onNavigateToRegistro
+        "bien", "neutral" -> onNavigateToJourney
         "ansioso"         -> onNavigateToEjercicio
         "euforico"        -> onNavigateToRedApoyo
         else              -> onNavigateToChat
@@ -188,7 +191,7 @@ private fun EmocionSugerenciaCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(TealLight.copy(alpha = SuggestionTintAlpha))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -31,7 +31,7 @@ import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.ui.components.berto.BertoPose
 import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxSegmentedControl
-import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
+import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.screens.journey.JourneyViewModel
 import com.solvyx.ui.screens.journey.ConsumptionChart
 import com.solvyx.ui.screens.journey.FeelingsChart
@@ -58,7 +58,7 @@ fun ProgressTab(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
-            .padding(bottom = SolvyxBottomNavHeight)
+            .padding(bottom = SolvyxBottomNavClearance)
     ) {
         Spacer(Modifier.height(16.dp))
         CheckInCard(

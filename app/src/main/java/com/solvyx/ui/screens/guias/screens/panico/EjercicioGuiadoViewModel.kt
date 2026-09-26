@@ -41,8 +41,7 @@ class EjercicioGuiadoViewModel @Inject constructor(
     private var speakJob: Job? = null
     private var pendingResId: Int? = null
 
-    var isTtsReady by mutableStateOf(false)
-        private set
+    private var isTtsReady = false
     var isSpeaking by mutableStateOf(false)
         private set
     var step by mutableStateOf(-1)
@@ -114,12 +113,6 @@ class EjercicioGuiadoViewModel @Inject constructor(
     }
 
     // ── Estado del ejercicio ─────────────────────────────────────────────────
-
-    fun startExercise() {
-        step = -1
-        tapped = setOf()
-        scheduleSpeak(-1)
-    }
 
     fun nextStep() {
         val next = step + 1

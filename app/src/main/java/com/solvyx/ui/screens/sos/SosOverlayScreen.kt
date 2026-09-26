@@ -82,12 +82,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.TealDark
+import com.solvyx.ui.components.common.HelpLine
 import com.solvyx.ui.theme.TealMedium
 import com.solvyx.ui.theme.TealPrimary
 import com.solvyx.ui.theme.WarnAmberDark
 import kotlinx.coroutines.delay
-
-private val LINEA_VIDA = "8009112000"
 
 @Composable
 fun SosOverlayScreen(
@@ -138,7 +137,7 @@ fun SosOverlayScreen(
                         onLlamar = {
                             // ACTION_DIAL no requiere permiso: si el SMS falló, llamar al contacto
                             // sigue siendo posible. Si no hay contacto, va a la Línea de la Vida.
-                            val destino = viewModel.fallbackContactPhone.ifBlank { LINEA_VIDA }
+                            val destino = viewModel.fallbackContactPhone.ifBlank { HelpLine.LINEA_DE_LA_VIDA.dialNumber }
                             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$destino"))
                             context.startActivity(intent)
                         },

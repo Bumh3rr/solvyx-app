@@ -52,9 +52,18 @@ private val SolvyxBottomTab.slotIndex: Int
 
 private const val TAB_COUNT = 3
 
-/** Alto total de la barra + margen de respiro. Pantallas cuyo contenido pasa detrás del
- *  bottom nav (vía [dev.chrisbanes.haze.haze]) deben dejar al menos esto de padding inferior. */
-val SolvyxBottomNavHeight: Dp = 88.dp
+private val BarHeight = 80.dp
+
+/** How far the floating SOS button rises above the top edge of the bar. */
+private val SosButtonLift = 60.dp
+private val ClearanceBreathingRoom = 8.dp
+
+/**
+ * Bottom padding for content that scrolls behind the bottom nav (via [dev.chrisbanes.haze.haze]):
+ * the bar plus the part of the SOS button that floats above it, so at the end of a scroll nothing
+ * (e.g. a button on the right edge) stays hidden under SOS.
+ */
+val SolvyxBottomNavClearance: Dp = BarHeight + SosButtonLift + ClearanceBreathingRoom
 
 @Composable
 fun SolvyxBottomNavigationBar(
@@ -68,7 +77,7 @@ fun SolvyxBottomNavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(80.dp)
+            .height(BarHeight)
     ) {
         BoxWithConstraints(
             modifier = Modifier
@@ -143,7 +152,7 @@ fun SolvyxBottomNavigationBar(
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(x = (-16).dp, y = (-60).dp)
+                .offset(x = (-16).dp, y = -SosButtonLift)
         ) {
             SolvyxSosButton(onClick = onSosClick)
         }

@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
-import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
+import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.screens.journey.AchievementsUiState
 import com.solvyx.ui.screens.journey.components.AchievementCard
 import kotlin.math.roundToInt
@@ -89,7 +89,7 @@ private fun AchievementsGrid(
                 .padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(top = 8.dp, bottom = SolvyxBottomNavHeight)
+            contentPadding = PaddingValues(top = 8.dp, bottom = SolvyxBottomNavClearance)
         ) {
             itemsIndexed(state.achievements, key = { _, achievement -> achievement.id }) { index, achievement ->
                 var visible by remember { mutableStateOf(false) }

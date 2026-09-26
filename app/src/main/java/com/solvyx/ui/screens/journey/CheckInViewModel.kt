@@ -77,13 +77,8 @@ class CheckInViewModel @Inject constructor(
     /** Preloads the form with today's entry (for "Edit"). Resets the wizard to step 0. */
     fun loadToday() {
         viewModelScope.launch {
-            // Un fallo de Firestore aquí se trata igual que "sin registro todavía" en vez de
-            // tumbar la app: getToday()/getEntry() no tienen su propio try/catch más abajo.
-            val entry = try {
-                repository.getToday()
-            } catch (e: Exception) {
-                null
-            } ?: return@launch
+            // getEntry() already maps a failed read (e.g. offline) to null, same as "no entry yet".
+            val entry = repository.getToday() ?: return@launch
             mood = entry.mood
             note = entry.note.orEmpty()
             used = entry.consumed

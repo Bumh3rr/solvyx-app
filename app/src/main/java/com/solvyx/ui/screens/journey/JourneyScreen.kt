@@ -10,30 +10,19 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.solvyx.R
-import com.solvyx.ui.components.common.SolvyxTopBarButtonSize
+import com.solvyx.ui.components.common.SolvyxTopBar
 import com.solvyx.ui.components.common.SolvyxMenuButton
 import com.solvyx.ui.components.haze.LocalHazeState
 import dev.chrisbanes.haze.haze
@@ -102,24 +91,10 @@ private fun WizardScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SolvyxBackButton(onClick = onClose)
-            Text(
-                text = "Registrar mi día",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Spacer(Modifier.size(SolvyxTopBarButtonSize))
-        }
+        SolvyxTopBar(
+            title = "Registrar mi día",
+            navigationButton = { SolvyxBackButton(onClick = onClose) }
+        )
         CheckInWizard(
             viewModel = viewModel,
             onFinish = onFinish,
@@ -142,25 +117,10 @@ private fun TabsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // ── Top bar ──
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SolvyxMenuButton(onClick = onOpenDrawer)
-            Text(
-                text = "Mi camino",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Spacer(Modifier.size(SolvyxTopBarButtonSize))
-        }
+        SolvyxTopBar(
+            title = "Mi camino",
+            navigationButton = { SolvyxMenuButton(onClick = onOpenDrawer) }
+        )
 
         if (journeyVM.isAnonymous) {
             AccountRequiredState(onCreateAccount = onCreateAccount)

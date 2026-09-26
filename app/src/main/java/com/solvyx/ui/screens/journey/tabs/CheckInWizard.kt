@@ -46,7 +46,7 @@ import com.solvyx.R
 import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.WizardProgressDots
-import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
+import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.screens.journey.WizardStep
 import com.solvyx.ui.screens.journey.CheckInViewModel
 import com.solvyx.ui.screens.journey.components.CheckInSuccessDialog
@@ -136,7 +136,7 @@ fun CheckInWizard(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 20.dp)
-                .padding(top = 12.dp, bottom = SolvyxBottomNavHeight),
+                .padding(top = 12.dp, bottom = SolvyxBottomNavClearance),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (viewModel.wizardStep > 0) {

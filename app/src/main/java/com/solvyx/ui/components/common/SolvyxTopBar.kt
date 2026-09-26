@@ -15,28 +15,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
+/**
+ * Colored header shared by the app's secondary sections: a leading square button (back or menu)
+ * and a centered white title, balanced by an empty slot of the same size on the right.
+ */
 @Composable
-fun SolvyxStubTopBar(
+fun SolvyxTopBar(
     title: String,
-    onOpenDrawer: () -> Unit
+    navigationButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(containerColor)
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SolvyxMenuButton(onClick = onOpenDrawer)
+        navigationButton()
         Text(
             text = title,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = Color.White,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.size(SolvyxTopBarButtonSize))
     }

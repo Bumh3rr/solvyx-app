@@ -1,13 +1,9 @@
 package com.solvyx.ui.screens.guias.components
 
-import android.content.Intent
-import android.net.Uri
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,52 +31,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import com.solvyx.ui.components.haze.LocalHazeState
-import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
-import dev.chrisbanes.haze.haze
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.solvyx.R
-import com.solvyx.ui.components.common.SolvyxMenuButton
 import com.solvyx.ui.components.common.SolvyxBackButton
-import com.solvyx.ui.theme.SolvyxappTheme
+import com.solvyx.ui.components.common.SolvyxMenuButton
+import com.solvyx.ui.components.common.SolvyxTopBarButtonSize
+import com.solvyx.ui.components.haze.LocalHazeState
+import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.theme.TealDark
-import com.solvyx.ui.theme.TealLightest
+import dev.chrisbanes.haze.haze
 
-@Preview(name = "Guia Top Bar — Light", showSystemUi = true)
-@Composable
-private fun GuiaTopBarLight() {
-    SolvyxappTheme(darkTheme = false) {
-        GuiaTopBar(
-            title = "Guía",
-            onBack = {},
-            showBertoBadge = true,
-            useDarkBg = false,
-            isMenuButton = false
-        )
-    }
-}
+private val BorderCardRadius = 16.dp
+private val BorderCardPadding = 14.dp
+private val PanelOverlap = 24.dp
 
 @Composable
 fun GuiaTopBar(
     title: String,
     onBack: () -> Unit,
-    showBertoBadge: Boolean = false,
-    useDarkBg: Boolean = false,
     isMenuButton: Boolean = false
 ) {
-    val bg = if (useDarkBg) TealDark else MaterialTheme.colorScheme.primary
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(bg)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(horizontal = 16.dp, vertical = 26.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -102,24 +80,7 @@ fun GuiaTopBar(
             textAlign = TextAlign.Center
         )
 
-        if (showBertoBadge) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(TealLightest),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.berto_preocupado),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        } else {
-            Spacer(Modifier.size(44.dp))
-        }
+        Spacer(Modifier.size(SolvyxTopBarButtonSize))
     }
 }
 
@@ -129,15 +90,12 @@ fun GuiaTopBar(
 fun HeroSideBerto(
     @DrawableRes mascot: Int,
     title: String,
-    subtitle: String,
-    darkBg: Boolean = false
+    subtitle: String
 ) {
-    val bg = if (darkBg) TealDark else MaterialTheme.colorScheme.primary
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(bg)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 44.dp)
     ) {
         Column(
@@ -183,7 +141,7 @@ fun GuiaPanel(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .offset(y = (-24).dp)
+            .overlapAbove(PanelOverlap)
             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
             .haze(
                 hazeState,
@@ -193,9 +151,30 @@ fun GuiaPanel(
             )
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = SolvyxBottomNavHeight),
+            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = SolvyxBottomNavClearance),
         content = content
     )
+}
+
+/**
+ * Pulls the panel [overlap] up over the hero *and* grows it by the same amount, so it still reaches
+ * the bottom. A plain `offset` only moves the drawing, leaving an [overlap]-tall strip of the
+ * screen background exposed at the bottom (visible as a green band behind the bottom nav).
+ */
+private fun Modifier.overlapAbove(overlap: Dp): Modifier = layout { measurable, constraints ->
+    val overlapPx = overlap.roundToPx()
+    val grown = if (constraints.hasBoundedHeight) {
+        constraints.copy(
+            minHeight = constraints.minHeight + overlapPx,
+            maxHeight = constraints.maxHeight + overlapPx
+        )
+    } else {
+        constraints
+    }
+    val placeable = measurable.measure(grown)
+    layout(placeable.width, (placeable.height - overlapPx).coerceAtLeast(0)) {
+        placeable.place(0, -overlapPx)
+    }
 }
 
 // ── Border Card ──────────────────────────────────────────────────────────────
@@ -204,13 +183,9 @@ fun BorderCard(
     modifier: Modifier = Modifier,
     bg: Color = MaterialTheme.colorScheme.surface,
     leftBorderColor: Color? = null,
-    radius: Dp = 16.dp,
-    pad: Dp = 14.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(radius)
-    val elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+    val shape = RoundedCornerShape(BorderCardRadius)
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -241,12 +216,7 @@ fun BorderCard(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(
-                        start = pad,
-                        top = pad,
-                        end = pad,
-                        bottom = pad
-                    ),
+                    .padding(BorderCardPadding),
                 content = content
             )
         }
@@ -258,11 +228,9 @@ fun BorderCard(
 @Composable
 fun CardLabel(
     @DrawableRes iconRes: Int,
-    text: String,
-    color: Color? = null,
-    size: Int = 14
+    text: String
 ) {
-    val c = color ?: MaterialTheme.colorScheme.primary
+    val c = MaterialTheme.colorScheme.primary
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             painter = painterResource(iconRes),
@@ -273,7 +241,7 @@ fun CardLabel(
         Spacer(Modifier.width(6.dp))
         Text(
             text = text,
-            fontSize = size.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = TealDark
         )
@@ -314,8 +282,7 @@ fun DotRow(
 @Composable
 fun StepRow(
     n: Int,
-    text: String,
-    textSize: Int = 13
+    text: String
 ) {
     Row(
         modifier = Modifier.padding(top = 10.dp),
@@ -337,49 +304,10 @@ fun StepRow(
         Spacer(Modifier.width(10.dp))
         Text(
             text = text,
-            fontSize = textSize.sp,
+            fontSize = 13.sp,
             color = TealDark,
             lineHeight = 20.sp,
             modifier = Modifier.padding(top = 3.dp)
         )
-    }
-}
-
-// ── Help Line Row (tappable phone number) ────────────────────────────────────
-
-@Composable
-fun HelpLineRow(name: String, num: String) {
-    val context = LocalContext.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                context.startActivity(
-                    Intent(Intent.ACTION_DIAL, Uri.parse("tel:$num"))
-                )
-            }
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = name,
-            fontSize = 13.sp,
-            color = TealDark,
-            modifier = Modifier.weight(1f)
-        )
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(99.dp))
-                .background(TealLightest)
-                .padding(horizontal = 12.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = num,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
     }
 }

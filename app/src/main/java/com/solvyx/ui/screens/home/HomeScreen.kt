@@ -25,7 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.common.GuestLockOverlay
 import com.solvyx.ui.components.haze.LocalHazeState
-import com.solvyx.ui.components.navigation.SolvyxBottomNavHeight
+import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.screens.red.RedApoyoViewModel
 import dev.chrisbanes.haze.haze
 
@@ -42,7 +42,7 @@ fun HomeScreen(
     onNavigateToChat: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToPlan: () -> Unit = {},
-    onNavigateToRegistro: () -> Unit = {},
+    onNavigateToJourney: () -> Unit = {},
     onNavigateToGuias: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {}
@@ -131,7 +131,7 @@ fun HomeScreen(
                     onMoodSelected = { viewModel.logMood(it) },
                     onNavigateToChat = onNavigateToChat,
                     onNavigateToEjercicio = onNavigateToEjercicio,
-                    onNavigateToRegistro = onNavigateToRegistro,
+                    onNavigateToJourney = onNavigateToJourney,
                     onNavigateToRedApoyo = onNavigateToRedApoyo
                 )
             }
@@ -140,18 +140,18 @@ fun HomeScreen(
 
             HomeQuickAccess(
                 onNavigateToPlan = onNavigateToPlan,
+                onNavigateToJourney = onNavigateToJourney,
                 onNavigateToChat = onNavigateToChat,
-                onNavigateToGuias = onNavigateToGuias,
-                onNavigateToRegistro = onNavigateToRegistro,
-                onNavigateToRedApoyo = onNavigateToRedApoyo,
-                onNavigateToEjercicio = onNavigateToEjercicio
+                onNavigateToBreathing = onNavigateToEjercicio,
+                onNavigateToFirstAid = onNavigateToGuias,
+                onNavigateToSupportNetwork = onNavigateToRedApoyo
             )
 
             Spacer(Modifier.height(20.dp))
 
             HomeBertoFooter(onNavigateToChat = onNavigateToChat)
 
-            Spacer(Modifier.height(SolvyxBottomNavHeight))
+            Spacer(Modifier.height(SolvyxBottomNavClearance))
         }
     }
 }
