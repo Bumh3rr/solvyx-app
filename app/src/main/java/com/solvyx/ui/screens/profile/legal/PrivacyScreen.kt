@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.perfil
+package com.solvyx.ui.screens.profile.legal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -18,13 +18,13 @@ import com.solvyx.ui.screens.guias.components.GuiaTopBar
 import com.solvyx.ui.theme.TealDark
 
 @Composable
-fun TerminosCondicionesScreen(onBack: () -> Unit) {
+fun PrivacyScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        GuiaTopBar(title = "Términos y condiciones", onBack = onBack)
+        GuiaTopBar(title = "Privacidad y datos", onBack = onBack)
 
         Column(
             modifier = Modifier
@@ -33,26 +33,20 @@ fun TerminosCondicionesScreen(onBack: () -> Unit) {
                 .padding(horizontal = 20.dp, vertical = 24.dp)
         ) {
             Text(
-                text = "Términos y condiciones",
+                text = "Privacidad y datos",
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 color = TealDark
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Al utilizar Solvyx, aceptas que esta aplicación es una herramienta de apoyo y no sustituye la atención médica profesional. En caso de emergencia, comunícate con los servicios de emergencias locales o una línea de crisis.",
+                text = "Tu información se guarda de forma privada en tu cuenta y nunca se comparte con terceros.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = TealDark
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Solvyx no se hace responsable de decisiones tomadas con base exclusiva en la información provista por la aplicación. Consulta siempre a un profesional de salud.",
+                text = "Solvyx no recopila datos personales, no tiene acceso a tu historial y no requiere conexión a internet para funcionar. Tu privacidad es una prioridad en cada decisión de diseño de esta aplicación.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(16.dp))
-            Text(
-                text = "© 2026 Solvyx — Tecnologías para la Salud Humana. Todos los derechos reservados.",
-                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

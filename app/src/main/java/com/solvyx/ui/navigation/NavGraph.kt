@@ -12,25 +12,27 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.solvyx.backend.router.Destino
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
-import com.solvyx.ui.screens.sos.SosOverlayScreen
 import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
 import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
+import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
 import com.solvyx.ui.screens.chatbot.BertoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
+import com.solvyx.ui.screens.journey.checkin.CHECK_IN_EDIT_ARG
+import com.solvyx.ui.screens.journey.checkin.CheckInScreen
 import com.solvyx.ui.screens.main.MainScreen
-import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
-import com.solvyx.ui.screens.perfil.PrivacidadDatosScreen
-import com.solvyx.ui.screens.perfil.TerminosCondicionesScreen
+import com.solvyx.ui.screens.profile.legal.PrivacyScreen
+import com.solvyx.ui.screens.profile.legal.TermsScreen
 import com.solvyx.ui.screens.profilesetup.ProfileSetupNavGraph
 import com.solvyx.ui.screens.profilesetup.ProfileSetupStep
 import com.solvyx.ui.screens.red.RedApoyoScreen
+import com.solvyx.ui.screens.sos.SosOverlayScreen
 import com.solvyx.ui.screens.splash.SplashScreen
-import com.solvyx.backend.router.Destino
 
 fun Destino.aRuta(): String = when (this) {
     is Destino.AuthChoice   -> Routes.AUTH_CHOICE
@@ -95,10 +97,10 @@ fun SolvyxNavGraph(
             )
         }
         composable(Routes.TERMINOS) {
-            TerminosCondicionesScreen(onBack = { navController.navigateUp() })
+            TermsScreen(onBack = { navController.navigateUp() })
         }
         composable(Routes.PRIVACIDAD) {
-            PrivacidadDatosScreen(onBack = { navController.navigateUp() })
+            PrivacyScreen(onBack = { navController.navigateUp() })
         }
 
         composable(Routes.DIAGNOSTICO) {
@@ -191,6 +193,9 @@ fun SolvyxNavGraph(
                 onNavigateToEjercicio = {
                     navController.navigate(Routes.EJERCICIO_GUIADO)
                 },
+                onNavigateToCheckIn = { edit ->
+                    navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=$edit")
+                },
                 onNavigateToCrearCuenta = {
                     navController.navigate(Routes.REGISTER)
                 }
@@ -224,6 +229,23 @@ fun SolvyxNavGraph(
                     }
                 },
                 onClose = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            route = "${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG={$CHECK_IN_EDIT_ARG}",
+            arguments = listOf(navArgument(CHECK_IN_EDIT_ARG) {
+                type = NavType.BoolType
+                defaultValue = false
+            })
+        ) {
+            CheckInScreen(
+                onClose = { navController.navigateUp() },
+                onOpenFirstAid = {
+                    navController.previousBackStackEntry?.savedStateHandle
+                        ?.set("initialTab", NavigationItem.GuiasPrimerosAuxilios)
+                    navController.navigateUp()
+                }
             )
         }
 

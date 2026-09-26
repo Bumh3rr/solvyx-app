@@ -42,13 +42,7 @@ class StreakCalculatorImpl @Inject constructor() : StreakCalculator {
         }
         val bestStreak = maxOf(best, streak)
 
-        val next = milestoneDays.firstOrNull { it > streak }
-        val nextMilestone = next ?: milestoneDays.last()
-        val progress = if (next != null) {
-            val prev = milestoneDays.lastOrNull { it <= streak } ?: 0
-            (streak - prev).toFloat() / (next - prev).coerceAtLeast(1)
-        } else 1f
-
-        return StreakStats(streak, bestStreak, nextMilestone, progress)
+        val milestone = milestoneProgress(streak, milestoneDays)
+        return StreakStats(streak, bestStreak, milestone.next, milestone.progress)
     }
 }

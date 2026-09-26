@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.perfil
+package com.solvyx.ui.screens.profile.legal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -15,12 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.solvyx.ui.components.common.rememberAppVersionName
 import com.solvyx.ui.screens.guias.components.GuiaTopBar
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealMedium
 
 @Composable
-fun AcercaDeSolvyxScreen(onBack: () -> Unit) {
+fun AboutScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,7 +41,7 @@ fun AcercaDeSolvyxScreen(onBack: () -> Unit) {
                 color = TealDark
             )
             Text(
-                text = "Versión 1.0.0",
+                text = "Versión ${rememberAppVersionName()}",
                 style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                 color = TealMedium,
                 modifier = Modifier.padding(top = 4.dp)

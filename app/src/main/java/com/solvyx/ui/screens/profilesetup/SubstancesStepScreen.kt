@@ -17,17 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SubstanceCard
+import com.solvyx.ui.components.common.TrackedSubstances
 import com.solvyx.ui.components.common.WizardProgressDots
-
-private val TrackedSubstances = listOf(
-    Triple("alcohol", "Alcohol", R.drawable.ic_bottle),
-    Triple("cristal", "Cristal", R.drawable.ic_gem),
-    Triple("vape", "Vape", R.drawable.ic_vape),
-    Triple("cigarro", "Tabaco", R.drawable.ic_cigarette)
-)
 
 @Composable
 fun SubstancesStepScreen(

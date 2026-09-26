@@ -48,7 +48,7 @@ import com.solvyx.ui.components.haze.LocalHazeState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.ui.screens.home.HomeViewModel
 import com.solvyx.ui.screens.directory.DirectoryScreen
-import com.solvyx.ui.screens.perfil.PerfilNavGraph
+import com.solvyx.ui.screens.profile.ProfileNavGraph
 import com.solvyx.ui.screens.firstaid.navigation.FirstAidNavGraph
 import com.solvyx.ui.screens.home.HomeScreen
 import com.solvyx.ui.screens.plan.PlanNavGraph
@@ -66,6 +66,7 @@ fun MainScreen(
     onNavigateToSos: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {},
@@ -195,6 +196,7 @@ fun MainScreen(
                 onNavigateToSos = onNavigateToSos,
                 onNavigateToAssist = onNavigateToAssist,
                 onNavigateToEjercicio = onNavigateToEjercicio,
+                onNavigateToCheckIn = onNavigateToCheckIn,
                 onNavigateToCrearCuenta = onNavigateToCrearCuenta,
                 onBottomNavNavigate = { item -> navigateToTab(item) },
                 onLogout = onLogout
@@ -214,6 +216,7 @@ private fun SolvyxMainContent(
     onNavigateToSos: () -> Unit,
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
@@ -288,7 +291,8 @@ private fun SolvyxMainContent(
                 NavigationItem.Journey ->
                     JourneyScreen(
                         onOpenDrawer = onDrawerClick,
-                        onCreateAccount = onNavigateToCrearCuenta
+                        onCreateAccount = onNavigateToCrearCuenta,
+                        onOpenCheckIn = onNavigateToCheckIn
                     )
                 NavigationItem.GuiasPrimerosAuxilios ->
                     FirstAidNavGraph(
@@ -309,12 +313,13 @@ private fun SolvyxMainContent(
                         onNavigateToChat = onNavigateToChat
                     )
                 NavigationItem.MiPerfil ->
-                    PerfilNavGraph(
+                    ProfileNavGraph(
                         onOpenDrawer = onDrawerClick,
-                        onNavigateToAssist = onNavigateToAssist,
-                        onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) },
-                        onNavigateToAgregarCuenta = onNavigateToCrearCuenta,
-                        onLogout = onLogout
+                        onOpenJourney = { onBottomNavNavigate(NavigationItem.Journey) },
+                        onOpenAssessment = onNavigateToAssist,
+                        onOpenSupportNetwork = { onBottomNavNavigate(NavigationItem.RedApoyo) },
+                        onCreateAccount = onNavigateToCrearCuenta,
+                        onLoggedOut = onLogout
                     )
                 NavigationItem.Berto -> { /* navega fuera del MainScreen via onNavigateToChat */ }
             }

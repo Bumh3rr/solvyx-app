@@ -31,6 +31,11 @@ val CardBorder        = Color(0xFFD1FAE5)
 val WarnAmber         = Color(0xFFfef9c3)
 val WarnAmberDark     = Color(0xFF92400e)
 
+// ── Nivel de riesgo ASSIST (moderado usa WarnAmber, alto usa CrisisRed) ──
+val RiskLow            = Color(0xFF065F46)  // Texto/acento de riesgo bajo
+val RiskLowContainer   = Color(0xFFD1FAE5)  // Fondo de riesgo bajo
+val RiskModerate       = Color(0xFFD97706)  // Acento de riesgo moderado
+
 // ── Directorio profesional (una por categoría) ──────
 val DirectoryHelpline     = Color(0xFFEF6C5B)  // Líneas de apoyo
 val DirectoryCenter       = Color(0xFF5B8DEF)  // Centros y clínicas

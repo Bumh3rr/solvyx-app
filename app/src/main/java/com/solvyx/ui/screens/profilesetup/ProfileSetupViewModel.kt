@@ -30,7 +30,7 @@ class ProfileSetupViewModel @Inject constructor(
     }
 
     /**
-     * Saves to both Room and Firestore — the same pair of writes PerfilViewModel.toggleSustancia()
+     * Saves to both Room and Firestore — the same pair of writes ProfileViewModel.toggleSubstance()
      * already does, so Mi Perfil sees the data immediately. Unlike that method (no try/catch, a
      * pre-existing gap out of scope for this work), this write IS guarded: a network failure here
      * shouldn't block the user on the wizard's first step — they can fix substances later in Mi

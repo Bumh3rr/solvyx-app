@@ -1,12 +1,9 @@
 package com.solvyx.ui.screens.journey
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,64 +13,41 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.solvyx.ui.components.common.SolvyxTopBar
 import com.solvyx.ui.components.common.SolvyxMenuButton
-import com.solvyx.ui.components.haze.LocalHazeState
-import dev.chrisbanes.haze.haze
-import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxSegmentedControl
 import com.solvyx.ui.components.common.SolvyxSegmentedDefaults
+import com.solvyx.ui.components.common.SolvyxTopBar
+import com.solvyx.ui.components.haze.LocalHazeState
 import com.solvyx.ui.screens.journey.components.AccountRequiredState
 import com.solvyx.ui.screens.journey.components.DayDetailSheet
 import com.solvyx.ui.screens.journey.tabs.AchievementsTab
 import com.solvyx.ui.screens.journey.tabs.ProgressTab
-import com.solvyx.ui.screens.journey.tabs.CheckInWizard
+import dev.chrisbanes.haze.haze
 
+/**
+ * "Mi camino": Progreso + Logros. Logging the day opens the check-in as its own full-screen
+ * route ([onOpenCheckIn], `true` to edit today's entry) instead of living inside this tab.
+ */
 @Composable
 fun JourneyScreen(
     onOpenDrawer: () -> Unit,
-    onCreateAccount: () -> Unit
+    onCreateAccount: () -> Unit,
+    onOpenCheckIn: (edit: Boolean) -> Unit
 ) {
     val journeyVM: JourneyViewModel = hiltViewModel()
-    val checkInVM: CheckInViewModel = hiltViewModel()
 
-    var showingWizard by rememberSaveable { mutableStateOf(false) }
-    fun closeWizard() { checkInVM.reset(); showingWizard = false }
-
-    BackHandler(enabled = showingWizard) { closeWizard() }
-
-    AnimatedContent(
-        targetState = showingWizard,
-        transitionSpec = {
-            if (targetState) {
-                (slideInHorizontally(tween(320)) { it } + fadeIn(tween(320))) togetherWith
-                    fadeOut(tween(200))
-            } else {
-                fadeIn(tween(320)) togetherWith
-                    (slideOutHorizontally(tween(320)) { it } + fadeOut(tween(200)))
-            }
-        },
-        label = "journey_wizard"
-    ) { wizard ->
-        if (wizard) {
-            WizardScreen(viewModel = checkInVM, onClose = { closeWizard() }, onFinish = { showingWizard = false })
-        } else {
-            TabsScreen(
-                journeyVM = journeyVM,
-                checkInVM = checkInVM,
-                onOpenDrawer = onOpenDrawer,
-                onCreateAccount = onCreateAccount,
-                onRegister = { checkInVM.reset(); showingWizard = true },
-                onEdit = { checkInVM.loadToday(); showingWizard = true }
-            )
-        }
-    }
+    TabsScreen(
+        journeyVM = journeyVM,
+        onOpenDrawer = onOpenDrawer,
+        onCreateAccount = onCreateAccount,
+        onRegister = { onOpenCheckIn(false) },
+        onEdit = { onOpenCheckIn(true) }
+    )
 
     journeyVM.selectedDay?.let { entry ->
         DayDetailSheet(entry = entry, onDismiss = { journeyVM.dismissDayDetail() })
@@ -81,32 +55,8 @@ fun JourneyScreen(
 }
 
 @Composable
-private fun WizardScreen(
-    viewModel: CheckInViewModel,
-    onClose: () -> Unit,
-    onFinish: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        SolvyxTopBar(
-            title = "Registrar mi día",
-            navigationButton = { SolvyxBackButton(onClick = onClose) }
-        )
-        CheckInWizard(
-            viewModel = viewModel,
-            onFinish = onFinish,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
 private fun TabsScreen(
     journeyVM: JourneyViewModel,
-    checkInVM: CheckInViewModel,
     onOpenDrawer: () -> Unit,
     onCreateAccount: () -> Unit,
     onRegister: () -> Unit,

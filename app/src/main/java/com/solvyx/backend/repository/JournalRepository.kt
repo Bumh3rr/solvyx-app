@@ -2,6 +2,7 @@ package com.solvyx.backend.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.solvyx.backend.common.streak.StreakCalculator
+import com.solvyx.backend.common.streak.StreakStats
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.data.remote.datasource.JournalRemoteDataSource
 import com.solvyx.backend.data.remote.datasource.UserRemoteDataSource
@@ -34,17 +35,22 @@ class JournalRepository @Inject constructor(
 
     suspend fun hasRegisteredToday(): Boolean = getToday()?.isRegistered == true
 
-    /** Escribe el registro y recalcula/persiste la racha del usuario. No-op para anónimos. */
-    suspend fun save(entry: JournalEntry) {
-        val user = firebaseAuth.currentUser ?: return
-        if (user.isAnonymous) return
+    /**
+     * Escribe el registro y recalcula/persiste la racha del usuario. Devuelve la racha recalculada,
+     * o null si no se pudo calcular (el registro igual queda). No-op (null) para anónimos.
+     */
+    suspend fun save(entry: JournalEntry): StreakStats? {
+        val user = firebaseAuth.currentUser ?: return null
+        if (user.isAnonymous) return null
         remoteDataSource.saveEntry(user.uid, entry)
-        try {
+        return try {
             val all = remoteDataSource.observeAll(user.uid).first()
-            val stats = streakCalculator.compute(all, LocalDate.now())
-            userRemoteDataSource.updateStreak(user.uid, stats.current, stats.best)
+            streakCalculator.compute(all, LocalDate.now()).also { stats ->
+                userRemoteDataSource.updateStreak(user.uid, stats.current, stats.best)
+            }
         } catch (e: Exception) {
             // best-effort: el registro ya quedó; la racha se recalcula en el próximo save/lectura.
+            null
         }
     }
 }
