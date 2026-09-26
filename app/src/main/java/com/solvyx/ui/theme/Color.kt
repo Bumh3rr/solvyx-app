@@ -20,12 +20,10 @@ val BertoVisorCalm    = Color(0xFFE1F5EE)  // Tranquilo
 val BertoVisorCelebr  = Color(0xFFd4f7e0)  // Celebrando
 val BertoVisorWorried = Color(0xFFfef9c3)  // Preocupado
 val BertoVisorCrisis  = Color(0xFFfde8e8)  // Crisis
-val BertoBodyCrisis   = Color(0xFFB4B2A9)  // Cuerpo gris en crisis
 
 // ── Neutros ─────────────────────────────────────────
 val White             = Color(0xFFFFFFFF)
 val TextMuted         = Color(0xFF888780)
-val CardBorder        = Color(0xFFD1FAE5)
 
 // ── Advertencia (ansiedad, preocupacion) ─────────────
 val WarnAmber         = Color(0xFFfef9c3)

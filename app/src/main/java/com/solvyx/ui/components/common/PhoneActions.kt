@@ -23,6 +23,13 @@ fun formatMexicanPhone(digits: String): String {
     }
 }
 
+/**
+ * The 10-digit national number from however a phone was stored ("+52 1 747 123 4567",
+ * "(747) 123-4567"…): keeps the digits and, if there are more than 10, the last 10 — the country
+ * code and old mobile "1" prefix come first, never last.
+ */
+fun normalizeMexicanPhone(raw: String): String = raw.filter(Char::isDigit).takeLast(MexicanPhoneLength)
+
 /** Opens the dialer pre-filled with [number]; the user still confirms the call themselves. */
 fun Context.openDialer(number: String) {
     startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$number")))

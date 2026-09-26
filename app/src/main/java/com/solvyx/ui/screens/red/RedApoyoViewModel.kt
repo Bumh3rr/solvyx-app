@@ -12,6 +12,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/** Business rule: at most 3 SOS contacts; the first one is required. */
+const val MAX_CONTACTS = 3
+
 @HiltViewModel
 class RedApoyoViewModel @Inject constructor(
     private val repository: SosContactRepository
@@ -34,20 +37,27 @@ class RedApoyoViewModel @Inject constructor(
         }
     }
 
-    fun phoneValido(telefono: String): Boolean =
-        Validadores.esTelefonoValido(telefono)
-
+    /**
+     * The first contact is required; optional ones may be left completely empty (they're dropped
+     * on save), but a half-filled one blocks saving — SOS would otherwise text an invalid number.
+     */
     fun canSave(): Boolean {
-        val c0 = contactos.firstOrNull() ?: return false
-        return Validadores.esNombreValido(c0.name) && phoneValido(c0.phone)
+        val primary = contactos.firstOrNull() ?: return false
+        return isComplete(primary) && contactos.drop(1).all { isEmpty(it) || isComplete(it) }
     }
+
+    private fun isComplete(contact: SosContactEntity): Boolean =
+        Validadores.esNombreValido(contact.name) && Validadores.esTelefonoValido(contact.phone)
+
+    private fun isEmpty(contact: SosContactEntity): Boolean =
+        contact.name.isBlank() && contact.phone.isBlank()
 
     fun setContacto(index: Int, contacto: SosContactEntity) {
         contactos = contactos.toMutableList().also { it[index] = contacto }
     }
 
     fun addContacto() {
-        if (contactos.size >= 3) return
+        if (contactos.size >= MAX_CONTACTS) return
         contactos = contactos + SosContactEntity()
     }
 
@@ -61,7 +71,7 @@ class RedApoyoViewModel @Inject constructor(
         viewModelScope.launch {
             isSaving = true
             try {
-                repository.saveAll(contactos)
+                repository.saveAll(contactos.filterIndexed { index, contact -> index == 0 || !isEmpty(contact) })
                 savedSuccessfully = true
             } finally {
                 // Sin el finally, una excepción en saveAll() dejaba isSaving en true para

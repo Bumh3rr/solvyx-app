@@ -27,7 +27,3 @@ fun NavigationItem.isRutina(): Boolean = this in listOf(NavigationItem.Inicio)
 
 fun NavigationItem.isHerramientas(): Boolean =
     this in listOf(NavigationItem.Berto, NavigationItem.GuiasPrimerosAuxilios, NavigationItem.Directorio)
-
-// Kept for compatibility with NavigationItemView
-fun NavigationItem.isPrimary(): Boolean = isRutina()
-fun NavigationItem.isSecondary(): Boolean = isHerramientas()

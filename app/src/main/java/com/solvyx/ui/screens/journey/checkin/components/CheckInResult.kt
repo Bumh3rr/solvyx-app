@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.ui.components.common.AnimatedCountText
+import com.solvyx.ui.components.common.ConfettiBurst
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
 import com.solvyx.ui.components.common.diasLabel

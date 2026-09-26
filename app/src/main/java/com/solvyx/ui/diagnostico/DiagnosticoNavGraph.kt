@@ -54,7 +54,8 @@ fun DiagnosticoNavGraph(
                         popUpTo("questions") { inclusive = true }
                     }
                 },
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                showTopBar = !isOnboarding
             )
         }
 
@@ -72,14 +73,10 @@ fun DiagnosticoNavGraph(
                 },
                 onFinish = onFinishAssist,
                 onNavigateToChat = onNavigateToChat,
-                onNavigateToBitacora = onNavigateToJourney,
-                onNavigateToAvances = onNavigateToJourney,
+                onNavigateToJourney = onNavigateToJourney,
                 onNavigateToDirectorio = onNavigateToDirectorio,
-                // Berto ya tiene árboles de craving/información por sustancia; no existen pantallas
-                // dedicadas separadas, así que Chat es el destino real correcto para ambas.
-                onNavigateToManejoCraving = onNavigateToChat,
-                onNavigateToInfoSustancia = onNavigateToChat,
-                onNavigateToRedApoyo = onNavigateToRedApoyo
+                onNavigateToRedApoyo = onNavigateToRedApoyo,
+                showTopBar = !isOnboarding
             )
         }
 

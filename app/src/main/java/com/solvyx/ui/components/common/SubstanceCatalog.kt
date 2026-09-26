@@ -18,3 +18,6 @@ val TrackedSubstances: List<SubstanceOption> = listOf(
 )
 
 fun substanceLabel(id: String): String = TrackedSubstances.firstOrNull { it.id == id }?.label ?: id
+
+@DrawableRes
+fun substanceIcon(id: String): Int = TrackedSubstances.firstOrNull { it.id == id }?.icon ?: R.drawable.ic_bottle

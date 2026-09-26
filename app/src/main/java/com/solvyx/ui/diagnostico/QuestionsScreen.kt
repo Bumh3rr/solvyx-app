@@ -12,7 +12,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +34,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -46,7 +46,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -54,22 +53,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
+import com.solvyx.ui.components.berto.BertoSpeechRow
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
+import com.solvyx.ui.components.common.substanceIcon
+import com.solvyx.ui.components.common.substanceLabel
+
+private val BertoStripSize = 64.dp
+private const val SelectedOptionAlpha = 0.1f
 
 @Composable
 fun QuestionsScreen(
     viewModel: DiagnosticoViewModel,
     onAllCompleted: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showTopBar: Boolean = true
 ) {
     val preguntas by viewModel.preguntas.collectAsState()
     // rememberSaveable: sin esto, rotar la pantalla (el ViewModel sobrevive, pero este estado no)
@@ -105,44 +111,44 @@ fun QuestionsScreen(
         label = "globalProgress"
     )
 
-    val nombreSustanciaActual = when (viewModel.sustanciaActual) {
-        "cigarro" -> "Tabaco"
-        else -> viewModel.sustanciaActual.replaceFirstChar { it.uppercase() }
-    }
+    val nombreSustanciaActual = substanceLabel(viewModel.sustanciaActual)
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
-        // ── TOP BAR ───────────────────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SolvyxBackButton(onClick = onBack)
-            Text(
-                text = "Diagnóstico ASSIST",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "$nombreSustanciaActual ${viewModel.sustanciaActualIndex + 1}/${viewModel.totalSustancias}",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.80f)
+        // Inside the setup wizard the shared step header replaces this bar and the global progress.
+        if (showTopBar) {
+            // ── TOP BAR ───────────────────────────────────────
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SolvyxBackButton(onClick = onBack)
+                Text(
+                    text = "Diagnóstico ASSIST",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "$nombreSustanciaActual ${viewModel.sustanciaActualIndex + 1}/${viewModel.totalSustancias}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.80f)
+                )
+            }
+
+            // ── PROGRESS BAR GLOBAL ───────────────────────────
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier.fillMaxWidth().height(3.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
             )
         }
-
-        // ── PROGRESS BAR GLOBAL ───────────────────────────
-        LinearProgressIndicator(
-            progress = { animatedProgress },
-            modifier = Modifier.fillMaxWidth().height(3.dp),
-            color = MaterialTheme.colorScheme.primaryContainer,
-            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-        )
 
         // ── CONTENIDO ─────────────────────────────────────
         if (preguntaActual != null) {
@@ -155,31 +161,17 @@ fun QuestionsScreen(
             ) {
                 Spacer(Modifier.height(16.dp))
 
-                // Berto strip
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                BertoSpeechRow(
+                    message = "No hay respuestas malas",
+                    supporting = "Contesta con honestidad; nadie más ve tus respuestas.",
+                    bertoSize = BertoStripSize
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.berto_preocupado),
-                        contentDescription = null,
-                        modifier = Modifier.size(56.dp),
-                        contentScale = ContentScale.Fit
+                    BertoPoseAnimation(
+                        pose = BertoPose.CENTER_IDLE,
+                        riveFileRes = R.raw.berto_poses,
+                        modifier = Modifier.fillMaxSize(),
+                        fallback = R.drawable.berto_tranquilo
                     )
-                    Spacer(Modifier.width(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = "No hay respuestas malas, solo sé honesto/a",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
                 }
 
                 HorizontalDivider(
@@ -196,14 +188,19 @@ fun QuestionsScreen(
                         .padding(horizontal = 20.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = iconParaSustancia(viewModel.sustanciaActual),
+                    Icon(
+                        painter = painterResource(substanceIcon(viewModel.sustanciaActual)),
                         contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = nombreSustanciaActual,
+                        text = if (viewModel.totalSustancias > 1) {
+                            "$nombreSustanciaActual · ${viewModel.sustanciaActualIndex + 1} de ${viewModel.totalSustancias}"
+                        } else {
+                            nombreSustanciaActual
+                        },
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
@@ -315,7 +312,7 @@ fun QuestionsScreen(
                                             .fillMaxWidth()
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(
-                                                if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = SelectedOptionAlpha)
                                                 else Color.Transparent
                                             )
                                             .clickable {
@@ -370,8 +367,8 @@ fun QuestionsScreen(
 
         // ── NAVIGATION BAR ────────────────────────────────
         val textoBoton = when {
-            !esUltimaPregunta -> "Siguiente →"
-            !viewModel.esUltimaSustancia -> "Siguiente →"
+            !esUltimaPregunta -> "Siguiente"
+            !viewModel.esUltimaSustancia -> "Siguiente sustancia"
             else -> "Finalizar"
         }
 
@@ -389,7 +386,7 @@ fun QuestionsScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SolvyxOutlinedButton(
-                    text = "← Anterior",
+                    text = "Anterior",
                     onClick = { if (currentIndex > 0) currentIndex-- },
                     modifier = Modifier.weight(1f),
                     enabled = currentIndex > 0
@@ -418,15 +415,3 @@ fun QuestionsScreen(
         }
     }
 }
-
-@Composable
-private fun iconParaSustancia(sustancia: String): Painter =
-    painterResource(
-        when (sustancia) {
-            "alcohol" -> R.drawable.ic_bottle
-            "cristal" -> R.drawable.ic_gem
-            "vape"    -> R.drawable.ic_vape
-            "cigarro" -> R.drawable.ic_cigarette
-            else      -> R.drawable.ic_bottle
-        }
-    )

@@ -17,7 +17,7 @@ import com.solvyx.backend.repository.SosContactRepository
 import com.solvyx.backend.repository.UserRepository
 import com.solvyx.backend.validation.Validadores
 import com.solvyx.ui.components.common.substanceLabel
-import com.solvyx.ui.screens.profile.model.AssistRiskLevel
+import com.solvyx.ui.components.common.AssistRiskLevel
 import com.solvyx.ui.screens.profile.model.AssistSummary
 import com.solvyx.ui.screens.profile.model.SafetyItem
 import dagger.hilt.android.lifecycle.HiltViewModel

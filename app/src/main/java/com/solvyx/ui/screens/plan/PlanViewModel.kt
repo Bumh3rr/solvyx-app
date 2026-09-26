@@ -31,8 +31,6 @@ class PlanViewModel @Inject constructor(
         "Reduce la dosis a la mitad respecto a la última vez."
     )
 
-    val metaActual get() = metasList[metaIndex]
-
     init {
         viewModelScope.launch {
             repository.observe().collect { plan -> if (plan != null) metaIndex = plan.goalIndex }

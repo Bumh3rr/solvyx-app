@@ -36,7 +36,7 @@ import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxCard
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
-import com.solvyx.ui.screens.profile.model.AssistRiskLevel
+import com.solvyx.ui.components.common.AssistRiskLevel
 import com.solvyx.ui.screens.profile.model.AssistSummary
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight

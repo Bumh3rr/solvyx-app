@@ -1,7 +1,6 @@
 package com.solvyx.ui.diagnostico
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,9 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,10 +40,18 @@ import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.backend.models.NivelRiesgo
 import com.solvyx.backend.models.ResultadoDiagnostico
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
+import com.solvyx.ui.components.berto.BertoSpeechRow
+import com.solvyx.ui.components.common.AssistRiskLevel
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
+import com.solvyx.ui.components.common.substanceIcon
+import com.solvyx.ui.components.common.substanceLabel
 import com.solvyx.ui.theme.TealDark
-import com.solvyx.ui.theme.TealLightest
+import com.solvyx.ui.theme.TealLight
+
+private const val ActionIconAlpha = 0.45f
 
 @Composable
 fun ResultScreen(
@@ -57,12 +61,10 @@ fun ResultScreen(
     onFinish: () -> Unit,
     isOnboarding: Boolean = false,
     onNavigateToChat: () -> Unit = {},
-    onNavigateToBitacora: () -> Unit = {},
-    onNavigateToAvances: () -> Unit = {},
-    onNavigateToManejoCraving: () -> Unit = {},
-    onNavigateToInfoSustancia: () -> Unit = {},
+    onNavigateToJourney: () -> Unit = {},
     onNavigateToDirectorio: () -> Unit = {},
-    onNavigateToRedApoyo: () -> Unit = {}
+    onNavigateToRedApoyo: () -> Unit = {},
+    showTopBar: Boolean = true
 ) {
     val resultados by viewModel.resultados.collectAsState()
 
@@ -74,67 +76,24 @@ fun ResultScreen(
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
-        // ── TOP BAR ───────────────────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Tu diagnóstico ASSIST",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center
-            )
-        }
-
-        // ── BERTO + MENSAJE ───────────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val bertoDrawable = when (peorNivel) {
-                NivelRiesgo.BAJO -> R.drawable.berto_saludando
-                else             -> R.drawable.berto_preocupado
-            }
-            Image(
-                painter = painterResource(bertoDrawable),
-                contentDescription = null,
-                modifier = Modifier.size(56.dp),
-                contentScale = ContentScale.Fit
-            )
-            Spacer(Modifier.width(12.dp))
-            Box(
+        if (showTopBar) {
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceDim)
-                    .padding(12.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                val mensaje = when (peorNivel) {
-                    NivelRiesgo.BAJO     -> "Estos son tus resultados. Recuerda que siempre puedes hablar conmigo."
-                    NivelRiesgo.MODERADO -> "Gracias por tu honestidad. Hay recursos que pueden ayudarte."
-                    NivelRiesgo.ALTO     -> "Eres valiente por hacer esto. Te recomiendo buscar apoyo profesional."
-                }
                 Text(
-                    text = mensaje,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = "Tu diagnóstico ASSIST",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    textAlign = TextAlign.Center
                 )
             }
         }
-
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.outlineVariant,
-            thickness = 0.5.dp
-        )
 
         // ── LISTA DE RESULTADOS ───────────────────────────
         LazyColumn(
@@ -142,6 +101,19 @@ fun ResultScreen(
             contentPadding = PaddingValues(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item {
+                BertoSpeechRow(
+                    message = resultMessage(peorNivel),
+                    supporting = "Tu resultado es orientativo, no un diagnóstico médico."
+                ) {
+                    BertoPoseAnimation(
+                        pose = if (peorNivel == NivelRiesgo.BAJO) BertoPose.CENTER_IDLE_HELLO else BertoPose.CENTER_IDLE,
+                        riveFileRes = R.raw.berto_poses,
+                        modifier = Modifier.fillMaxSize(),
+                        fallback = R.drawable.berto_tranquilo
+                    )
+                }
+            }
             items(resultados) { resultado ->
                 ResultadoCard(resultado)
             }
@@ -150,10 +122,7 @@ fun ResultScreen(
                     AccionesSugeridas(
                         nivel = peorNivel,
                         onNavigateToChat = onNavigateToChat,
-                        onNavigateToBitacora = onNavigateToBitacora,
-                        onNavigateToAvances = onNavigateToAvances,
-                        onNavigateToManejoCraving = onNavigateToManejoCraving,
-                        onNavigateToInfoSustancia = onNavigateToInfoSustancia,
+                        onNavigateToJourney = onNavigateToJourney,
                         onNavigateToDirectorio = onNavigateToDirectorio,
                         onNavigateToRedApoyo = onNavigateToRedApoyo
                     )
@@ -173,24 +142,27 @@ fun ResultScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             SolvyxButton(
-                text = if (isOnboarding) "Continuar →" else "Continuar",
+                text = "Continuar",
                 onClick = onFinish,
                 modifier = Modifier.fillMaxWidth()
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                SolvyxOutlinedButton(
-                    text = "Evaluar de nuevo",
-                    onClick = onReiniciar,
-                    modifier = Modifier.weight(1f)
-                )
-                SolvyxOutlinedButton(
-                    text = "Ver historial",
-                    onClick = onVerHistorial,
-                    modifier = Modifier.weight(1f)
-                )
+            // During setup these would pull the user out of the wizard (and history has one entry).
+            if (!isOnboarding) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    SolvyxOutlinedButton(
+                        text = "Evaluar de nuevo",
+                        onClick = onReiniciar,
+                        modifier = Modifier.weight(1f)
+                    )
+                    SolvyxOutlinedButton(
+                        text = "Ver historial",
+                        onClick = onVerHistorial,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
@@ -198,20 +170,10 @@ fun ResultScreen(
 
 @Composable
 private fun ResultadoCard(resultado: ResultadoDiagnostico) {
-    val nombreSustancia = when (resultado.sustanciaId) {
-        "cigarro" -> "Tabaco"
-        else      -> resultado.sustanciaId.replaceFirstChar { it.uppercase() }
-    }
-    val nivelColor = when (resultado.nivel) {
-        NivelRiesgo.BAJO     -> MaterialTheme.colorScheme.primary
-        NivelRiesgo.MODERADO -> Color(0xFFd97706)
-        NivelRiesgo.ALTO     -> Color(0xFFE24B4A)
-    }
-    val nivelBg = when (resultado.nivel) {
-        NivelRiesgo.BAJO     -> MaterialTheme.colorScheme.primaryContainer
-        NivelRiesgo.MODERADO -> Color(0xFFfef9c3)
-        NivelRiesgo.ALTO     -> Color(0xFFfde8e8)
-    }
+    val nombreSustancia = substanceLabel(resultado.sustanciaId)
+    val risk = AssistRiskLevel.from(resultado.nivel)
+    val nivelColor = risk.accent
+    val nivelBg = risk.container
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -233,7 +195,7 @@ private fun ResultadoCard(resultado: ResultadoDiagnostico) {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = iconParaSustancia(resultado.sustanciaId),
+                        painter = painterResource(substanceIcon(resultado.sustanciaId)),
                         contentDescription = null,
                         tint = nivelColor,
                         modifier = Modifier.size(20.dp)
@@ -254,7 +216,7 @@ private fun ResultadoCard(resultado: ResultadoDiagnostico) {
                         .padding(horizontal = 12.dp, vertical = 5.dp)
                 ) {
                     Text(
-                        text = resultado.nivel.name,
+                        text = "Riesgo ${risk.label.lowercase()}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                         color = nivelColor
                     )
@@ -299,29 +261,28 @@ private fun ResultadoCard(resultado: ResultadoDiagnostico) {
 private fun AccionesSugeridas(
     nivel: NivelRiesgo,
     onNavigateToChat: () -> Unit,
-    onNavigateToBitacora: () -> Unit,
-    onNavigateToAvances: () -> Unit,
-    onNavigateToManejoCraving: () -> Unit,
-    onNavigateToInfoSustancia: () -> Unit,
+    onNavigateToJourney: () -> Unit,
     onNavigateToDirectorio: () -> Unit,
     onNavigateToRedApoyo: () -> Unit
 ) {
     data class AccionItem(val icon: Int, val title: String, val description: String, val onClick: () -> Unit)
 
+    // Berto already has per-substance craving and info trees; there are no dedicated screens for
+    // them, so Chat is the real destination for both.
     val acciones: List<AccionItem> = when (nivel) {
         NivelRiesgo.BAJO -> listOf(
-            AccionItem(R.drawable.ic_trending_up, "Registra tu estado cada día",
-                "La bitácora te ayuda a ver tus patrones", onNavigateToBitacora),
+            AccionItem(R.drawable.ic_trending_up, "Registra tu día",
+                "En Mi camino verás tus patrones", onNavigateToJourney),
             AccionItem(R.drawable.ic_chat, "Conoce a Berto",
                 "Siempre disponible para escucharte", onNavigateToChat),
             AccionItem(R.drawable.ic_trophy, "Conoce tus avances",
-                "Mira cuánto has progresado", onNavigateToAvances)
+                "Mira cuánto has progresado", onNavigateToJourney)
         )
         NivelRiesgo.MODERADO -> listOf(
             AccionItem(R.drawable.ic_brain, "Aprende a manejar el craving",
-                "Técnicas para el momento difícil", onNavigateToManejoCraving),
+                "Técnicas para el momento difícil", onNavigateToChat),
             AccionItem(R.drawable.ic_info, "Conoce las sustancias",
-                "Información para reducir daños", onNavigateToInfoSustancia),
+                "Información para reducir daños", onNavigateToChat),
             AccionItem(R.drawable.ic_chat, "Habla con Berto cuando lo necesites",
                 "Siempre disponible para escucharte", onNavigateToChat)
         )
@@ -361,7 +322,7 @@ private fun AccionesSugeridas(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(TealLightest),
+                        .background(TealLight.copy(alpha = ActionIconAlpha)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -401,14 +362,8 @@ private fun AccionesSugeridas(
     }
 }
 
-@Composable
-private fun iconParaSustancia(sustancia: String): Painter =
-    painterResource(
-        when (sustancia) {
-            "alcohol" -> R.drawable.ic_bottle
-            "cristal" -> R.drawable.ic_gem
-            "vape"    -> R.drawable.ic_vape
-            "cigarro" -> R.drawable.ic_cigarette
-            else      -> R.drawable.ic_bottle
-        }
-    )
+private fun resultMessage(level: NivelRiesgo): String = when (level) {
+    NivelRiesgo.BAJO -> "Estos son tus resultados. Recuerda que siempre puedes hablar conmigo."
+    NivelRiesgo.MODERADO -> "Gracias por tu honestidad. Hay recursos que pueden ayudarte."
+    NivelRiesgo.ALTO -> "Eres valiente por hacer esto. Te recomiendo buscar apoyo profesional."
+}

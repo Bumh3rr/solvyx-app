@@ -1,4 +1,4 @@
-package com.solvyx.ui.screens.journey.checkin.components
+package com.solvyx.ui.components.common
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -36,8 +36,9 @@ private data class Piece(
 )
 
 /**
- * One-shot confetti from the top center, for a clean day. Pieces fly out, fall with gravity and
- * fade; purely decorative and seeded, so it looks the same on every run.
+ * One-shot confetti from the top center, for moments worth celebrating (clean day, setup done).
+ * Pieces fly out, fall with gravity and fade; purely decorative and seeded, so it looks the same
+ * on every run.
  */
 @Composable
 fun ConfettiBurst(modifier: Modifier = Modifier) {

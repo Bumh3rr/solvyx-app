@@ -354,15 +354,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun mapNodeTypeToBertoState(type: NodeType): BertoState {
-        return when (type.name.uppercase()) {
-            "CRISIS" -> BertoState.CRISIS
-            "CRAVING" -> BertoState.PREOCUPADO
-            "SUCCESS", "CELEBRACION" -> BertoState.CELEBRANDO
-            else -> BertoState.TRANQUILO
-        }
-    }
-
     private fun addBertoMessage(content: String, quickReplies: List<String> = emptyList(), state: BertoState) {
         messages = messages + ChatMessage(
             content = content,

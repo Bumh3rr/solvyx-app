@@ -1,8 +1,6 @@
 package com.solvyx.ui.diagnostico
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.plus
 
 @HiltViewModel
 class DiagnosticoViewModel @Inject constructor(
@@ -53,9 +50,6 @@ class DiagnosticoViewModel @Inject constructor(
             savedStateHandle[KEY_INDEX] = value
         }
 
-    var answersMap by mutableStateOf<Map<String, List<Int>>>(emptyMap())
-        private set
-
     private val _resultados = MutableStateFlow<List<ResultadoDiagnostico>>(emptyList())
     val resultados: StateFlow<List<ResultadoDiagnostico>> = _resultados.asStateFlow()
 
@@ -83,14 +77,12 @@ class DiagnosticoViewModel @Inject constructor(
 
     fun iniciarCuestionario() {
         sustanciaActualIndex = 0
-        answersMap = emptyMap()
         _resultados.value = emptyList()
         cargarPreguntas(sustanciaActual)
     }
 
     fun guardarYAvanzar(answers: List<Int>): Boolean {
         val sustanciaGuardada = sustanciaActual
-        answersMap = answersMap + (sustanciaGuardada to answers)
         viewModelScope.launch {
             val resultado = repository.evaluate(sustanciaGuardada, answers)
             _resultados.value = _resultados.value + resultado
