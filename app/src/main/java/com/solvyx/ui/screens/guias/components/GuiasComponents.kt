@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.solvyx.R
+import com.solvyx.ui.components.common.SolvyxMenuButton
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.theme.SolvyxappTheme
 import com.solvyx.ui.theme.TealDark
@@ -86,21 +87,7 @@ fun GuiaTopBar(
         horizontalArrangement = Arrangement.Center
     ) {
         if (isMenuButton) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .clickable { onBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_menu),
-                    contentDescription = "Menú",
-                    tint = Color.White,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
+            SolvyxMenuButton(onClick = onBack)
         } else {
             SolvyxBackButton(onClick = onBack)
         }

@@ -32,7 +32,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -64,6 +63,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
 import com.solvyx.R
+import com.solvyx.ui.components.common.SolvyxMenuButton
+import com.solvyx.ui.components.common.SolvyxTopBarButton
 import com.solvyx.backend.validation.Validadores
 import com.solvyx.ui.components.berto.BertoPose
 import com.solvyx.ui.components.berto.BertoPoseAnimation
@@ -121,14 +122,7 @@ fun MiPerfilScreen(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onOpenDrawer) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_menu),
-                    contentDescription = "Menú",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            SolvyxMenuButton(onClick = onOpenDrawer)
             Text(
                 text = "Mi Perfil",
                 modifier = Modifier.weight(1f),
@@ -136,14 +130,11 @@ fun MiPerfilScreen(
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
-            IconButton(onClick = { viewModel.abrirEditarPerfil() }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_pencil),
-                    contentDescription = "Editar perfil",
-                    tint = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            SolvyxTopBarButton(
+                iconRes = R.drawable.ic_pencil,
+                contentDescription = "Editar perfil",
+                onClick = { viewModel.abrirEditarPerfil() }
+            )
         }
 
         Column(

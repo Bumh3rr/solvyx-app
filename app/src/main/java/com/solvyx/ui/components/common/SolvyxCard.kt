@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
 
 /**
@@ -17,7 +18,8 @@ import androidx.compose.ui.unit.dp
  * Centraliza el look en un solo lugar (esquinas 20dp, fondo `surfaceDim` por defecto, elevación 1dp
  * y borde `outline` al 25%) para que todas las vistas se vean iguales y un cambio de estilo se haga
  * una vez. [containerColor] existe solo para los casos donde el fondo mismo comunica un estado real
- * (p. ej. logro bloqueado/desbloqueado) — la forma y el borde nunca varían.
+ * (p. ej. logro bloqueado/desbloqueado) — la forma y el borde nunca varían. Si llega con alpha se
+ * aplana sobre `surface`, porque un Card elevado translúcido deja ver su sombra por dentro.
  *
  * Si se pasa [onClick] la tarjeta es interactiva —con el ripple recortado a su forma, sin el
  * `.clip()` extra que rompía la sombra en las esquinas—; si no, es puramente contenedora.
@@ -30,8 +32,11 @@ fun SolvyxCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(20.dp)
+    // Always opaque: an elevated Card with a translucent container shows its own shadow through
+    // the fill (grey frame + a lighter inner block). Tints are flattened over the screen surface.
     val colors = CardDefaults.cardColors(
-        containerColor = containerColor ?: MaterialTheme.colorScheme.surfaceDim
+        containerColor = containerColor?.compositeOver(MaterialTheme.colorScheme.surface)
+            ?: MaterialTheme.colorScheme.surfaceDim
     )
     val elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))

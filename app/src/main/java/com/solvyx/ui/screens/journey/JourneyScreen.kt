@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,12 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
+import com.solvyx.ui.components.common.SolvyxTopBarButtonSize
+import com.solvyx.ui.components.common.SolvyxMenuButton
 import com.solvyx.ui.components.haze.LocalHazeState
 import dev.chrisbanes.haze.haze
 import com.solvyx.ui.components.common.SolvyxBackButton
@@ -108,7 +107,7 @@ private fun WizardScreen(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary)
                 .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             SolvyxBackButton(onClick = onClose)
@@ -119,7 +118,7 @@ private fun WizardScreen(
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.size(44.dp))
+            Spacer(Modifier.size(SolvyxTopBarButtonSize))
         }
         CheckInWizard(
             viewModel = viewModel,
@@ -149,17 +148,10 @@ private fun TabsScreen(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary)
                 .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onOpenDrawer) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_menu),
-                    contentDescription = "Menú",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            SolvyxMenuButton(onClick = onOpenDrawer)
             Text(
                 text = "Mi camino",
                 modifier = Modifier.weight(1f),
@@ -167,7 +159,7 @@ private fun TabsScreen(
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.size(48.dp))
+            Spacer(Modifier.size(SolvyxTopBarButtonSize))
         }
 
         if (journeyVM.isAnonymous) {
