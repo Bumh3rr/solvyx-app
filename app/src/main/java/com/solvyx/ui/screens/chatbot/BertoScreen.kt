@@ -86,6 +86,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -94,6 +95,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
+import com.solvyx.backend.data.remote.chat.ChatRemoteRepository
 import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
@@ -107,6 +109,12 @@ import com.solvyx.ui.theme.TealLightest
 import com.solvyx.ui.theme.TealPrimary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private val OnlineGreen = Color(0xFF4CAF50)
+private val OfflineOrange = Color(0xFFFF8F00)
+private const val DISABLED_ALPHA = 0.45f
+private const val CONTADOR_VISIBLE_DESDE = 500
+private const val CONTADOR_ROJO_FALTANDO = 20
 
 @Composable
 fun BertoScreen(
@@ -173,6 +181,7 @@ fun BertoScreen(
 
         ChatTopBar(
             bertoState        = viewModel.currentBertoState,
+            chatMode          = viewModel.chatMode,
             isTtsMuted        = viewModel.isTtsMuted,
             isSpeaking        = viewModel.isSpeaking,
             onToggleMute      = { viewModel.toggleMute() },
@@ -198,8 +207,18 @@ fun BertoScreen(
         ) {
             BertoPeekZone(
                 bertoState = viewModel.currentBertoState,
-                isTyping = viewModel.isBertoTyping
+                isTyping = viewModel.isBertoTyping,
+                isThinkingLong = viewModel.isApiSlow
             )
+        }
+
+        // No bloquea nada: se puede escribir o usar el SOS sin cerrarlo.
+        AnimatedVisibility(
+            visible = viewModel.mostrarAvisoPrivacidad,
+            enter = expandVertically(tween(300)) + fadeIn(tween(300)),
+            exit = shrinkVertically(tween(250)) + fadeOut(tween(200))
+        ) {
+            AvisoPrivacidadCard(onDismiss = { viewModel.cerrarAvisoPrivacidad() })
         }
 
         LazyColumn(
@@ -228,14 +247,20 @@ fun BertoScreen(
                         .alpha(alpha.value)
                         .offset(x = slide.value.dp)
                 ) {
-                    MessageBubble(message = message)
+                    val aviso = message.avisoSistema
+                    if (aviso != null) {
+                        AvisoSistemaRow(aviso = aviso, texto = message.content)
+                    } else {
+                        MessageBubble(message = message)
+                    }
                     val isLastBertoMsg = message.isFromBerto &&
                             message.quickReplies.isNotEmpty() &&
                             message == messages.lastOrNull { it.isFromBerto }
                     if (isLastBertoMsg) {
                         QuickRepliesRow(
                             replies = message.quickReplies,
-                            onReplySelected = { viewModel.sendMessage(it) }
+                            enabled = !viewModel.isWaitingForApi,
+                            onReplySelected = { viewModel.onQuickReplySelected(it) }
                         )
                     }
                 }
@@ -260,7 +285,8 @@ fun BertoScreen(
                     permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 }
             },
-            isSendEnabled = viewModel.inputText.isNotBlank()
+            isSendEnabled = viewModel.inputText.isNotBlank(),
+            isInputEnabled = !viewModel.isWaitingForApi
         )
     }
 }
@@ -276,6 +302,7 @@ private fun buildSpeechIntent() = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEEC
 @Composable
 private fun ChatTopBar(
     bertoState        : BertoState,
+    chatMode          : ChatMode,
     isTtsMuted        : Boolean,
     isSpeaking        : Boolean,
     onToggleMute      : () -> Unit,
@@ -343,24 +370,31 @@ private fun ChatTopBar(
                 label = "PulseAlpha"
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
+                // El punto indica siempre el modo; el texto solo lo dice en estado tranquilo,
+                // para no perder "Aquí para ti" / "Modo de apoyo activo".
+                val dotColor = if (chatMode == ChatMode.CONECTADO) OnlineGreen else OfflineOrange
                 Box(
                     Modifier
                         .size(7.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF4CAF50).copy(alpha = pulseAlpha))
+                        .background(dotColor.copy(alpha = pulseAlpha))
                 )
                 Spacer(Modifier.size(4.dp))
                 AnimatedContent(
-                    targetState = bertoState,
+                    targetState = bertoState to chatMode,
                     transitionSpec = {
                         (fadeIn(tween(300)) + slideInVertically { it / 2 }) togetherWith
                         (fadeOut(tween(200)) + slideOutVertically { -it / 2 })
                     },
                     label = "BertoStatus"
-                ) { state ->
+                ) { (state, mode) ->
                     Text(
                         text = when (state) {
-                            BertoState.TRANQUILO  -> "En línea · Privado"
+                            BertoState.TRANQUILO  -> when (mode) {
+                                ChatMode.CONECTADO    -> "Conectado"
+                                ChatMode.SIN_CONEXION -> "Modo guiado · Sin conexión"
+                                ChatMode.MODO_GUIADO  -> "Modo guiado"
+                            }
                             BertoState.PREOCUPADO -> "Aquí para ti"
                             BertoState.CELEBRANDO -> "¡Celebrando contigo!"
                             BertoState.CRISIS     -> "Modo de apoyo activo"
@@ -510,7 +544,7 @@ private fun ChatTopBar(
 
 // ── Berto peek mientras escribe ─────────────────────────
 @Composable
-private fun BertoPeekZone(bertoState: BertoState, isTyping: Boolean) {
+private fun BertoPeekZone(bertoState: BertoState, isTyping: Boolean, isThinkingLong: Boolean) {
     val bgColor = when (bertoState) {
         BertoState.CRISIS     -> BertoVisorCrisis
         BertoState.PREOCUPADO -> BertoVisorWorried
@@ -553,7 +587,11 @@ private fun BertoPeekZone(bertoState: BertoState, isTyping: Boolean) {
         Spacer(Modifier.size(12.dp))
         Column {
             Text(
-                if (isTyping) "Berto está escribiendo..." else "Berto",
+                when {
+                    isTyping && isThinkingLong -> "Berto está pensando…"
+                    isTyping -> "Berto está escribiendo..."
+                    else -> "Berto"
+                },
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = TealDark
             )
@@ -629,8 +667,12 @@ private fun MessageBubble(message: ChatMessage) {
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
             Column {
+                // Las respuestas de la IA traen Markdown (**negritas**, viñetas); el usuario escribe texto plano.
+                val contenido = remember(message.content, isUser) {
+                    if (isUser) AnnotatedString(message.content) else formatearMarkdown(message.content)
+                }
                 Text(
-                    message.content,
+                    contenido,
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isUser) Color.White else MaterialTheme.colorScheme.onSurface
                 )
@@ -653,6 +695,7 @@ private fun MessageBubble(message: ChatMessage) {
 @Composable
 private fun QuickRepliesRow(
     replies: List<String>,
+    enabled: Boolean,
     onReplySelected: (String) -> Unit
 ) {
     var visible by remember { mutableStateOf(false) }
@@ -688,9 +731,10 @@ private fun QuickRepliesRow(
                 ) {
                     Box(
                         modifier = Modifier
+                            .alpha(if (enabled) 1f else DISABLED_ALPHA)
                             .clip(RoundedCornerShape(50.dp))
                             .border(1.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50.dp))
-                            .clickable { onReplySelected(reply) }
+                            .clickable(enabled = enabled) { onReplySelected(reply) }
                             .padding(horizontal = 16.dp, vertical = 10.dp)
                     ) {
                         Text(
@@ -715,116 +759,217 @@ private fun ChatInputBar(
     onSend: () -> Unit,
     onSosClick: () -> Unit,
     onMicClick: () -> Unit,
-    isSendEnabled: Boolean
+    isSendEnabled: Boolean,
+    // false mientras responde la IA: se bloquean texto, micrófono y enviar. El SOS nunca se bloquea.
+    isInputEnabled: Boolean
 ) {
+    val canSend = isSendEnabled && isInputEnabled
     val sendScale by animateFloatAsState(
-        targetValue = if (isSendEnabled) 1f else 0.85f,
+        targetValue = if (canSend) 1f else 0.85f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "SendScale"
     )
+    val maxCaracteres = ChatRemoteRepository.MAX_CARACTERES
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
-            .navigationBarsPadding(),
-        verticalAlignment = Alignment.CenterVertically
+            .navigationBarsPadding()
     ) {
-        // Botón SOS
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(CrisisRed.copy(alpha = 0.12f))
-                .clickable { onSosClick() },
-            contentAlignment = Alignment.Center
+        AnimatedVisibility(
+            visible = text.length >= CONTADOR_VISIBLE_DESDE,
+            modifier = Modifier.align(Alignment.End)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_alert_triangle),
-                contentDescription = "SOS",
-                tint = CrisisRed,
-                modifier = Modifier.size(20.dp)
+            Text(
+                "${text.length}/$maxCaracteres",
+                style = MaterialTheme.typography.labelSmall,
+                color = if (text.length >= maxCaracteres - CONTADOR_ROJO_FALTANDO) CrisisRed
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp, end = 72.dp)
             )
         }
-
-        Spacer(Modifier.size(8.dp))
-
-        // Campo de texto + mic
-        Box(
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.background)
-                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(24.dp))
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            BasicTextField(
-                value = text,
-                onValueChange = onTextChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .padding(end = 36.dp),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { onSend() }),
-                maxLines = 4,
-                decorationBox = { innerTextField ->
-                    if (text.isEmpty()) {
-                        Text(
-                            "Escribe a Berto...",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    innerTextField()
-                }
-            )
-            // Botón micrófono
+            // Botón SOS
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .align(Alignment.CenterEnd)
-                    .offset(x = (-4).dp)
+                    .size(44.dp)
                     .clip(CircleShape)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { onMicClick() },
+                    .background(CrisisRed.copy(alpha = 0.12f))
+                    .clickable { onSosClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_mic),
-                    contentDescription = "Voz",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
+                    painter = painterResource(R.drawable.ic_alert_triangle),
+                    contentDescription = "SOS",
+                    tint = CrisisRed,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(Modifier.size(8.dp))
+
+            // Campo de texto + mic
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .alpha(if (isInputEnabled) 1f else DISABLED_ALPHA)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.background)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(24.dp))
+            ) {
+                BasicTextField(
+                    value = text,
+                    onValueChange = onTextChange,
+                    enabled = isInputEnabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .padding(end = 36.dp),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+                    maxLines = 4,
+                    decorationBox = { innerTextField ->
+                        if (text.isEmpty()) {
+                            Text(
+                                "Escribe a Berto...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        innerTextField()
+                    }
+                )
+                // Botón micrófono
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .align(Alignment.CenterEnd)
+                        .offset(x = (-4).dp)
+                        .clip(CircleShape)
+                        .clickable(
+                            enabled = isInputEnabled,
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { onMicClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_mic),
+                        contentDescription = "Voz",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Spacer(Modifier.size(8.dp))
+
+            // Botón enviar
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .scale(sendScale)
+                    .clip(CircleShape)
+                    .background(
+                        if (canSend) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.primaryContainer
+                    )
+                    .clickable(enabled = canSend) { onSend() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_send),
+                    contentDescription = "Enviar",
+                    tint = if (canSend) Color.White else MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
+    }
+}
 
+// ── Aviso de privacidad (una sola vez) ──────────────────
+@Composable
+private fun AvisoPrivacidadCard(onDismiss: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_shield),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.size(10.dp))
+        Text(
+            "Cuando tienes internet, tus mensajes a Berto se envían a nuestro servidor para " +
+                "responderte con IA. Tu bitácora y tus contactos nunca salen de tu teléfono.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
         Spacer(Modifier.size(8.dp))
-
-        // Botón enviar
-        Box(
+        Text(
+            "Entendido",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .size(44.dp)
-                .scale(sendScale)
-                .clip(CircleShape)
-                .background(
-                    if (isSendEnabled) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.primaryContainer
-                )
-                .clickable(enabled = isSendEnabled) { onSend() },
-            contentAlignment = Alignment.Center
+                .clip(RoundedCornerShape(50.dp))
+                .clickable { onDismiss() }
+                .padding(horizontal = 10.dp, vertical = 8.dp)
+        )
+    }
+}
+
+// ── Aviso del sistema (conexión perdida/recuperada) ─────
+@Composable
+private fun AvisoSistemaRow(aviso: AvisoSistema, texto: String) {
+    val iconRes = when (aviso) {
+        AvisoSistema.SIN_CONEXION,
+        AvisoSistema.SERVIDOR_NO_DISPONIBLE -> R.drawable.ic_wifi_off
+        AvisoSistema.CONEXION_RECUPERADA,
+        AvisoSistema.SERVIDOR_RECUPERADO -> R.drawable.ic_check_circle
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50.dp))
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_send),
-                contentDescription = "Enviar",
-                tint = if (isSendEnabled) Color.White else MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(Modifier.size(6.dp))
+            Text(
+                texto,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
         }
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo debug: permite HTTP para probar contra el servidor local (localhost vía adb reverse o IP de la LAN).
+     Sobrescribe a src/main/res/xml/network_security_config.xml, que bloquea HTTP en release. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
