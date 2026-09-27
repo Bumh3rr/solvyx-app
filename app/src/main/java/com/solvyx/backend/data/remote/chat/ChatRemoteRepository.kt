@@ -10,9 +10,13 @@ import java.text.Normalizer
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Origen del `userId` que se manda a la API (el UID de Firebase). Interfaz para poder testear sin Firebase. */
-fun interface ChatUserIdProvider {
-    fun currentUserId(): String?
+/** Firebase UID plus an ID token that proves it; the server verifies the token before trusting the UID. */
+data class ChatCredentials(val userId: String, val idToken: String)
+
+/** Source of the Firebase credentials sent to the API. An interface so it can be tested without Firebase. */
+fun interface ChatCredentialsProvider {
+    /** `null` when there is no Firebase user. Throws if the token cannot be obtained (e.g. no network). */
+    suspend fun currentCredentials(): ChatCredentials?
 }
 
 /**
@@ -27,7 +31,7 @@ fun interface ChatUserIdProvider {
 @Singleton
 class ChatRemoteRepository @Inject constructor(
     private val chatApi: ChatApi,
-    private val userIdProvider: ChatUserIdProvider
+    private val credentialsProvider: ChatCredentialsProvider
 ) {
 
     private val gson = Gson()
@@ -35,10 +39,15 @@ class ChatRemoteRepository @Inject constructor(
     suspend fun enviarMensaje(mensaje: String): EnviarMensajeResult {
         val texto = mensaje.trim()
         if (texto.isEmpty() || texto.length > MAX_CARACTERES) return EnviarMensajeResult.MensajeInvalido
-        val userId = userIdProvider.currentUserId() ?: return EnviarMensajeResult.SinSesion
+        val credentials = when (val lookup = lookupCredentials()) {
+            CredentialsLookup.NoUser -> return EnviarMensajeResult.SinSesion
+            CredentialsLookup.Unavailable -> return EnviarMensajeResult.ServidorNoDisponible
+            is CredentialsLookup.Found -> lookup.credentials
+        }
 
         return try {
-            mapearMensaje(chatApi.enviarMensaje(MensajeRequestDto(userId, NOMBRE, texto)))
+            val body = MensajeRequestDto(credentials.userId, NOMBRE, texto)
+            mapearMensaje(chatApi.enviarMensaje(credentials.bearer(), body))
         } catch (e: CancellationException) {
             throw e
         } catch (e: MalformedJsonException) {
@@ -53,10 +62,14 @@ class ChatRemoteRepository @Inject constructor(
     }
 
     suspend fun cerrarSesion(): CerrarSesionResult {
-        val userId = userIdProvider.currentUserId() ?: return CerrarSesionResult.SinSesionActiva
+        val credentials = when (val lookup = lookupCredentials()) {
+            CredentialsLookup.NoUser -> return CerrarSesionResult.SinSesionActiva
+            CredentialsLookup.Unavailable -> return CerrarSesionResult.Fallo
+            is CredentialsLookup.Found -> lookup.credentials
+        }
 
         return try {
-            val response = chatApi.cerrarSesion(CerrarSesionRequestDto(userId))
+            val response = chatApi.cerrarSesion(credentials.bearer(), CerrarSesionRequestDto(credentials.userId))
             when {
                 response.isSuccessful -> CerrarSesionResult.Cerrada(response.body()?.historialId)
                 response.code() == 404 -> CerrarSesionResult.SinSesionActiva
@@ -82,6 +95,26 @@ class ChatRemoteRepository @Inject constructor(
         } catch (e: IOException) {
             false
         }
+
+    private suspend fun lookupCredentials(): CredentialsLookup =
+        try {
+            credentialsProvider.currentCredentials()
+                ?.let { CredentialsLookup.Found(it) }
+                ?: CredentialsLookup.NoUser
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Firebase could not refresh the token (usually no network): same as the server being down.
+            CredentialsLookup.Unavailable
+        }
+
+    private fun ChatCredentials.bearer(): String = "$BEARER_PREFIX$idToken"
+
+    private sealed interface CredentialsLookup {
+        data class Found(val credentials: ChatCredentials) : CredentialsLookup
+        data object NoUser : CredentialsLookup
+        data object Unavailable : CredentialsLookup
+    }
 
     private fun mapearMensaje(response: Response<MensajeResponseDto>): EnviarMensajeResult {
         if (response.isSuccessful) {
@@ -125,6 +158,7 @@ class ChatRemoteRepository @Inject constructor(
         /** La API guarda el nombre pero no lo usa en el prompt; no mandamos datos personales. */
         const val NOMBRE = "Usuario"
 
+        private const val BEARER_PREFIX = "Bearer "
         private const val ERROR_CONTENIDO_NO_PERMITIDO = "contenido no permitido"
         private const val ERROR_RESPUESTA_VACIA = "respuesta generada esta vacia"
         private val DIACRITICOS = Regex("\\p{Mn}+")

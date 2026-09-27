@@ -5,7 +5,7 @@ package com.solvyx.backend.data.remote
  */
 object ApiConfig {
 
-    const val BASE_URL = "http://localhost:8080/"
+    const val BASE_URL = "https://1100-187-184-4-20.ngrok-free.app/"
 
     /** Si el servidor no responde en este tiempo, se considera caído. */
     const val CONNECT_TIMEOUT_SECONDS = 10L

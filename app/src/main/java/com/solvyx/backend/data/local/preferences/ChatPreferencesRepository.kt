@@ -16,15 +16,19 @@ class ChatPreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    /** Si el usuario ya leyó el aviso de que, con internet, sus mensajes van al servidor. */
-    val avisoPrivacidadVisto: Flow<Boolean> =
-        context.solvyxDataStore.data.map { it[AVISO_PRIVACIDAD_VISTO] ?: false }
+    /**
+     * Whether the user accepted that their chat messages go to our server and an external AI.
+     * Until then Berto only answers with the local decision trees and nothing is sent.
+     */
+    val aiConsentGranted: Flow<Boolean> =
+        context.solvyxDataStore.data.map { it[AI_CONSENT_GRANTED] ?: false }
 
-    suspend fun marcarAvisoPrivacidadVisto() {
-        context.solvyxDataStore.edit { it[AVISO_PRIVACIDAD_VISTO] = true }
+    suspend fun grantAiConsent() {
+        context.solvyxDataStore.edit { it[AI_CONSENT_GRANTED] = true }
     }
 
     private companion object {
-        val AVISO_PRIVACIDAD_VISTO = booleanPreferencesKey("chat_aviso_privacidad_visto")
+        // New key on purpose: the old "notice seen" flag was not consent and its text was inaccurate.
+        val AI_CONSENT_GRANTED = booleanPreferencesKey("chat_ai_consent_granted")
     }
 }

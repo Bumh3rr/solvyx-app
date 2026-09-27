@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.UUID
@@ -52,7 +53,7 @@ enum class ChatMode {
     CONECTADO,
     /** Sin internet: responde el árbol. */
     SIN_CONEXION,
-    /** Hay red pero la API falló hace poco: responde el árbol durante la espera. */
+    /** Hay red pero la IA no está disponible (falló hace poco o el usuario no ha aceptado el aviso): responde el árbol. */
     MODO_GUIADO
 }
 
@@ -100,10 +101,11 @@ class ChatViewModel @Inject constructor(
     // true si la API tarda más de UMBRAL_PENSANDO_MS: la UI cambia a "Berto está pensando…".
     var isApiSlow by mutableStateOf(false)
         private set
-    var chatMode by mutableStateOf(ChatMode.CONECTADO)
+    // Guided until the stored consent is read: never claim "Conectado" before knowing it.
+    var chatMode by mutableStateOf(ChatMode.MODO_GUIADO)
         private set
-    // Aviso de que, con internet, los mensajes van al servidor. Se muestra una sola vez.
-    var mostrarAvisoPrivacidad by mutableStateOf(false)
+    // Consent card: nothing is sent to the server until the user accepts it.
+    var showAiConsentPrompt by mutableStateOf(false)
         private set
 
     // ── TTS ──────────────────────────────────────────────────────────────────
@@ -168,18 +170,20 @@ class ChatViewModel @Inject constructor(
     private var sondeoJob: Job? = null
     // Revisión del servidor al recuperar internet; se cancela si la red vuelve a cambiar.
     private var reconexionJob: Job? = null
-    private var avisoPrivacidadVisto = true
+    private var aiConsentGranted = false
+    // "Ahora no" only hides the card for this chat; it is asked again the next time the chat opens.
+    private var aiConsentPostponed = false
 
     init {
-        loadMainMenu()
         initTts()
-        // Limpia una sesión que haya quedado abierta (p. ej. si Android cerró la app con el chat abierto),
-        // para que el contexto del servidor coincida con el chat vacío que ve el usuario.
-        cerrarSesionOnline(forzar = true)
-        actualizarModo()
-        observarConectividad()
-        observarAvisoPrivacidad()
-        comprobarServidorAlEntrar()
+        viewModelScope.launch {
+            // Consent must be known before the greeting and before anything is sent to the server.
+            aiConsentGranted = chatPreferences.aiConsentGranted.first()
+            loadMainMenu()
+            if (aiConsentGranted) startOnlineChat()
+            actualizarModo()
+            observarConectividad()
+        }
     }
 
     // ── TTS helpers ──────────────────────────────────────────────────────────
@@ -240,7 +244,7 @@ class ChatViewModel @Inject constructor(
     private fun loadMainMenu() {
         irAlMenu()
         // Saludo online solo si la IA está disponible (hay red y el servidor no está en espera tras un fallo).
-        val saludo = if (connectivity.isCurrentlyConnected() && !modePolicy.enEspera) SALUDO_ONLINE else menuRoot.texto
+        val saludo = if (canUseApi()) SALUDO_ONLINE else menuRoot.texto
         addBertoMessage(
             content = saludo,
             quickReplies = menuLabels(),
@@ -295,7 +299,7 @@ class ChatViewModel @Inject constructor(
         // Detectar estado emocional del usuario en texto libre
         detectStateFromFreeText(text)?.let { updateState(it) }
 
-        if (permitirApi && modePolicy.debeUsarApi(connectivity.isCurrentlyConnected())) {
+        if (permitirApi && canUseApi()) {
             enviarAApi(text)
         } else {
             processTreeNavigation(text)
@@ -312,6 +316,17 @@ class ChatViewModel @Inject constructor(
     }
 
     // ── Chat online ──────────────────────────────────────────────────────────
+
+    /** Without consent the API is never used, whatever the network state. */
+    private fun canUseApi(isRetry: Boolean = false): Boolean =
+        aiConsentGranted && modePolicy.debeUsarApi(connectivity.isCurrentlyConnected(), esReintento = isRetry)
+
+    private fun startOnlineChat() {
+        // Limpia una sesión que haya quedado abierta (p. ej. si Android cerró la app con el chat abierto),
+        // para que el contexto del servidor coincida con el chat vacío que ve el usuario.
+        cerrarSesionOnline(forzar = true)
+        comprobarServidorAlEntrar()
+    }
 
     private fun enviarAApi(texto: String) {
         sesionOnlineAbierta = true
@@ -381,7 +396,7 @@ class ChatViewModel @Inject constructor(
         val texto = ultimoMensajeFallido
         when {
             texto == null -> mostrarMenu(MSG_TEMAS_GUIADOS)
-            modePolicy.debeUsarApi(connectivity.isCurrentlyConnected(), esReintento = true) -> enviarAApi(texto)
+            canUseApi(isRetry = true) -> enviarAApi(texto)
             else -> mostrarMenu(MSG_SIGUE_SIN_CONEXION, extras = listOf(OPCION_REINTENTAR))
         }
     }
@@ -451,10 +466,10 @@ class ChatViewModel @Inject constructor(
     private fun actualizarModo() {
         chatMode = when {
             !conectado -> ChatMode.SIN_CONEXION
-            modePolicy.enEspera -> ChatMode.MODO_GUIADO
+            !aiConsentGranted || modePolicy.enEspera -> ChatMode.MODO_GUIADO
             else -> ChatMode.CONECTADO
         }
-        mostrarAvisoPrivacidad = conectado && !avisoPrivacidadVisto
+        showAiConsentPrompt = !aiConsentGranted && !aiConsentPostponed
     }
 
     private fun observarConectividad() {
@@ -463,6 +478,11 @@ class ChatViewModel @Inject constructor(
             connectivity.observeConnected().drop(1).collect { hayRed ->
                 conectado = hayRed
                 reconexionJob?.cancel()
+                // Without consent the chat is tree-only: losing or recovering internet changes nothing.
+                if (!aiConsentGranted) {
+                    actualizarModo()
+                    return@collect
+                }
                 if (hayRed) {
                     // Hay internet, pero antes de decir "recuperada" se revisa que el servidor responda.
                     sondeoJob?.cancel()
@@ -491,19 +511,18 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun observarAvisoPrivacidad() {
-        viewModelScope.launch {
-            chatPreferences.avisoPrivacidadVisto.collect { visto ->
-                avisoPrivacidadVisto = visto
-                actualizarModo()
-            }
-        }
+    fun acceptAiConsent() {
+        aiConsentGranted = true
+        appScope.launch { chatPreferences.grantAiConsent() }
+        actualizarModo()
+        startOnlineChat()
+        // Offline, the "connection recovered" notice will tell the user once internet is back.
+        if (conectado) addBertoMessage(MSG_AI_CONSENT_ACCEPTED, ultimasOpciones(), currentBertoState)
     }
 
-    fun cerrarAvisoPrivacidad() {
-        mostrarAvisoPrivacidad = false
-        avisoPrivacidadVisto = true
-        appScope.launch { chatPreferences.marcarAvisoPrivacidadVisto() }
+    fun postponeAiConsent() {
+        aiConsentPostponed = true
+        actualizarModo()
     }
 
     private fun addAvisoSistema(tipo: AvisoSistema, content: String, quickReplies: List<String>) {
@@ -732,6 +751,7 @@ class ChatViewModel @Inject constructor(
         const val MSG_SERVIDOR_NO_DISPONIBLE = "Tengo problemas para conectarme ahora. Te acompaño en modo guiado:"
         const val MSG_SIGUE_SIN_CONEXION = "Sigo sin conexión. Mientras tanto te acompaño en modo guiado:"
         const val MSG_MENSAJE_LARGO = "Tu mensaje es muy largo. ¿Me lo cuentas en menos palabras?"
+        const val MSG_AI_CONSENT_ACCEPTED = "Gracias por confiar en mí. Ya puedes escribirme lo que sientes o elegir un tema."
 
         const val UMBRAL_PENSANDO_MS = 8_000L
 

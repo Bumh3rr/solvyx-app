@@ -19,6 +19,7 @@ class ChatRemoteRepositoryTest {
 
     private lateinit var server: MockWebServer
     private var userId: String? = "uid-123"
+    private var tokenError: Exception? = null
 
     @Before
     fun setUp() {
@@ -151,6 +152,42 @@ class ChatRemoteRepositoryTest {
         assertEquals(MensajeRequestDto("uid-123", "Usuario", "me siento ansioso"), body)
     }
 
+    // ── Autenticación ────────────────────────────────────────────────────────
+
+    @Test
+    fun `enviarMensaje sends the Firebase ID token as a Bearer header`() = runTest {
+        server.enqueue(json(200, """{"respuesta":"ok","historialId":1}"""))
+
+        repository().enviarMensaje("Hola")
+
+        assertEquals("Bearer $ID_TOKEN", server.takeRequest().getHeader(ChatApi.AUTHORIZATION_HEADER))
+    }
+
+    @Test
+    fun `when the ID token cannot be fetched returns ServidorNoDisponible and sends nothing`() = runTest {
+        tokenError = IllegalStateException("network error refreshing the token")
+
+        assertEquals(EnviarMensajeResult.ServidorNoDisponible, repository().enviarMensaje("Hola"))
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
+    fun `cerrarSesion sends the Firebase ID token as a Bearer header`() = runTest {
+        server.enqueue(json(200, """{"historialId":7,"status":"CERRADO"}"""))
+
+        repository().cerrarSesion()
+
+        assertEquals("Bearer $ID_TOKEN", server.takeRequest().getHeader(ChatApi.AUTHORIZATION_HEADER))
+    }
+
+    @Test
+    fun `cerrarSesion returns Fallo when the ID token cannot be fetched`() = runTest {
+        tokenError = IllegalStateException("network error refreshing the token")
+
+        assertEquals(CerrarSesionResult.Fallo, repository().cerrarSesion())
+        assertEquals(0, server.requestCount)
+    }
+
     // ── cerrarSesion ─────────────────────────────────────────────────────────
 
     @Test
@@ -238,7 +275,10 @@ class ChatRemoteRepositoryTest {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ChatApi::class.java)
-        return ChatRemoteRepository(api) { userId }
+        return ChatRemoteRepository(api) {
+            tokenError?.let { throw it }
+            userId?.let { ChatCredentials(it, ID_TOKEN) }
+        }
     }
 
     private fun json(code: Int, body: String): MockResponse =
@@ -249,4 +289,8 @@ class ChatRemoteRepositoryTest {
 
     private fun error(status: Int, mensaje: String): String =
         """{"timestamp":"2026-09-26T00:00:00","status":$status,"error":"Error","mensaje":"$mensaje"}"""
+
+    private companion object {
+        const val ID_TOKEN = "firebase-id-token"
+    }
 }

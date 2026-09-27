@@ -4,11 +4,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.solvyx.backend.data.remote.ApiConfig
 import com.solvyx.backend.data.remote.ApiLoggingInterceptor
 import com.solvyx.backend.data.remote.chat.ChatApi
-import com.solvyx.backend.data.remote.chat.ChatUserIdProvider
+import com.solvyx.backend.data.remote.chat.ChatCredentials
+import com.solvyx.backend.data.remote.chat.ChatCredentialsProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.tasks.await
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -42,6 +44,11 @@ object NetworkModule {
     fun provideChatApi(retrofit: Retrofit): ChatApi = retrofit.create(ChatApi::class.java)
 
     @Provides
-    fun provideChatUserIdProvider(firebaseAuth: FirebaseAuth): ChatUserIdProvider =
-        ChatUserIdProvider { firebaseAuth.currentUser?.uid }
+    fun provideChatCredentialsProvider(firebaseAuth: FirebaseAuth): ChatCredentialsProvider =
+        ChatCredentialsProvider {
+            val user = firebaseAuth.currentUser ?: return@ChatCredentialsProvider null
+            // false: Firebase reuses the cached token and only refreshes it when it is about to expire.
+            val token = checkNotNull(user.getIdToken(false).await().token) { "Firebase returned no ID token" }
+            ChatCredentials(userId = user.uid, idToken = token)
+        }
 }

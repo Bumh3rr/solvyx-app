@@ -212,13 +212,16 @@ fun BertoScreen(
             )
         }
 
-        // No bloquea nada: se puede escribir o usar el SOS sin cerrarlo.
+        // Does not block anything: the guided topics and SOS keep working while it is open.
         AnimatedVisibility(
-            visible = viewModel.mostrarAvisoPrivacidad,
+            visible = viewModel.showAiConsentPrompt,
             enter = expandVertically(tween(300)) + fadeIn(tween(300)),
             exit = shrinkVertically(tween(250)) + fadeOut(tween(200))
         ) {
-            AvisoPrivacidadCard(onDismiss = { viewModel.cerrarAvisoPrivacidad() })
+            AiConsentCard(
+                onAccept = { viewModel.acceptAiConsent() },
+                onPostpone = { viewModel.postponeAiConsent() }
+            )
         }
 
         LazyColumn(
@@ -898,44 +901,60 @@ private fun ChatInputBar(
     }
 }
 
-// ── Aviso de privacidad (una sola vez) ──────────────────
+// ── AI consent (nothing is sent to the server until accepted) ──
 @Composable
-private fun AvisoPrivacidadCard(onDismiss: () -> Unit) {
-    Row(
+private fun AiConsentCard(onAccept: () -> Unit, onPostpone: () -> Unit) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_shield),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(Modifier.size(10.dp))
-        Text(
-            "Cuando tienes internet, tus mensajes a Berto se envían a nuestro servidor para " +
-                "responderte con IA. Tu bitácora y tus contactos nunca salen de tu teléfono.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
-        Spacer(Modifier.size(8.dp))
-        Text(
-            "Entendido",
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary,
+        Row(verticalAlignment = Alignment.Top) {
+            Icon(
+                painter = painterResource(R.drawable.ic_shield),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.size(10.dp))
+            Text(
+                "Para responderte con IA, lo que le escribes o dictas a Berto se envía y se guarda en " +
+                    "nuestro servidor, que usa DeepSeek, un servicio de IA externo. Solo se envía tu " +
+                    "mensaje y un identificador de tu cuenta: nunca tu nombre, tu bitácora ni tus " +
+                    "contactos. Si no aceptas, Berto te acompaña con temas guiados y no se envía nada.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(50.dp))
-                .clickable { onDismiss() }
-                .padding(horizontal = 10.dp, vertical = 8.dp)
-        )
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            ConsentAction(label = "Ahora no", emphasized = false, onClick = onPostpone)
+            Spacer(Modifier.size(4.dp))
+            ConsentAction(label = "Aceptar", emphasized = true, onClick = onAccept)
+        }
     }
+}
+
+@Composable
+private fun ConsentAction(label: String, emphasized: Boolean, onClick: () -> Unit) {
+    Text(
+        label,
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+        color = if (emphasized) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 10.dp, vertical = 8.dp)
+    )
 }
 
 // ── Aviso del sistema (conexión perdida/recuperada) ─────
