@@ -83,6 +83,7 @@ converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ve
 
 # OkHttp
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 
 # Code gson
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
