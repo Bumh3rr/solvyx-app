@@ -44,9 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import com.solvyx.R
-import com.solvyx.ui.components.berto.BertoPose
-import com.solvyx.ui.components.berto.BertoPoseAnimation
+import com.solvyx.ui.components.berto.BertoReactTrigger
+import com.solvyx.ui.components.berto.BertoReactsAnimation
 import com.solvyx.ui.screens.journey.checkin.BertoGesture
 import com.solvyx.ui.screens.journey.checkin.BertoReaction
 import com.solvyx.ui.theme.TealDark
@@ -62,10 +61,10 @@ private val BubbleTail = 6.dp
 private const val TailRotationDegrees = 45f
 
 /**
- * Berto at the top of the check-in: a Rive pose per gesture (see [toPose]) plus Compose motion on
- * top — a pop every time his reaction changes and, while the user types, a lean that follows the
- * cursor across the line ([lookX], 0 = left edge, 1 = right edge) with a small nod, as if reading
- * along. Dedicated Rive gestures (see [BertoGesture]) replace these once they exist.
+ * Berto at the top of the check-in, from `reacts_berto.riv`: each gesture fires its Rive reaction
+ * (see [toReactTrigger]) and, while the user types, Rive lowers his head and his eyes follow the
+ * cursor ([lookX], 0 = left edge, 1 = right edge). Compose adds on top a pop every time his reaction
+ * changes and, while reading, a lean toward the cursor with a small floating nod.
  */
 @Composable
 fun BertoStage(
@@ -94,10 +93,10 @@ fun BertoStage(
         // artboard instead of shrinking Berto.
         val shrink = animatedSize / RiveCanvasSize
         Box(modifier = Modifier.size(animatedSize), contentAlignment = Alignment.Center) {
-            BertoPoseAnimation(
-                pose = reaction.gesture.toPose(),
-                riveFileRes = R.raw.berto_poses,
-                fallback = R.drawable.berto_saludando,
+            BertoReactsAnimation(
+                reaction = reaction.gesture.toReactTrigger(),
+                isReading = isReading,
+                lookX = lookX,
                 modifier = Modifier
                     .requiredSize(RiveCanvasSize)
                     .graphicsLayer {
@@ -114,23 +113,24 @@ fun BertoStage(
 }
 
 /**
- * Closest existing pose in `berto_poses.riv` for each gesture. `bertovm.riv` (the mood-driven
- * Berto) isn't used here because its artboard still shows placeholder "Lorem Ipsum" text. Replace
- * these with the dedicated animations once they exist — this is the only place to change.
+ * Rive reaction in `reacts_berto.riv` for each gesture; `null` leaves Berto in Idle (or reading,
+ * which `isReading` drives). Moments without their own animation yet reuse the closest one: a
+ * clean day is celebrated like euphoria and "no consumí" like a good mood. GREET needs no trigger:
+ * the state machine greets on its own when it starts.
  */
-private fun BertoGesture.toPose(): BertoPose = when (this) {
-    BertoGesture.GREET,
+private fun BertoGesture.toReactTrigger(): BertoReactTrigger? = when (this) {
+    BertoGesture.REACT_SAD -> BertoReactTrigger.SAD
+    BertoGesture.REACT_ANXIOUS -> BertoReactTrigger.ANXIOUS
+    BertoGesture.REACT_NEUTRAL -> BertoReactTrigger.NEUTRAL
     BertoGesture.REACT_GOOD,
+    BertoGesture.PROUD -> BertoReactTrigger.GOOD
     BertoGesture.REACT_EUPHORIC,
-    BertoGesture.PROUD,
-    BertoGesture.CELEBRATE -> BertoPose.CENTER_IDLE_HELLO
-    BertoGesture.REACT_SAD,
-    BertoGesture.REACT_ANXIOUS,
-    BertoGesture.REACT_NEUTRAL,
+    BertoGesture.CELEBRATE -> BertoReactTrigger.EUPHORIC
+    BertoGesture.GREET,
+    BertoGesture.READING,
+    BertoGesture.ATTENTIVE,
     BertoGesture.SUPPORTIVE,
-    BertoGesture.COMFORT -> BertoPose.CENTER_IDLE
-    BertoGesture.READING -> BertoPose.LEFT_SIMPLE
-    BertoGesture.ATTENTIVE -> BertoPose.CENTER_IDLE_TO_RIGHT
+    BertoGesture.COMFORT -> null
 }
 
 /** 0..1..0 loop, only composed (and running) while Berto is reading. */

@@ -4,12 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -56,7 +53,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -82,9 +78,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.solvyx.R
 import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.TealDark
+import com.solvyx.ui.components.common.BreathingCircle
 import com.solvyx.ui.components.common.HelpLine
-import com.solvyx.ui.theme.TealMedium
-import com.solvyx.ui.theme.TealPrimary
 import com.solvyx.ui.theme.WarnAmberDark
 import kotlinx.coroutines.delay
 
@@ -566,93 +561,5 @@ fun SosPostSend(
         }
 
         Spacer(modifier = Modifier.height(52.dp))
-    }
-}
-
-// ── BreathingCircle ───────────────────────────────────────────────────────────
-
-private data class BreathPhase(val name: String, val durationMs: Int, val targetSize: Dp)
-
-private val BREATH_PHASES = listOf(
-    BreathPhase("Inhala", 4_000, 150.dp),
-    BreathPhase("Mantén", 7_000, 150.dp),
-    BreathPhase("Exhala", 8_000, 80.dp)
-)
-
-@Composable
-fun BreathingCircle(onPhaseChange: (String) -> Unit = {}) {
-    var phaseIndex by remember { mutableIntStateOf(0) }
-    var currentPhase by remember { mutableStateOf(BREATH_PHASES[0]) }
-    var countdown by remember { mutableIntStateOf(BREATH_PHASES[0].durationMs / 1000) }
-
-    LaunchedEffect(phaseIndex) {
-        val phase = BREATH_PHASES[phaseIndex]
-        currentPhase = phase
-        onPhaseChange(phase.name)
-        for (s in phase.durationMs / 1000 downTo 1) {
-            countdown = s
-            delay(1000L)
-        }
-        phaseIndex = (phaseIndex + 1) % BREATH_PHASES.size
-    }
-
-    val animatedDiameter by animateDpAsState(
-        targetValue = currentPhase.targetSize,
-        animationSpec = tween(
-            durationMillis = currentPhase.durationMs,
-            easing = when (phaseIndex) {
-                1 -> LinearEasing
-                else -> EaseInOut
-            }
-        ),
-        label = "BreathDiameter"
-    )
-
-    val isExpanded = animatedDiameter > 110.dp
-    val circleColor by animateColorAsState(
-        targetValue = if (isExpanded) TealMedium.copy(alpha = 0.30f)
-        else TealPrimary.copy(alpha = 0.40f),
-        animationSpec = tween(600),
-        label = "CircleColor"
-    )
-
-    Box(
-        modifier = Modifier.size(180.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Anillo exterior fijo de referencia
-        Box(
-            modifier = Modifier
-                .size(180.dp)
-                .clip(CircleShape)
-                .border(3.dp, Color.White.copy(alpha = 0.30f), CircleShape)
-        )
-
-        // Círculo animado de respiración
-        Box(
-            modifier = Modifier
-                .size(animatedDiameter)
-                .clip(CircleShape)
-                .background(circleColor)
-                .border(2.dp, Color.White.copy(alpha = 0.60f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = BREATH_PHASES[phaseIndex].name,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
-                    letterSpacing = 0.02.sp
-                )
-                Text(
-                    text = countdown.toString(),
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
     }
 }

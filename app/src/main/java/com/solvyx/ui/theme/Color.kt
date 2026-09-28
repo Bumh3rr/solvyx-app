@@ -21,6 +21,10 @@ val BertoVisorCelebr  = Color(0xFFd4f7e0)  // Celebrando
 val BertoVisorWorried = Color(0xFFfef9c3)  // Preocupado
 val BertoVisorCrisis  = Color(0xFFfde8e8)  // Crisis
 
+// ── Chat de Berto ────────────────────────────────────
+val ChatStatusOnline  = Color(0xFF4CAF50)  // Punto "Conectado" (responde la IA)
+val ChatWarmAccent    = Color(0xFFFF8F00)  // Punto "Modo guiado" y borde de Berto preocupado
+
 // ── Neutros ─────────────────────────────────────────
 val White             = Color(0xFFFFFFFF)
 val TextMuted         = Color(0xFF888780)

@@ -3,9 +3,10 @@ package com.solvyx.ui.screens.journey.checkin
 import com.solvyx.ui.screens.journey.WizardStep
 
 /**
- * The moment Berto is reacting to. Each one is a dedicated animation to build in Rive (see
- * "Berto — Animaciones pendientes" in the vault); until then `BertoStage` maps it to the closest
- * existing pose. That mapping is the only place to touch when the new animations arrive.
+ * The moment Berto is reacting to. `BertoStage` maps each one to its reaction in
+ * `reacts_berto.riv` (the moods and reading already exist; PROUD, CELEBRATE and the calm moments
+ * reuse the closest one until they get their own, see "Berto — Animaciones pendientes" in the
+ * vault). That mapping is the only place to touch when a new animation arrives.
  */
 enum class BertoGesture {
     GREET,

@@ -1,11 +1,8 @@
 package com.solvyx.ui.screens.chatbot
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -17,9 +14,9 @@ import com.solvyx.backend.data.remote.connectivity.ConnectivityRepository
 import com.solvyx.backend.decisiontree.model.DecisionNode
 import com.solvyx.backend.decisiontree.model.DecisionOption
 import com.solvyx.backend.decisiontree.model.DecisionTree
-import com.solvyx.backend.decisiontree.model.NodeType
 import com.solvyx.backend.decisiontree.repository.DecisionTreeRepository
 import com.solvyx.di.ApplicationScope
+import com.solvyx.ui.components.common.substanceLabel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -29,51 +26,12 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.UUID
 import javax.inject.Inject
-
-data class ChatMessage(
-    val id: String = UUID.randomUUID().toString(),
-    val content: String,
-    val isFromBerto: Boolean,
-    val timestamp: String,
-    val quickReplies: List<String> = emptyList(),
-    val bertoState: BertoState = BertoState.TRANQUILO,
-    // Avisos de la app (no de Berto): tienen su propio estilo y no se leen en voz alta.
-    val avisoSistema: AvisoSistema? = null
-)
-
-enum class AvisoSistema { SIN_CONEXION, CONEXION_RECUPERADA, SERVIDOR_NO_DISPONIBLE, SERVIDOR_RECUPERADO }
-
-enum class BertoState { TRANQUILO, PREOCUPADO, CELEBRANDO, CRISIS }
-
-/** Quién responde el texto libre, para mostrarlo en la barra superior. */
-enum class ChatMode {
-    /** Hay red y la API está disponible: responde la IA. */
-    CONECTADO,
-    /** Sin internet: responde el árbol. */
-    SIN_CONEXION,
-    /** Hay red pero la IA no está disponible (falló hace poco o el usuario no ha aceptado el aviso): responde el árbol. */
-    MODO_GUIADO
-}
-
-private val CRISIS_KEYWORDS = listOf(
-    "suicidio", "hacerme daño", "quiero morir", "no puedo más",
-    "crisis", "emergencia", "socorro"
-)
-private val ANXIETY_KEYWORDS = listOf(
-    "ansiedad", "ansioso", "angustia", "miedo", "pánico",
-    "nervioso", "estresado", "craving", "ganas de consumir"
-)
-private val POSITIVE_KEYWORDS = listOf(
-    "logré", "gracias", "mejor", "bien", "lo conseguí", "racha"
-)
-
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val treeRepository: DecisionTreeRepository,
-    @ApplicationContext private val appContext: Context,
+    @ApplicationContext appContext: Context,
     private val chatRemoteRepository: ChatRemoteRepository,
     private val connectivity: ConnectivityRepository,
     private val chatPreferences: ChatPreferencesRepository,
@@ -88,12 +46,12 @@ class ChatViewModel @Inject constructor(
         private set
     var currentBertoState by mutableStateOf(BertoState.TRANQUILO)
         private set
-    // Non-null for 2.8 s after a state transition; drives the banner animation in the UI.
-    var stateTransition by mutableStateOf<BertoState?>(null)
-        private set
-    var showBertoPeek by mutableStateOf(false)
+    // Bumps every time Berto starts celebrating; the stage fires one confetti burst per value.
+    var celebrationCount by mutableIntStateOf(0)
         private set
     var showSosDialog by mutableStateOf(false)
+        private set
+    var isBreathingOpen by mutableStateOf(false)
         private set
     // true mientras se espera la respuesta de la API; la UI bloquea la entrada (salvo SOS).
     var isWaitingForApi by mutableStateOf(false)
@@ -108,51 +66,33 @@ class ChatViewModel @Inject constructor(
     var showAiConsentPrompt by mutableStateOf(false)
         private set
 
-    // ── TTS ──────────────────────────────────────────────────────────────────
-    var isTtsMuted  by mutableStateOf(false); private set
-    var isSpeaking  by mutableStateOf(false); private set
-    var isTtsReady  by mutableStateOf(false); private set
+    private val voice = BertoVoice(appContext)
+    val isTtsMuted: Boolean get() = voice.isMuted
+    val isSpeaking: Boolean get() = voice.isSpeaking
 
-    private var tts: TextToSpeech?   = null
-    private val mainHandler          = Handler(Looper.getMainLooper())
-    private var pendingTtsText: String? = null
+    /**
+     * The Berto message whose chips or picker still accept taps: the latest one with choices, and
+     * only until the user answers (anything the user sends after it turns it into history).
+     */
+    val activeInteractiveMessageId: String?
+        get() {
+            for (message in messages.asReversed()) {
+                if (!message.isFromBerto) return null
+                if (message.isInteractive) return message.id
+            }
+            return null
+        }
 
-    // Control del flujo actual
+    /** Chips and pickers wait while Berto is still answering, so two answers never interleave. */
+    val canUseChoices: Boolean get() = !isWaitingForApi && !isBertoTyping
+
+    // ── Guided flow (trees, grounding) ───────────────────────────────────────
     private var currentTree: DecisionTree? = null
     private var currentNode: DecisionNode? = null
-    private var stateTransitionJob: Job? = null
-
-    // ID virtual para identificar cuándo estamos parados en el menú principal
-    private val MAIN_MENU_ID = "menu_principal_virtual"
-
-    private val menuTree: DecisionTree = run {
-        val opcionesMenu = listOf(
-            DecisionOption("Ansiedad por Alcohol", "alcohol_craving"),
-            DecisionOption("Información de Alcohol", "alcohol_info"),
-            DecisionOption("Ansiedad por Cristal", "cristal_craving"),
-            DecisionOption("Información de Cristal", "cristal_info"),
-            DecisionOption("Ansiedad por Vape", "vape_craving"),
-            DecisionOption("Información de Vape", "vape_info"),
-            DecisionOption("Ansiedad por Cigarro", "cigarro_craving"),
-            DecisionOption("Información de Cigarro", "cigarro_info")
-        )
-
-        val nodoRaizMenu = DecisionNode(
-            id = "raiz_menu",
-            texto = "Hola, soy Berto. ¿En qué te puedo apoyar el día de hoy?",
-            tipo = NodeType.MESSAGE, // Ajusta según tus tipos en el enum NodeType (ej. NodeType.INFO o NORMAL)
-            opciones = opcionesMenu,
-            esFinal = false
-        )
-
-        DecisionTree(
-            id = MAIN_MENU_ID,
-            nombre = "Menú Principal",
-            nodoInicialId = "raiz_menu",
-            nodos = mapOf("raiz_menu" to nodoRaizMenu)
-        )
-    }
-    private val menuRoot: DecisionNode = menuTree.nodos.getValue(menuTree.nodoInicialId)
+    private var groundingStep: Int? = null
+    // Scripted answers run one after another: each one waits for the previous to finish.
+    private var guidedJob: Job? = null
+    private val conversationMood = ConversationMood()
 
     // ── Chat online (API) ────────────────────────────────────────────────────
     // Texto libre → API si hay red; botones → siempre árbol. Si la API falla, el árbol responde.
@@ -175,144 +115,372 @@ class ChatViewModel @Inject constructor(
     private var aiConsentPostponed = false
 
     init {
-        initTts()
         viewModelScope.launch {
             // Consent must be known before the greeting and before anything is sent to the server.
             aiConsentGranted = chatPreferences.aiConsentGranted.first()
-            loadMainMenu()
+            showWelcome()
             if (aiConsentGranted) startOnlineChat()
             actualizarModo()
             observarConectividad()
         }
     }
 
-    // ── TTS helpers ──────────────────────────────────────────────────────────
-
-    private fun initTts() {
-        tts = TextToSpeech(appContext) { status ->
-            if (status != TextToSpeech.SUCCESS) return@TextToSpeech
-
-            // Misma voz que EjercicioGuiadoViewModel: femenina española (female / esd)
-            val voice = tts?.voices?.firstOrNull { v ->
-                v.locale.language == "es" &&
-                (v.name.contains("female", ignoreCase = true) ||
-                 v.name.contains("esd", ignoreCase = true))
-            } ?: tts?.voices?.firstOrNull { v -> v.locale.language == "es" }
-            voice?.let { tts?.voice = it }
-
-            tts?.setPitch(1.15f)
-            tts?.setSpeechRate(0.85f)
-
-            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                override fun onStart(id: String?) { mainHandler.post { isSpeaking = true  } }
-                override fun onDone(id: String?)  { mainHandler.post { isSpeaking = false } }
-                @Deprecated("Deprecated in Java")
-                override fun onError(id: String?) { mainHandler.post { isSpeaking = false } }
-            })
-
-            mainHandler.post {
-                isTtsReady = true
-                pendingTtsText?.let { text ->
-                    pendingTtsText = null
-                    if (!isTtsMuted) doSpeak(text)
-                }
-            }
-        }
-    }
-
-    private fun doSpeak(text: String) {
-        val clean = textoParaVoz(text).trim()
-            .replace(Regex("\n+"), ". ")
-            .replace(Regex(" +"), " ")
-        tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "berto_tts")
-    }
-
-    private fun speakBertoMessage(text: String) {
-        if (isTtsMuted) return
-        if (isTtsReady) doSpeak(text) else pendingTtsText = text
-    }
-
-    fun toggleMute() {
-        isTtsMuted = !isTtsMuted
-        if (isTtsMuted) {
-            tts?.stop()
-            isSpeaking = false
-        }
-    }
-
-    //Carga de Arboles
-    private fun loadMainMenu() {
-        irAlMenu()
-        // Saludo online solo si la IA está disponible (hay red y el servidor no está en espera tras un fallo).
-        val saludo = if (canUseApi()) SALUDO_ONLINE else menuRoot.texto
-        addBertoMessage(
-            content = saludo,
-            quickReplies = menuLabels(),
-            state = BertoState.TRANQUILO
-        )
-    }
-
-    private fun irAlMenu() {
-        currentTree = menuTree
-        currentNode = menuRoot
-    }
-
-    private fun menuLabels(): List<String> = menuRoot.opciones.map { it.texto }
+    // ── Input ────────────────────────────────────────────────────────────────
 
     // Tope de la API; aplica también al texto dictado con el micrófono.
     fun onInputChange(text: String) { inputText = text.take(ChatRemoteRepository.MAX_CARACTERES) }
 
-    /** Texto escrito o dictado: va a la API cuando se puede; si no, lo responde el árbol. */
+    /** Texto escrito o dictado: va a la API cuando se puede; si no, lo responde el flujo guiado. */
     fun sendMessage(text: String = inputText) {
         if (text.isBlank() || isWaitingForApi) return
         inputText = ""
-        procesarEntrada(text, permitirApi = true)
+        addUserMessage(text)
+        processFreeText(text)
     }
 
-    /** Botones de respuesta rápida: siempre árbol, salvo las acciones propias del chat online. */
     fun onQuickReplySelected(option: String) {
-        if (isWaitingForApi) return
-        when (option) {
-            OPCION_REINTENTAR -> {
-                agregarMensajeUsuario(option)
-                reintentarEnvio()
-            }
-            OPCION_TEMAS_GUIADOS -> {
-                agregarMensajeUsuario(option)
-                mostrarMenu(MSG_TEMAS_GUIADOS)
-            }
-            else -> procesarEntrada(option, permitirApi = false)
+        if (!canUseChoices) return
+        addUserMessage(option)
+        when {
+            option == OPCION_REINTENTAR -> reintentarEnvio()
+            option == OPCION_TEMAS_GUIADOS || option == BertoScripts.OPTION_OTHER_TOPICS ->
+                showTopicPicker(BertoScripts.TOPICS_AGAIN)
+            option == BertoScripts.OPTION_BREATHE -> openBreathing()
+            option == BertoScripts.OPTION_THATS_ALL -> sayGoodbye()
+            option == BertoScripts.OPTION_FEEL_BETTER -> onFeelBetter()
+            option == BertoScripts.OPTION_STILL_BAD -> onStillBad()
+            option == BertoScripts.OPTION_GROUNDING_NEXT && groundingStep != null -> advanceGrounding()
+            else -> answerGuided(option)
         }
     }
 
-    private fun procesarEntrada(text: String, permitirApi: Boolean) {
-        agregarMensajeUsuario(text)
-
-        // Interceptor de pánico: corre antes que la API para que una crisis nunca dependa
-        // de la red ni de DeepSeek. Provisional hasta el nuevo detector de crisis (pendiente P1).
-        if (containsCrisisKeywords(text)) {
-            updateState(BertoState.CRISIS)
-            simulateEmergencyResponse()
-            return
-        }
-
-        // Detectar estado emocional del usuario en texto libre
-        detectStateFromFreeText(text)?.let { updateState(it) }
-
-        if (permitirApi && canUseApi()) {
-            enviarAApi(text)
-        } else {
-            processTreeNavigation(text)
+    fun onTopicSelected(intent: TopicIntent, presetSubstanceId: String?) {
+        if (!canUseChoices) return
+        addUserMessage(intent.label)
+        when {
+            intent == TopicIntent.FEELING_BAD -> openFeelingBadSupport()
+            presetSubstanceId != null -> startTree(intent, presetSubstanceId, announce = false)
+            else -> bertoReplies {
+                say(BertoScripts.askSubstance(intent), attachment = ChatAttachment.SubstancePicker(intent))
+            }
         }
     }
 
-    private fun agregarMensajeUsuario(text: String) {
+    fun onSubstanceSelected(intent: TopicIntent, substanceId: String) {
+        if (!canUseChoices) return
+        addUserMessage(substanceLabel(substanceId))
+        startTree(intent, substanceId, announce = false)
+    }
+
+    private fun processFreeText(text: String) {
+        val reaction = conversationMood.react(currentBertoState, text)
+        when (reaction.shift) {
+            // Interceptor de pánico: corre antes que la API para que una crisis nunca dependa
+            // de la red ni de DeepSeek.
+            CrisisShift.DETECTED -> {
+                enterCrisisSupport()
+                return
+            }
+            // A calmer crisis must look calmer right away, whatever answers next (AI or guided).
+            CrisisShift.EASED, CrisisShift.STEPPED_DOWN -> updateState(reaction.state, celebrate = false)
+            CrisisShift.NONE -> updateState(reaction.state)
+        }
+        when {
+            canUseApi() -> enviarAApi(text)
+            reaction.shift == CrisisShift.EASED -> answerFeelingBetter()
+            else -> answerGuided(text)
+        }
+    }
+
+    private fun addUserMessage(text: String) {
         messages = messages + ChatMessage(
             content = text,
             isFromBerto = false,
             timestamp = now(),
             bertoState = currentBertoState
         )
+    }
+
+    // ── Guided flow ──────────────────────────────────────────────────────────
+
+    private fun showWelcome() {
+        resetGuidedFlow()
+        say(
+            BertoScripts.greeting(canChatFreely = canUseApi()),
+            attachment = ChatAttachment.TopicPicker()
+        )
+    }
+
+    private fun showTopicPicker(text: String, extras: List<String> = emptyList()) {
+        resetGuidedFlow()
+        bertoReplies { say(text, quickReplies = extras, attachment = ChatAttachment.TopicPicker()) }
+    }
+
+    /** Offline (or button) answer: follows the current tree, or guesses a topic from the words. */
+    private fun answerGuided(text: String) {
+        val node = currentNode
+        val option = node?.opciones?.firstOrNull { it.texto.equals(text.trim(), ignoreCase = true) }
+        when {
+            option != null -> followTreeOption(option)
+            // Mid-topic, words that name another topic or a feeling change course instead of being ignored.
+            node != null && !OfflineTopicMatcher.match(text).isEmpty -> answerFromTopicMatch(text)
+            node != null && MoodDetector.detect(text) != null -> answerFromMood(text)
+            node != null -> bertoReplies {
+                say(BertoScripts.IN_TREE_NOT_UNDERSTOOD, quickReplies = node.opciones.map { it.texto })
+            }
+            else -> answerFromTopicMatch(text)
+        }
+    }
+
+    private fun answerFromTopicMatch(text: String) {
+        val match = OfflineTopicMatcher.match(text)
+        val intent = match.intent
+        val substanceId = match.substanceId
+        when {
+            intent != null && substanceId != null -> startTree(intent, substanceId, announce = true)
+            intent != null -> bertoReplies {
+                say(BertoScripts.askSubstance(intent), attachment = ChatAttachment.SubstancePicker(intent))
+            }
+            substanceId != null -> bertoReplies {
+                say(
+                    BertoScripts.askIntentFor(substanceLabel(substanceId)),
+                    attachment = ChatAttachment.TopicPicker(substanceId)
+                )
+            }
+            // In crisis, offline, Berto cannot improvise: he stays close and offers to breathe.
+            currentBertoState == BertoState.CRISIS -> bertoReplies {
+                say(
+                    BertoScripts.CRISIS_OFFLINE_REPLY,
+                    quickReplies = listOf(BertoScripts.OPTION_BREATHE, BertoScripts.OPTION_FEEL_BETTER)
+                )
+            }
+            else -> answerFromMood(text)
+        }
+    }
+
+    /** No topic in the words: Berto still answers how the user sounds instead of a cold "elige un tema". */
+    private fun answerFromMood(text: String) {
+        when (MoodDetector.detect(text)) {
+            BertoState.PREOCUPADO -> openFeelingBadSupport()
+            BertoState.CELEBRANDO -> bertoReplies {
+                resetGuidedFlow()
+                say(
+                    BertoScripts.POSITIVE_REPLY,
+                    quickReplies = listOf(BertoScripts.OPTION_OTHER_TOPICS, BertoScripts.OPTION_THATS_ALL)
+                )
+            }
+            else -> bertoReplies {
+                resetGuidedFlow()
+                val reply = if (GreetingDetector.isGreeting(text)) BertoScripts.GREETING_REPLY else BertoScripts.OFFLINE_NOT_UNDERSTOOD
+                say(reply, attachment = ChatAttachment.TopicPicker())
+            }
+        }
+    }
+
+    private fun startTree(intent: TopicIntent, substanceId: String, announce: Boolean) {
+        val tree = intent.treeIdFor(substanceId)
+            ?.let { runCatching { treeRepository.obtenerArbol(it) }.getOrNull() }
+        val firstNode = tree?.nodos?.get(tree.nodoInicialId)
+        if (tree == null || firstNode == null) {
+            showTopicPicker(BertoScripts.TOPICS_AGAIN)
+            return
+        }
+        resetGuidedFlow()
+        currentTree = tree
+        if (intent == TopicIntent.CRAVING) updateStateUnlessCrisis(BertoState.PREOCUPADO)
+        bertoReplies {
+            if (announce) {
+                say(BertoScripts.startingTopic(substanceLabel(substanceId)))
+                typeFor(SHORT_TYPING_MS)
+            }
+            showNode(firstNode)
+        }
+    }
+
+    private fun followTreeOption(option: DecisionOption) {
+        val next = currentTree?.nodos?.get(option.siguienteNodoId)
+        bertoReplies {
+            option.reaccion?.let {
+                say(it)
+                typeFor(SHORT_TYPING_MS)
+            }
+            if (next == null) {
+                resetGuidedFlow()
+                say(BertoScripts.TOPICS_AGAIN, attachment = ChatAttachment.TopicPicker())
+            } else {
+                showNode(next)
+            }
+        }
+    }
+
+    /** A node reads as a short conversation: the detail first, then the question with its chips. */
+    private suspend fun showNode(node: DecisionNode) {
+        currentNode = node
+        bertoStateFromTree(node.bertoState)?.let { updateStateUnlessCrisis(it) }
+        node.mensaje?.takeIf { it.isNotBlank() }?.let {
+            say(it)
+            typeFor(node.delayMs.coerceIn(MIN_TYPING_MS, MAX_TYPING_MS))
+        }
+        say(node.texto, quickReplies = node.opciones.map { it.texto })
+        if (node.esFinal || node.opciones.isEmpty()) {
+            typeFor(DEFAULT_TYPING_MS)
+            resetGuidedFlow()
+            say(
+                BertoScripts.TREE_FINISHED,
+                quickReplies = listOf(
+                    BertoScripts.OPTION_OTHER_TOPICS,
+                    BertoScripts.OPTION_BREATHE,
+                    BertoScripts.OPTION_THATS_ALL
+                )
+            )
+        }
+    }
+
+    private fun sayGoodbye() {
+        resetGuidedFlow()
+        updateStateUnlessCrisis(BertoState.TRANQUILO)
+        bertoReplies { say(BertoScripts.GOODBYE) }
+    }
+
+    private fun resetGuidedFlow() {
+        currentTree = null
+        currentNode = null
+        groundingStep = null
+    }
+
+    // ── Support and crisis ───────────────────────────────────────────────────
+
+    /** From the top-bar menu: the user asks for help without having to find the words. */
+    fun requestCrisisSupport() {
+        addUserMessage(MSG_NECESITO_AYUDA)
+        enterCrisisSupport()
+    }
+
+    private fun enterCrisisSupport() {
+        resetGuidedFlow()
+        conversationMood.reset()
+        updateState(BertoState.CRISIS)
+        bertoReplies(SHORT_TYPING_MS) {
+            say(BertoScripts.CRISIS_OPENING, attachment = ChatAttachment.SupportActions(urgent = true))
+        }
+    }
+
+    private fun openFeelingBadSupport() {
+        resetGuidedFlow()
+        updateStateUnlessCrisis(BertoState.PREOCUPADO)
+        bertoReplies {
+            say(BertoScripts.FEELING_BAD_OPENING, attachment = ChatAttachment.SupportActions(urgent = false))
+        }
+    }
+
+    /** Calls are dialed by the screen (it owns the Context); here Berto only keeps the user company. */
+    fun onSupportAction(action: SupportAction) {
+        when (action) {
+            SupportAction.BREATHE -> openBreathing()
+            SupportAction.GROUND -> startGrounding()
+            SupportAction.CALL_LIFELINE,
+            SupportAction.CALL_SAPTEL,
+            SupportAction.CALL_EMERGENCY -> {
+                // The dialer is opening: Berto must not talk over the call.
+                voice.stop()
+                bertoReplies(SHORT_TYPING_MS) { say(BertoScripts.CALL_STARTED, speak = false) }
+            }
+            SupportAction.ALERT_NETWORK -> showSosDialog = true
+            SupportAction.KEEP_TALKING -> {
+                addUserMessage(action.label)
+                resetGuidedFlow()
+                bertoReplies { say(BertoScripts.KEEP_TALKING) }
+            }
+        }
+    }
+
+    /** "Ya estoy mejor" from the crisis bar. */
+    fun leaveCrisisSupport() {
+        addUserMessage(BertoScripts.LEAVE_CRISIS)
+        onFeelBetter()
+    }
+
+    private fun onFeelBetter() {
+        conversationMood.reset()
+        updateState(BertoState.TRANQUILO)
+        answerFeelingBetter()
+    }
+
+    private fun answerFeelingBetter() {
+        resetGuidedFlow()
+        bertoReplies {
+            say(
+                BertoScripts.FEEL_BETTER_REPLY,
+                quickReplies = listOf(BertoScripts.OPTION_OTHER_TOPICS, BertoScripts.OPTION_THATS_ALL)
+            )
+        }
+    }
+
+    private fun onStillBad() {
+        resetGuidedFlow()
+        updateStateUnlessCrisis(BertoState.PREOCUPADO)
+        bertoReplies {
+            say(BertoScripts.STILL_BAD_REPLY, attachment = ChatAttachment.SupportActions(urgent = true))
+        }
+    }
+
+    private fun askHowYouFeel() {
+        say(
+            BertoScripts.ASK_HOW_YOU_FEEL,
+            quickReplies = listOf(BertoScripts.OPTION_FEEL_BETTER, BertoScripts.OPTION_STILL_BAD)
+        )
+    }
+
+    // ── Breathing ────────────────────────────────────────────────────────────
+
+    fun openBreathing() {
+        voice.stop()
+        isBreathingOpen = true
+    }
+
+    /** Berto says each phase out loud, so the user can breathe with their eyes closed. */
+    fun onBreathPhase(phaseName: String) = voice.speak(phaseName)
+
+    fun closeBreathing(completedCycles: Int) {
+        isBreathingOpen = false
+        voice.stop()
+        bertoReplies(SHORT_TYPING_MS) {
+            if (completedCycles > 0) {
+                say(BertoScripts.BREATHING_DONE)
+                typeFor(SHORT_TYPING_MS)
+            }
+            askHowYouFeel()
+        }
+    }
+
+    // ── 5-4-3-2-1 grounding ──────────────────────────────────────────────────
+
+    private fun startGrounding() {
+        addUserMessage(SupportAction.GROUND.label)
+        resetGuidedFlow()
+        groundingStep = 0
+        bertoReplies {
+            say(BertoScripts.GROUNDING_INTRO)
+            typeFor(DEFAULT_TYPING_MS)
+            say(BertoScripts.groundingSteps.first(), quickReplies = listOf(BertoScripts.OPTION_GROUNDING_NEXT))
+        }
+    }
+
+    private fun advanceGrounding() {
+        val next = (groundingStep ?: return) + 1
+        if (next < BertoScripts.groundingSteps.size) {
+            groundingStep = next
+            bertoReplies {
+                say(BertoScripts.groundingSteps[next], quickReplies = listOf(BertoScripts.OPTION_GROUNDING_NEXT))
+            }
+        } else {
+            groundingStep = null
+            bertoReplies {
+                say(BertoScripts.GROUNDING_DONE)
+                typeFor(SHORT_TYPING_MS)
+                askHowYouFeel()
+            }
+        }
     }
 
     // ── Chat online ──────────────────────────────────────────────────────────
@@ -329,10 +497,10 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun enviarAApi(texto: String) {
+        resetGuidedFlow()
         sesionOnlineAbierta = true
         ultimoMensajeFallido = null
         isWaitingForApi = true
-        showBertoPeek = true
         isBertoTyping = true
         val cierrePendiente = cierreSesionJob
 
@@ -349,7 +517,6 @@ class ChatViewModel @Inject constructor(
                 isApiSlow = false
                 isWaitingForApi = false
                 isBertoTyping = false
-                showBertoPeek = false
             }
             responderResultadoApi(texto, result)
         }
@@ -359,35 +526,30 @@ class ChatViewModel @Inject constructor(
         when (result) {
             is EnviarMensajeResult.Exito -> {
                 registrarExitoApi()
-                addBertoMessage(
-                    content = result.respuesta,
-                    quickReplies = listOf(OPCION_TEMAS_GUIADOS),
-                    state = currentBertoState
-                )
+                say(result.respuesta, quickReplies = listOf(OPCION_TEMAS_GUIADOS))
             }
             // En estos dos casos el servidor sí respondió: si estaba en modo guiado, se sale.
             EnviarMensajeResult.ContenidoNoPermitido -> {
                 registrarExitoApi()
-                mostrarMenu(MSG_CONTENIDO_NO_PERMITIDO)
+                showTopicPicker(MSG_CONTENIDO_NO_PERMITIDO)
             }
             EnviarMensajeResult.RespuestaVacia -> {
                 registrarExitoApi()
                 ultimoMensajeFallido = texto
-                mostrarMenu(MSG_RESPUESTA_VACIA, extras = listOf(OPCION_REINTENTAR))
+                showTopicPicker(MSG_RESPUESTA_VACIA, extras = listOf(OPCION_REINTENTAR))
             }
             EnviarMensajeResult.ServidorNoDisponible,
             EnviarMensajeResult.ErrorInesperado -> {
                 ultimoMensajeFallido = texto
                 registrarFalloApi()
-                mostrarMenu(MSG_SERVIDOR_NO_DISPONIBLE, extras = listOf(OPCION_REINTENTAR))
+                showTopicPicker(MSG_SERVIDOR_NO_DISPONIBLE, extras = listOf(OPCION_REINTENTAR))
             }
             // Sin usuario de Firebase no hay userId: se comporta como offline.
             EnviarMensajeResult.SinSesion -> {
                 sesionOnlineAbierta = false
-                processTreeNavigation(texto)
+                answerGuided(texto)
             }
-            EnviarMensajeResult.MensajeInvalido ->
-                addBertoMessage(MSG_MENSAJE_LARGO, ultimasOpciones(), currentBertoState)
+            EnviarMensajeResult.MensajeInvalido -> say(MSG_MENSAJE_LARGO)
         }
     }
 
@@ -395,20 +557,11 @@ class ChatViewModel @Inject constructor(
     private fun reintentarEnvio() {
         val texto = ultimoMensajeFallido
         when {
-            texto == null -> mostrarMenu(MSG_TEMAS_GUIADOS)
+            texto == null -> showTopicPicker(BertoScripts.TOPICS_AGAIN)
             canUseApi(isRetry = true) -> enviarAApi(texto)
-            else -> mostrarMenu(MSG_SIGUE_SIN_CONEXION, extras = listOf(OPCION_REINTENTAR))
+            else -> showTopicPicker(MSG_SIGUE_SIN_CONEXION, extras = listOf(OPCION_REINTENTAR))
         }
     }
-
-    /** Muestra los 8 temas sin borrar la conversación y deja el árbol parado en el menú. */
-    private fun mostrarMenu(texto: String, extras: List<String> = emptyList()) {
-        irAlMenu()
-        addBertoMessage(content = texto, quickReplies = extras + menuLabels(), state = currentBertoState)
-    }
-
-    private fun ultimasOpciones(): List<String> =
-        messages.lastOrNull { it.isFromBerto }?.quickReplies.orEmpty()
 
     private fun registrarExitoApi() {
         sondeoJob?.cancel()
@@ -438,7 +591,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun marcarServidorCaido() {
-        addAvisoSistema(AvisoSistema.SERVIDOR_NO_DISPONIBLE, AVISO_SERVIDOR_NO_DISPONIBLE, ultimasOpciones())
+        addAvisoSistema(AvisoSistema.SERVIDOR_NO_DISPONIBLE, AVISO_SERVIDOR_NO_DISPONIBLE)
         registrarFalloApi()
     }
 
@@ -454,7 +607,7 @@ class ChatViewModel @Inject constructor(
                 if (!conectado) continue // al volver internet lo revisa observarConectividad
                 if (chatRemoteRepository.servidorDisponible()) {
                     limpiarEspera()
-                    addAvisoSistema(AvisoSistema.SERVIDOR_RECUPERADO, AVISO_SERVIDOR_RECUPERADO, ultimasOpciones())
+                    addAvisoSistema(AvisoSistema.SERVIDOR_RECUPERADO, AVISO_SERVIDOR_RECUPERADO)
                     break
                 }
                 modePolicy.registrarFallo()
@@ -489,22 +642,24 @@ class ChatViewModel @Inject constructor(
                     reconexionJob = viewModelScope.launch {
                         if (chatRemoteRepository.servidorDisponible()) {
                             limpiarEspera()
-                            addAvisoSistema(AvisoSistema.CONEXION_RECUPERADA, AVISO_CONEXION_RECUPERADA, ultimasOpciones())
+                            addAvisoSistema(AvisoSistema.CONEXION_RECUPERADA, AVISO_CONEXION_RECUPERADA)
                         } else {
                             marcarServidorCaido()
                         }
                     }
                 } else {
                     sondeoJob?.cancel()
-                    // Si se estaba hablando con la IA (sin botones o solo "Temas guiados"),
-                    // se ofrecen los temas del árbol; si se estaba en medio de un árbol, se conservan sus botones.
-                    val opciones = ultimasOpciones()
-                    if (opciones.isEmpty() || opciones == listOf(OPCION_TEMAS_GUIADOS)) {
-                        irAlMenu()
-                        addAvisoSistema(AvisoSistema.SIN_CONEXION, AVISO_SIN_CONEXION, menuLabels())
-                    } else {
-                        addAvisoSistema(AvisoSistema.SIN_CONEXION, AVISO_SIN_CONEXION, opciones)
-                    }
+                    // Si se estaba hablando con la IA, se ofrecen los temas guiados; si se estaba en
+                    // medio de un árbol o de una técnica, sus botones siguen activos.
+                    val talkingToAi = messages.lastOrNull { it.isInteractive }
+                        ?.let { it.attachment == null && it.quickReplies == listOf(OPCION_TEMAS_GUIADOS) }
+                        ?: true
+                    if (talkingToAi) resetGuidedFlow()
+                    addAvisoSistema(
+                        AvisoSistema.SIN_CONEXION,
+                        AVISO_SIN_CONEXION,
+                        attachment = if (talkingToAi) ChatAttachment.TopicPicker() else null
+                    )
                 }
                 actualizarModo()
             }
@@ -517,7 +672,7 @@ class ChatViewModel @Inject constructor(
         actualizarModo()
         startOnlineChat()
         // Offline, the "connection recovered" notice will tell the user once internet is back.
-        if (conectado) addBertoMessage(MSG_AI_CONSENT_ACCEPTED, ultimasOpciones(), currentBertoState)
+        if (conectado) say(BertoScripts.AI_CONSENT_ACCEPTED)
     }
 
     fun postponeAiConsent() {
@@ -525,14 +680,14 @@ class ChatViewModel @Inject constructor(
         actualizarModo()
     }
 
-    private fun addAvisoSistema(tipo: AvisoSistema, content: String, quickReplies: List<String>) {
+    private fun addAvisoSistema(tipo: AvisoSistema, content: String, attachment: ChatAttachment? = null) {
         messages = messages + ChatMessage(
             content = content,
             isFromBerto = true,
             timestamp = now(),
-            quickReplies = quickReplies,
             bertoState = currentBertoState,
-            avisoSistema = tipo
+            avisoSistema = tipo,
+            attachment = attachment
         )
     }
 
@@ -550,186 +705,74 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun processTreeNavigation(userChoice: String) {
-        viewModelScope.launch {
-            showBertoPeek = true
-            isBertoTyping = true
+    // ── Berto's state and messages ───────────────────────────────────────────
 
-            // Retraso de escritura
-            delay(1200L + (userChoice.length * 15L).coerceAtMost(1200L))
-
-            // Buscar si lo que el usuario presionó coincide con una opción del nodo actual
-            val opcionSeleccionada = currentNode?.opciones?.find {
-                it.texto.equals(userChoice, ignoreCase = true)
-            }
-
-            var nextNode: DecisionNode? = null
-
-            if (opcionSeleccionada != null) {
-                val destinoId = opcionSeleccionada.siguienteNodoId
-
-                // CASO A: Estamos en el menú principal y el usuario elige uno de los 8 árboles
-                if (currentTree?.id == MAIN_MENU_ID) {
-                    try {
-                        val selectedTree = treeRepository.obtenerArbol(destinoId)
-                        currentTree = selectedTree
-                        nextNode = selectedTree.nodos[selectedTree.nodoInicialId]
-                        updateState(stateFromTreeId(destinoId))
-                    } catch (e: Exception) {
-                        // Resguardo por si el ID del repositorio fallara
-                        nextNode = null
-                    }
-                }
-                // CASO B: Ya estamos navegando dentro de uno de los 8 árboles de sustancias
-                else {
-                    nextNode = currentTree?.nodos?.get(destinoId)
-                }
-            }
-
-            isBertoTyping = false
-            delay(200L)
-            showBertoPeek = false
-
-            // Responder e interactuar según el nodo obtenido
-            if (nextNode != null) {
-                currentNode = nextNode
-
-                val respuestaTexto = if (nextNode.mensaje != null) {
-                    "${nextNode.mensaje}\n\n${nextNode.texto}"
-                } else {
-                    nextNode.texto
-                }
-
-                addBertoMessage(
-                    content = respuestaTexto,
-                    quickReplies = nextNode.opciones.map { it.texto },
-                    state = currentBertoState
-                )
-
-                if (nextNode.esFinal) {
-                    delay(1000L)
-                    handleEndOfTree()
-                }
-
-            } else {
-                if (userChoice.equals("Regresar al menú principal", ignoreCase = true)) {
-                    clearMessages()
-                } else {
-                    addBertoMessage(
-                        content = "Para poder ayudarte mejor, por favor selecciona una de las siguientes opciones de la lista:",
-                        quickReplies = currentNode?.opciones?.map { it.texto } ?: emptyList(),
-                        state = currentBertoState
-                    )
-                }
-            }
-        }
-    }
-
-    private fun handleEndOfTree() {
-        updateState(BertoState.TRANQUILO)
-        addBertoMessage(
-            content = "¿Deseas revisar alguna otra sección o regresar al menú principal?",
-            quickReplies = listOf("Regresar al menú principal"),
-            state = BertoState.TRANQUILO
-        )
-        val opcionesReinicio = listOf(DecisionOption("Regresar al menú principal", "regresar"))
-        currentNode = DecisionNode("fin", "", NodeType.MESSAGE, opcionesReinicio)
-        currentTree = DecisionTree(MAIN_MENU_ID, "", "fin", emptyMap())
-    }
-
-    // Solo el contenido del mensaje decide si es crisis. Antes devolvía el estado actual de Berto
-    // cuando no había palabras clave, así que tras una crisis todo mensaje se trataba como crisis.
-    private fun containsCrisisKeywords(text: String): Boolean {
-        val lower = text.lowercase()
-        return CRISIS_KEYWORDS.any { lower.contains(it) }
-    }
-
-    private fun simulateEmergencyResponse() {
-        viewModelScope.launch {
-            showBertoPeek = true
-            isBertoTyping = true
-            delay(1000L)
-            isBertoTyping = false
-            showBertoPeek = false
-
-            try {
-                val crisisTree = treeRepository.obtenerArbol("alcohol_craving")
-                currentTree = crisisTree
-                currentNode = crisisTree.nodos[crisisTree.nodoInicialId]
-            } catch (e: Exception) {
-                currentTree = null
-                currentNode = null
-            }
-
-            addBertoMessage(
-                content = currentNode?.texto ?: "Gracias por decírmelo. Lo que estás sintiendo en este momento es muy real, pero no estás solo. ¿Te gustaría activar tu red de apoyo o probar una técnica de respiración?",
-                quickReplies = currentNode?.opciones?.map { it.texto } ?: listOf("Sí, avisa a mi red", "Dame técnicas de respiración", "Regresar al menú principal"),
-                state = BertoState.CRISIS
-            )
-        }
-    }
-
-    private fun updateState(newState: BertoState) {
+    /** [celebrate] = false skips the confetti, e.g. right after a crisis eases. */
+    private fun updateState(newState: BertoState, celebrate: Boolean = true) {
         if (newState == currentBertoState) return
         currentBertoState = newState
-        stateTransitionJob?.cancel()
-        stateTransition = newState
-        stateTransitionJob = viewModelScope.launch {
-            delay(2800)
-            stateTransition = null
+        if (newState == BertoState.CELEBRANDO && celebrate) celebrationCount++
+    }
+
+    private fun updateStateUnlessCrisis(newState: BertoState) {
+        if (currentBertoState != BertoState.CRISIS) updateState(newState)
+    }
+
+    /** Shows "typing" for [typingMs] and then runs [answer]; answers queue up in order. */
+    private fun bertoReplies(typingMs: Long = DEFAULT_TYPING_MS, answer: suspend () -> Unit) {
+        val previous = guidedJob
+        guidedJob = viewModelScope.launch {
+            previous?.join()
+            typeFor(typingMs)
+            answer()
         }
     }
 
-    private fun stateFromTreeId(treeId: String): BertoState = when {
-        treeId.endsWith("_craving") -> BertoState.PREOCUPADO
-        else -> BertoState.TRANQUILO
-    }
-
-    private fun detectStateFromFreeText(text: String): BertoState? {
-        val lower = text.lowercase()
-        return when {
-            ANXIETY_KEYWORDS.any { lower.contains(it) } -> BertoState.PREOCUPADO
-            POSITIVE_KEYWORDS.any { lower.contains(it) } -> BertoState.CELEBRANDO
-            else -> null
+    private suspend fun typeFor(typingMs: Long) {
+        isBertoTyping = true
+        try {
+            delay(typingMs)
+        } finally {
+            isBertoTyping = false
         }
     }
 
-    private fun addBertoMessage(content: String, quickReplies: List<String> = emptyList(), state: BertoState) {
+    private fun say(
+        content: String,
+        quickReplies: List<String> = emptyList(),
+        attachment: ChatAttachment? = null,
+        speak: Boolean = true
+    ) {
         messages = messages + ChatMessage(
             content = content,
             isFromBerto = true,
             timestamp = now(),
             quickReplies = quickReplies,
-            bertoState = state
+            bertoState = currentBertoState,
+            attachment = attachment
         )
-        speakBertoMessage(content)
+        if (speak) voice.speak(content)
     }
+
+    fun toggleMute() = voice.toggleMute()
 
     fun clearMessages() {
         envioJob?.cancel()
+        guidedJob?.cancel()
+        guidedJob = null
+        isBertoTyping = false
         cerrarSesionOnline()
         ultimoMensajeFallido = null
-        tts?.stop()
-        isSpeaking = false
+        voice.stop()
         messages = emptyList()
         currentBertoState = BertoState.TRANQUILO
-        loadMainMenu()
+        showWelcome()
     }
 
     fun toggleSosDialog() { showSosDialog = !showSosDialog }
 
     override fun onCleared() {
-        // Best-effort: if the user backs out fast (before the async TextToSpeech engine
-        // finishes connecting, or mid-utterance), shutdown() can race the engine's own
-        // connection setup. On some OEM TTS engines that race throws from a background
-        // binder thread, which crashes the whole process instead of just this cleanup —
-        // never worth that for releasing a resource that's about to be garbage collected.
-        try {
-            tts?.stop()
-            tts?.shutdown()
-        } catch (e: Exception) {
-        }
-        tts = null
+        voice.shutdown()
         cerrarSesionOnline()
         super.onCleared()
     }
@@ -743,17 +786,19 @@ class ChatViewModel @Inject constructor(
         const val OPCION_REINTENTAR = "Reintentar"
         const val OPCION_TEMAS_GUIADOS = "Temas guiados"
 
-        const val SALUDO_ONLINE = "Hola, soy Berto. Puedes escribirme lo que sientes o elegir un tema:"
-        const val MSG_TEMAS_GUIADOS = "Estos son los temas en los que puedo acompañarte:"
+        const val MSG_NECESITO_AYUDA = "Necesito ayuda ahora"
         const val MSG_CONTENIDO_NO_PERMITIDO = "No puedo responder a eso. Puedo acompañarte con temas de " +
             "alcohol, vape, cristal o tabaco. ¿Me lo cuentas de otra forma o prefieres elegir un tema?"
         const val MSG_RESPUESTA_VACIA = "No pude responderte esta vez. ¿Lo intentamos de nuevo?"
         const val MSG_SERVIDOR_NO_DISPONIBLE = "Tengo problemas para conectarme ahora. Te acompaño en modo guiado:"
         const val MSG_SIGUE_SIN_CONEXION = "Sigo sin conexión. Mientras tanto te acompaño en modo guiado:"
         const val MSG_MENSAJE_LARGO = "Tu mensaje es muy largo. ¿Me lo cuentas en menos palabras?"
-        const val MSG_AI_CONSENT_ACCEPTED = "Gracias por confiar en mí. Ya puedes escribirme lo que sientes o elegir un tema."
 
         const val UMBRAL_PENSANDO_MS = 8_000L
+        const val SHORT_TYPING_MS = 700L
+        const val DEFAULT_TYPING_MS = 1_100L
+        const val MIN_TYPING_MS = 700L
+        const val MAX_TYPING_MS = 1_800L
 
         const val AVISO_SIN_CONEXION = "Perdí la conexión. Sigo contigo en modo guiado."
         const val AVISO_CONEXION_RECUPERADA = "Conexión recuperada. Ya puedes escribirme libremente."
