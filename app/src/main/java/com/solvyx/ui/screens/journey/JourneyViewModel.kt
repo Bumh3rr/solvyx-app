@@ -19,6 +19,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import com.solvyx.ui.screens.journey.achievements.diaryBadges
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle
@@ -48,9 +50,8 @@ class JourneyViewModel @Inject constructor(
     var achievementsState by mutableStateOf<AchievementsUiState>(AchievementsUiState.Loading)
         private set
 
-    // Survives the check-in wizard opening/closing (which disposes the whole Achievements tab),
-    // so AchievementCard can still play its unlock celebration once the user is back on the tab
-    // instead of just recomposing already-unlocked and never celebrating.
+    // Survives the check-in wizard opening/closing, so JourneyScreen can still show the
+    // full-screen unlock celebration once the user is back instead of never celebrating.
     var justUnlockedIds by mutableStateOf<Set<String>>(emptySet())
         private set
 
@@ -132,7 +133,11 @@ class JourneyViewModel @Inject constructor(
                     registeredDays = registered.size
                 )
 
-                achievementsState = achievementsStateFrom(achievementEntities.map { mapAchievement(it, stats.current) })
+                achievementsState = achievementsStateFrom(
+                    list = achievementEntities.map { mapAchievement(it, stats.current) },
+                    currentStreak = stats.current,
+                    badges = diaryBadges(journalEntries)
+                )
                 autoUnlock(achievementEntities, stats.current)
             }
         }
@@ -189,7 +194,8 @@ class JourneyViewModel @Inject constructor(
         }
         val threshold = Achievement.STREAK_THRESHOLDS[entity.id] ?: 1
         val progress = progressToward(currentStreak, threshold, entity.unlocked)
-        return UiAchievement(entity.id, icon, title, description, entity.unlocked, progress)
+        val unlockedOn = entity.unlockDate?.let { Instant.ofEpochMilli(it).atZone(zone).toLocalDate() }
+        return UiAchievement(entity.id, icon, title, description, entity.unlocked, progress, threshold, unlockedOn)
     }
 
     fun selectPeriod(index: Int) { selectedPeriod = index }

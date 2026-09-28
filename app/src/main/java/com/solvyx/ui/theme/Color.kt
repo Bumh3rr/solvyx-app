@@ -45,6 +45,7 @@ val DirectoryPsychologist = Color(0xFF92400E)  // Psicólogos
 
 // ── Racha ─────────────────────────────────────────────
 val StreakFlame       = Color(0xFFE8823C)  // Ícono de flama en la tarjeta de racha
+val MedalGold         = Color(0xFFE0A526)  // Medalla del logro más alto (30 días)
 
 // ── Ánimo (bitácora + estado_animo de Berto) ─────────
 val MoodTriste         = Color(0xFF6B93D6)
