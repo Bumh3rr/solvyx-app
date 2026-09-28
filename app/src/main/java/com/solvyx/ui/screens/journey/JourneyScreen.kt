@@ -37,7 +37,8 @@ import dev.chrisbanes.haze.haze
 fun JourneyScreen(
     onOpenDrawer: () -> Unit,
     onCreateAccount: () -> Unit,
-    onOpenCheckIn: (edit: Boolean) -> Unit
+    onOpenCheckIn: (edit: Boolean) -> Unit,
+    onOpenDiary: () -> Unit
 ) {
     val journeyVM: JourneyViewModel = hiltViewModel()
 
@@ -46,7 +47,8 @@ fun JourneyScreen(
         onOpenDrawer = onOpenDrawer,
         onCreateAccount = onCreateAccount,
         onRegister = { onOpenCheckIn(false) },
-        onEdit = { onOpenCheckIn(true) }
+        onEdit = { onOpenCheckIn(true) },
+        onOpenDiary = onOpenDiary
     )
 
     journeyVM.selectedDay?.let { entry ->
@@ -60,7 +62,8 @@ private fun TabsScreen(
     onOpenDrawer: () -> Unit,
     onCreateAccount: () -> Unit,
     onRegister: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onOpenDiary: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -111,7 +114,8 @@ private fun TabsScreen(
                     progressState = journeyVM.progressState,
                     todayEntry = todayEntry,
                     onRegister = onRegister,
-                    onEdit = onEdit
+                    onEdit = onEdit,
+                    onOpenDiary = onOpenDiary
                 )
                 TAB_ACHIEVEMENTS -> AchievementsTab(
                     state = journeyVM.achievementsState,

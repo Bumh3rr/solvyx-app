@@ -36,12 +36,24 @@ enum class BertoReactTrigger(val riveName: String) {
     ANXIOUS("triggerAnxious"),
     NEUTRAL("triggerNeutral"),
     GOOD("triggerGood"),
-    EUPHORIC("triggerEuphoric")
+    EUPHORIC("triggerEuphoric");
+
+    companion object {
+        /** Reaction for a journal mood id ("triste", "ansioso"…); `null` for unknown ids. */
+        fun forMood(moodId: String?): BertoReactTrigger? = when (moodId) {
+            "triste" -> SAD
+            "ansioso" -> ANXIOUS
+            "neutral" -> NEUTRAL
+            "bien" -> GOOD
+            "euforico" -> EUPHORIC
+            else -> null
+        }
+    }
 }
 
 /**
- * Berto from `reacts_berto.riv`: greets on load, plays a [reaction] every time it changes to a new
- * value, and while [isReading] lowers his head and follows [lookX] (0 = left edge of the text, 1 =
+ * Berto from `reacts_berto.riv`: greets on load, plays a [reaction] every time it (or
+ * [reactionKey]) changes — the key replays the same reaction, e.g. on two days with the same mood —, and while [isReading] lowers his head and follows [lookX] (0 = left edge of the text, 1 =
  * right edge) with his eyes. `lookX` is smoothed here, so the jump back to 0 on a new line glides
  * instead of snapping. See "Berto — Guía animación Reading" in the vault for the Rive side.
  */
@@ -51,6 +63,7 @@ fun BertoReactsAnimation(
     isReading: Boolean,
     lookX: Float?,
     modifier: Modifier = Modifier,
+    reactionKey: Any? = null,
     @DrawableRes fallback: Int = R.drawable.berto_saludando
 ) {
     val riveWorker = rememberRiveWorker()
@@ -69,7 +82,7 @@ fun BertoReactsAnimation(
                 label = "bertoLookX"
             )
 
-            LaunchedEffect(reaction) {
+            LaunchedEffect(reaction, reactionKey) {
                 reaction?.let { viewModel.fireTrigger(it.riveName) }
             }
             LaunchedEffect(isReading) {

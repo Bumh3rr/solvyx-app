@@ -14,6 +14,7 @@ import com.solvyx.backend.data.model.Achievement
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.repository.ProgressRepository
 import com.solvyx.ui.components.common.MoodOptions
+import com.solvyx.ui.screens.journey.diary.diaryEntries
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -26,6 +27,7 @@ import javax.inject.Inject
 
 /** Minimum number of logged days before claiming any pattern in "Berto dice". */
 private const val MIN_DAYS_FOR_PATTERN = 5
+private const val DIARY_PREVIEW_DAYS = 7
 
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
@@ -91,6 +93,7 @@ class JourneyViewModel @Inject constructor(
                 todayEntry = journalEntries.firstOrNull { it.date == today }
 
                 val stats = streakCalculator.compute(journalEntries, today)
+                val registered = diaryEntries(journalEntries)
 
                 // Chart data
                 val weekDays = (6 downTo 0).map { today.minusDays(it.toLong()) }
@@ -124,7 +127,9 @@ class JourneyViewModel @Inject constructor(
                     useWeek = useSeries(weekDays),
                     useMonth = useSeries(monthDays),
                     insight = buildInsight(entryMap),
-                    hasHistory = entryMap.isNotEmpty()
+                    hasHistory = entryMap.isNotEmpty(),
+                    recentMoods = registered.take(DIARY_PREVIEW_DAYS).map { it.mood }.reversed(),
+                    registeredDays = registered.size
                 )
 
                 achievementsState = achievementsStateFrom(achievementEntities.map { mapAchievement(it, stats.current) })

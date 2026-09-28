@@ -39,6 +39,7 @@ import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealPrimary
+import com.solvyx.ui.components.common.StaggeredAppear
 
 private const val CARD_STAGGER_MS = 80L
 private const val DISABLED_ALPHA = 0.5f

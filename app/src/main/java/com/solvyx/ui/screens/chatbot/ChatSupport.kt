@@ -44,6 +44,7 @@ import com.solvyx.ui.theme.CrisisRedLight
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.theme.TealPrimary
+import com.solvyx.ui.components.common.StaggeredAppear
 
 private val CardShape = RoundedCornerShape(20.dp)
 private val TileShape = RoundedCornerShape(16.dp)

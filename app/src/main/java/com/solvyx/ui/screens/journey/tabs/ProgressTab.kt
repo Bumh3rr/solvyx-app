@@ -37,6 +37,7 @@ import com.solvyx.ui.screens.journey.ConsumptionChart
 import com.solvyx.ui.screens.journey.FeelingsChart
 import com.solvyx.ui.screens.journey.ProgressUiState
 import com.solvyx.ui.screens.journey.components.CheckInCard
+import com.solvyx.ui.screens.journey.components.DiaryEntryCard
 import com.solvyx.ui.screens.journey.components.ProgressEmptyState
 import com.solvyx.ui.screens.journey.components.StreakJourneyCard
 import com.solvyx.ui.screens.guias.components.BorderCard
@@ -50,6 +51,7 @@ fun ProgressTab(
     todayEntry: JournalEntry?,
     onRegister: () -> Unit,
     onEdit: () -> Unit,
+    onOpenDiary: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val streak = (progressState as? ProgressUiState.Content)?.streak ?: 0
@@ -67,6 +69,14 @@ fun ProgressTab(
             onRegister = onRegister,
             onEdit = onEdit
         )
+        (progressState as? ProgressUiState.Content)?.takeIf { it.registeredDays > 0 }?.let { content ->
+            Spacer(Modifier.height(12.dp))
+            DiaryEntryCard(
+                recentMoods = content.recentMoods,
+                registeredDays = content.registeredDays,
+                onClick = onOpenDiary
+            )
+        }
         Spacer(Modifier.height(20.dp))
 
         when (progressState) {

@@ -24,6 +24,7 @@ import com.solvyx.ui.screens.chatbot.BertoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
 import com.solvyx.ui.screens.journey.checkin.CHECK_IN_EDIT_ARG
+import com.solvyx.ui.screens.journey.diary.DiaryScreen
 import com.solvyx.ui.screens.journey.checkin.CheckInScreen
 import com.solvyx.ui.screens.main.MainScreen
 import com.solvyx.ui.screens.profile.legal.PrivacyScreen
@@ -196,6 +197,7 @@ fun SolvyxNavGraph(
                 onNavigateToCheckIn = { edit ->
                     navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=$edit")
                 },
+                onNavigateToDiary = { navController.navigate(Routes.DIARY) },
                 onNavigateToCrearCuenta = {
                     navController.navigate(Routes.REGISTER)
                 }
@@ -246,6 +248,14 @@ fun SolvyxNavGraph(
                         ?.set("initialTab", NavigationItem.GuiasPrimerosAuxilios)
                     navController.navigateUp()
                 }
+            )
+        }
+
+        composable(Routes.DIARY) {
+            DiaryScreen(
+                onBack = { navController.navigateUp() },
+                onRegister = { navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=false") },
+                onEditToday = { navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=true") }
             )
         }
 

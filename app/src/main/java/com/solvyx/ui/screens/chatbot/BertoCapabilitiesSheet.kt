@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.ui.theme.CrisisRed
+import com.solvyx.ui.components.common.StaggeredAppear
 
 private data class Capability(
     @DrawableRes val icon: Int,

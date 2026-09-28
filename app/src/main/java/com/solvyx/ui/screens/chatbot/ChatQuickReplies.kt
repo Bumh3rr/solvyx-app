@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.solvyx.ui.components.common.StaggeredAppear
 
 private const val DISABLED_ALPHA = 0.45f
 private const val CHIP_STAGGER_MS = 90L

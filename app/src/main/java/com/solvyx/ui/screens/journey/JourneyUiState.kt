@@ -23,7 +23,10 @@ sealed interface ProgressUiState {
         val useWeek: List<Float>,
         val useMonth: List<Float>,
         val insight: String,
-        val hasHistory: Boolean
+        val hasHistory: Boolean,
+        // For the "Mi diario" card: moods of the last logged days (oldest first) and how many there are.
+        val recentMoods: List<String?>,
+        val registeredDays: Int
     ) : ProgressUiState
 }
 

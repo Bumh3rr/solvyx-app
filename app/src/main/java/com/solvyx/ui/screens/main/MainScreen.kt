@@ -67,6 +67,7 @@ fun MainScreen(
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
+    onNavigateToDiary: () -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {},
@@ -197,6 +198,7 @@ fun MainScreen(
                 onNavigateToAssist = onNavigateToAssist,
                 onNavigateToEjercicio = onNavigateToEjercicio,
                 onNavigateToCheckIn = onNavigateToCheckIn,
+                onNavigateToDiary = onNavigateToDiary,
                 onNavigateToCrearCuenta = onNavigateToCrearCuenta,
                 onBottomNavNavigate = { item -> navigateToTab(item) },
                 onLogout = onLogout
@@ -217,6 +219,7 @@ private fun SolvyxMainContent(
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
+    onNavigateToDiary: () -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit
@@ -292,7 +295,8 @@ private fun SolvyxMainContent(
                     JourneyScreen(
                         onOpenDrawer = onDrawerClick,
                         onCreateAccount = onNavigateToCrearCuenta,
-                        onOpenCheckIn = onNavigateToCheckIn
+                        onOpenCheckIn = onNavigateToCheckIn,
+                        onOpenDiary = onNavigateToDiary
                     )
                 NavigationItem.GuiasPrimerosAuxilios ->
                     FirstAidNavGraph(

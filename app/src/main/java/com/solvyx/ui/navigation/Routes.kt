@@ -15,6 +15,7 @@ object Routes {
     const val SOS_OVERLAY = "sos_overlay"
     const val EJERCICIO_GUIADO = "ejercicio_guiado"
     const val CHECK_IN = "check_in"
+    const val DIARY = "diary"
     const val TERMINOS = "terminos"
     const val PRIVACIDAD = "privacidad"
 }
