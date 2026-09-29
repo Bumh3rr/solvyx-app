@@ -98,11 +98,11 @@ fun SolvyxNavGraph(
                 }
             )
         }
-        composable(Routes.TERMINOS) {
-            TermsScreen(onBack = { navController.navigateUp() })
+        composable(Routes.TERMINOS) { entry ->
+            TermsScreen(onBack = { navController.navigateUpFrom(entry) })
         }
-        composable(Routes.PRIVACIDAD) {
-            PrivacyScreen(onBack = { navController.navigateUp() })
+        composable(Routes.PRIVACIDAD) { entry ->
+            PrivacyScreen(onBack = { navController.navigateUpFrom(entry) })
         }
 
         composable(Routes.DIAGNOSTICO) {

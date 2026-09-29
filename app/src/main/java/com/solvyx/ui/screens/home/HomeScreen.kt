@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -19,9 +20,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.solvyx.ui.components.berto.BertoReactTrigger
+import com.solvyx.ui.components.berto.BertoReactsAnimation
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.common.GuestLockOverlay
 import com.solvyx.ui.components.haze.LocalHazeState
@@ -76,9 +80,19 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
+            /*
             HomeHeroSection(
                 estadoAnimo = viewModel.moodToday ?: "neutral",
                 rachaActual = viewModel.streak
+            )
+            */
+            BertoReactsAnimation(
+                reaction = BertoReactTrigger.GOOD,
+                isReading = false,
+                lookX = 0f,
+                modifier = Modifier
+                    .size(250.dp)
+                    .align(Alignment.CenterHorizontally)
             )
 
             DismissibleBanner(visible = contactCount == 0 && !sosBannerDescartado) {

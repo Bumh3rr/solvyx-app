@@ -74,7 +74,7 @@ fun ProfileSettingsCard(
         }
         GroupLabel("Información")
         SolvyxCard(modifier = Modifier.fillMaxWidth()) {
-            SettingsRow(R.drawable.ic_shield, "Privacidad y datos", onOpenPrivacy)
+            SettingsRow(R.drawable.ic_shield, "Política de privacidad", onOpenPrivacy)
             RowDivider()
             SettingsRow(
                 icon = R.drawable.ic_info_circle,

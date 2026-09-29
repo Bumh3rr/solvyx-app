@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.solvyx.R
 import com.solvyx.ui.components.berto.BertoPose
 import com.solvyx.ui.components.berto.BertoPoseAnimation
@@ -57,6 +58,7 @@ import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxTextButton
 import com.solvyx.ui.components.common.SolvyxTopBar
 import com.solvyx.ui.screens.red.components.ContactCard
+import com.solvyx.ui.screens.red.components.LocationShareCard
 import com.solvyx.ui.screens.red.components.SkipSupportNetworkDialog
 import com.solvyx.ui.screens.red.components.SmsPermissionRationaleDialog
 
@@ -171,6 +173,8 @@ fun RedApoyoScreen(
             if (viewModel.contactos.size < MAX_CONTACTS) {
                 AddContactButton(onClick = viewModel::addContacto)
             }
+            val shareLocation by viewModel.shareLocation.collectAsStateWithLifecycle()
+            LocationShareCard(optedIn = shareLocation, onOptInChange = viewModel::setShareLocation)
             PrivacyNote()
         }
         SaveBar(

@@ -99,7 +99,7 @@ fun SosConfirmationDialog(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Se enviará un SMS a tus contactos de confianza con tu ubicación.",
+                    text = "Se enviará un SMS a tus contactos de confianza.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = TextMuted,
                     textAlign = TextAlign.Center,

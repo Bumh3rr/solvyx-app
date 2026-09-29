@@ -53,7 +53,7 @@ private val pages = listOf(
     OnboardingPage(
         imageRes = R.drawable.berto_tranquilo,
         title = "Tu privacidad, primero",
-        description = "Puedes usar Solvyx sin crear una cuenta. Con cuenta desbloqueas tu bitácora, metas y avances — todo protegido, nunca compartido."
+        description = "Puedes usar Solvyx sin crear una cuenta. Con cuenta desbloqueas tu bitácora, metas y avances, guardados de forma privada. Tus datos nunca se venden."
     ),
     OnboardingPage(
         imageRes = R.drawable.berto_sin_internet,

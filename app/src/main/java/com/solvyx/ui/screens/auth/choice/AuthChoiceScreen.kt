@@ -18,24 +18,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withLink
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.solvyx.ui.components.common.APP_TAGLINE
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
 import com.solvyx.ui.components.common.SolvyxTextButton
 import com.solvyx.ui.navigation.Routes
+import com.solvyx.ui.screens.auth.components.LegalLinksText
 import com.solvyx.ui.navigation.aRuta
 import com.solvyx.ui.theme.SolvyxappTheme
 
@@ -125,7 +122,7 @@ fun AuthChoiceScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
-                    text = "Tu mente, tu red, tu libertad",
+                    text = APP_TAGLINE,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.Medium
@@ -223,48 +220,11 @@ fun AuthChoiceScreen(
 
             Spacer(Modifier.weight(1f))
 
-            // Términos
-            val terminosPrivacidadTexto = buildAnnotatedString {
-                append("Al continuar aceptas nuestros ")
-                withLink(
-                    LinkAnnotation.Clickable(
-                        tag = "terminos",
-                        linkInteractionListener = { nav.navigate(Routes.TERMINOS) }
-                    )
-                ) {
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        append("Términos de uso")
-                    }
-                }
-                append(" y ")
-                withLink(
-                    LinkAnnotation.Clickable(
-                        tag = "privacidad",
-                        linkInteractionListener = { nav.navigate(Routes.PRIVACIDAD) }
-                    )
-                ) {
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        append("Política de privacidad")
-                    }
-                }
-                append(".")
-            }
-            Text(
-                text = terminosPrivacidadTexto,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
+            LegalLinksText(
+                prefix = "Al continuar aceptas los",
+                onOpenTerms = { nav.navigate(Routes.TERMINOS) },
+                onOpenPrivacy = { nav.navigate(Routes.PRIVACIDAD) },
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
         }

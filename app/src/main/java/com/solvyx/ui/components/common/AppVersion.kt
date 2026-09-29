@@ -14,3 +14,6 @@ fun rememberAppVersionName(): String {
         }.getOrNull().orEmpty()
     }
 }
+
+/** Solvyx's tagline, shown under the name in the auth screens and in "Acerca de". */
+const val APP_TAGLINE = "Tu mente, tu red, tu libertad"

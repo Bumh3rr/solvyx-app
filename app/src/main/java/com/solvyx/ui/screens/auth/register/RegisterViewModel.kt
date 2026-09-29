@@ -58,7 +58,7 @@ class RegisterViewModel @Inject constructor(
         if (birthDate.trim().isBlank()) return "Ingresa tu fecha de nacimiento."
         if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres."
         if (password != confirmPassword) return "Las contraseñas no coinciden."
-        if (!acceptedTerms) return "Debes aceptar los Términos de uso y la Política de privacidad."
+        if (!acceptedTerms) return "Debes aceptar los Términos y condiciones y la Política de privacidad."
         return null
     }
 

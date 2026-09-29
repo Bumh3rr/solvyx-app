@@ -1,5 +1,6 @@
 package com.solvyx.ui.components.common
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -29,6 +30,20 @@ fun formatMexicanPhone(digits: String): String {
  * code and old mobile "1" prefix come first, never last.
  */
 fun normalizeMexicanPhone(raw: String): String = raw.filter(Char::isDigit).takeLast(MexicanPhoneLength)
+
+/**
+ * Opens the user's email app to write to [address]. Returns false when the phone has no email
+ * app, so the caller can offer another way (e.g. the address stays visible and selectable).
+ */
+fun Context.openEmail(address: String, subject: String = ""): Boolean = try {
+    startActivity(
+        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$address"))
+            .putExtra(Intent.EXTRA_SUBJECT, subject)
+    )
+    true
+} catch (e: ActivityNotFoundException) {
+    false
+}
 
 /** Opens the dialer pre-filled with [number]; the user still confirms the call themselves. */
 fun Context.openDialer(number: String) {

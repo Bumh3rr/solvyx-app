@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.solvyx.ui.components.common.APP_TAGLINE
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxButton
@@ -120,7 +121,7 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
-                    text = "Tu mente, tu red, tu libertad",
+                    text = APP_TAGLINE,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.Medium

@@ -90,6 +90,16 @@ class ProfileViewModel @Inject constructor(
     // ── Dialogs & feedback ──
     var showLogoutDialog by mutableStateOf(false)
         private set
+    // ── Delete account ──
+    var showDeleteAccountDialog by mutableStateOf(false)
+        private set
+    var deletePassword by mutableStateOf("")
+        private set
+    var isDeletingAccount by mutableStateOf(false)
+        private set
+    var deleteAccountError by mutableStateOf<String?>(null)
+        private set
+
     /** One-shot: the screen shows a confirmation snackbar and then calls [onProfileSavedShown]. */
     var showProfileSaved by mutableStateOf(false)
         private set
@@ -207,4 +217,34 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onProfileSavedShown() { showProfileSaved = false }
+
+    fun requestDeleteAccount() {
+        deletePassword = ""
+        deleteAccountError = null
+        showDeleteAccountDialog = true
+    }
+
+    fun dismissDeleteAccount() {
+        if (!isDeletingAccount) showDeleteAccountDialog = false
+    }
+
+    fun onDeletePasswordChange(value: String) {
+        deletePassword = value
+        deleteAccountError = null
+    }
+
+    /** Leaves the screen only once everything is gone; on failure the dialog stays with the reason. */
+    fun deleteAccount(onDeleted: () -> Unit) {
+        if (isDeletingAccount || deletePassword.isBlank()) return
+        isDeletingAccount = true
+        viewModelScope.launch {
+            authRepository.deleteAccount(deletePassword)
+                .onSuccess {
+                    showDeleteAccountDialog = false
+                    onDeleted()
+                }
+                .onFailure { deleteAccountError = it.message }
+            isDeletingAccount = false
+        }
+    }
 }

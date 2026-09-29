@@ -27,6 +27,11 @@ class ChatPreferencesRepository @Inject constructor(
         context.solvyxDataStore.edit { it[AI_CONSENT_GRANTED] = true }
     }
 
+    /** After deleting the account: whoever uses the phone next is asked again. */
+    suspend fun revokeAiConsent() {
+        context.solvyxDataStore.edit { it.remove(AI_CONSENT_GRANTED) }
+    }
+
     private companion object {
         // New key on purpose: the old "notice seen" flag was not consent and its text was inaccurate.
         val AI_CONSENT_GRANTED = booleanPreferencesKey("chat_ai_consent_granted")

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.solvyx.ui.navigation.navigateUpFrom
 import com.solvyx.ui.screens.profile.legal.AboutScreen
 import com.solvyx.ui.screens.profile.legal.PrivacyScreen
 import com.solvyx.ui.screens.profile.legal.TermsScreen
@@ -24,7 +25,6 @@ fun ProfileNavGraph(
     onLoggedOut: () -> Unit
 ) {
     val navController = rememberNavController()
-    val back: () -> Unit = { navController.navigateUp() }
 
     NavHost(navController = navController, startDestination = ROUTE_MAIN) {
         composable(ROUTE_MAIN) {
@@ -40,8 +40,15 @@ fun ProfileNavGraph(
                 onLoggedOut = onLoggedOut
             )
         }
-        composable(ROUTE_PRIVACY) { PrivacyScreen(onBack = back) }
-        composable(ROUTE_ABOUT) { AboutScreen(onBack = back) }
-        composable(ROUTE_TERMS) { TermsScreen(onBack = back) }
+        // navigateUpFrom: a double back press must not pop past Mi perfil (that relaunches the app).
+        composable(ROUTE_PRIVACY) { entry -> PrivacyScreen(onBack = { navController.navigateUpFrom(entry) }) }
+        composable(ROUTE_ABOUT) { entry ->
+            AboutScreen(
+                onBack = { navController.navigateUpFrom(entry) },
+                onOpenTerms = { navController.navigate(ROUTE_TERMS) },
+                onOpenPrivacy = { navController.navigate(ROUTE_PRIVACY) }
+            )
+        }
+        composable(ROUTE_TERMS) { entry -> TermsScreen(onBack = { navController.navigateUpFrom(entry) }) }
     }
 }

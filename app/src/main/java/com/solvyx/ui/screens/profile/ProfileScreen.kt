@@ -31,6 +31,7 @@ import com.solvyx.ui.components.common.SolvyxMenuButton
 import com.solvyx.ui.components.common.SolvyxTopBar
 import com.solvyx.ui.screens.profile.components.AssistRiskCard
 import com.solvyx.ui.screens.profile.components.EditProfileSheet
+import com.solvyx.ui.screens.profile.components.DeleteAccountDialog
 import com.solvyx.ui.screens.profile.components.LogoutConfirmDialog
 import com.solvyx.ui.screens.profile.components.ProfileAccountActions
 import com.solvyx.ui.screens.profile.components.ProfileHeader
@@ -159,7 +160,8 @@ fun ProfileScreen(
                         ProfileAccountActions(
                             isAnonymous = viewModel.isAnonymous,
                             onCreateAccount = onCreateAccount,
-                            onLogout = viewModel::requestLogout
+                            onLogout = viewModel::requestLogout,
+                            onDeleteAccount = viewModel::requestDeleteAccount
                         )
                     }
                 }
@@ -195,6 +197,17 @@ private fun ProfileDialogs(viewModel: ProfileViewModel, onLoggedOut: () -> Unit)
             isAnonymous = viewModel.isAnonymous,
             onConfirm = { viewModel.logout(onLoggedOut) },
             onDismiss = viewModel::dismissLogout
+        )
+    }
+    if (viewModel.showDeleteAccountDialog) {
+        DeleteAccountDialog(
+            password = viewModel.deletePassword,
+            isDeleting = viewModel.isDeletingAccount,
+            error = viewModel.deleteAccountError,
+            onPasswordChange = viewModel::onDeletePasswordChange,
+            // After deleting, the app leaves Mi perfil the same way as after signing out.
+            onConfirm = { viewModel.deleteAccount(onLoggedOut) },
+            onDismiss = viewModel::dismissDeleteAccount
         )
     }
 }

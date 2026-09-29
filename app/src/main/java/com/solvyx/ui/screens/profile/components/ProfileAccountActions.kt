@@ -15,15 +15,17 @@ import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxOutlinedButton
+import com.solvyx.ui.components.common.SolvyxTextButton
 import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.TealLight
 
-/** Guest-only call to create an account, then sign out, at the end of Mi perfil. */
+/** Guest-only call to create an account, then sign out and (with an account) delete it, at the end of Mi perfil. */
 @Composable
 fun ProfileAccountActions(
     isAnonymous: Boolean,
     onCreateAccount: () -> Unit,
     onLogout: () -> Unit,
+    onDeleteAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -65,6 +67,16 @@ fun ProfileAccountActions(
                 )
             }
         )
+        // Guests have nothing stored outside the phone: signing out already erases it.
+        if (!isAnonymous) {
+            SolvyxTextButton(
+                text = "Eliminar mi cuenta",
+                onClick = onDeleteAccount,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+            )
+        }
         Text(
             text = "Solvyx 2026 · Tecnologías para la Salud Humana",
             modifier = Modifier

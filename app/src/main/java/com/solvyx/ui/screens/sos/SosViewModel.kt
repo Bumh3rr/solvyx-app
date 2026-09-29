@@ -1,15 +1,10 @@
 package com.solvyx.ui.screens.sos
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.telephony.SmsManager
-import androidx.core.content.ContextCompat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -18,15 +13,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.data.local.entity.SosContactEntity
 import com.solvyx.backend.repository.SosRepository
+import com.solvyx.backend.data.local.preferences.SosPreferencesRepository
+import com.solvyx.backend.location.SosLocationProvider
+import com.solvyx.backend.sms.SosSmsSender
+import com.solvyx.backend.sms.sosMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
 
@@ -35,7 +34,8 @@ import javax.inject.Inject
  * realmente ocurrió.
  *
  * - [NO_CONTACTS]: no hay a quién avisar. Se ofrecen líneas de ayuda y Berto (siempre funcionan).
- * - [SEND_FAILED]: había contactos pero el SMS no salió (permiso denegado o error del sistema).
+ * - [SEND_FAILED]: había contactos pero el SMS no salió a ninguno (sin permiso, sin señal/saldo o
+ *   el radio no confirmó el envío).
  *   Se ofrece llamar al contacto con `ACTION_DIAL`, que no requiere ningún permiso.
  */
 enum class SosState { COUNTDOWN, SENT, NO_CONTACTS, SEND_FAILED }
@@ -43,7 +43,10 @@ enum class SosState { COUNTDOWN, SENT, NO_CONTACTS, SEND_FAILED }
 @HiltViewModel
 class SosViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    private val repository: SosRepository
+    private val repository: SosRepository,
+    private val smsSender: SosSmsSender,
+    private val sosPreferences: SosPreferencesRepository,
+    private val locationProvider: SosLocationProvider
 ) : ViewModel() {
 
     var sosState by mutableStateOf(SosState.COUNTDOWN)
@@ -59,6 +62,10 @@ class SosViewModel @Inject constructor(
     var fallbackContactName by mutableStateOf("")
         private set
     var fallbackContactPhone by mutableStateOf("")
+        private set
+
+    /** Whether the SMS that went out carried the maps link (the user opted in and a fix arrived). */
+    var locationShared by mutableStateOf(false)
         private set
 
     private var cachedContactos = listOf<SosContactEntity>()
@@ -103,11 +110,25 @@ class SosViewModel @Inject constructor(
                 return@launch
             }
 
-            // El envío ocurre de inmediato, como siempre: la cuenta regresiva es feedback, no una
-            // ventana para cancelarlo. El estado final depende de si salió de verdad.
-            val enviado = sendSms(contactos.map { it.phone })
-            if (!enviado) {
-                // Falla rápido: hacer esperar 3s para enterarse de que nadie fue avisado es cruel.
+            // The send starts right away (after at most a few seconds looking for the location, only
+            // if the user opted in) and the countdown runs alongside it as feedback. The final state
+            // waits for the radio's confirmation, so "Alerta enviada" is only shown when true.
+            val delivery = async(Dispatchers.IO) {
+                val location = if (sosPreferences.shareLocation.first()) locationProvider.currentLocation() else null
+                location to smsSender.send(contactos.map { it.phone }, sosMessage(location))
+            }
+            val countdownTicks = launch {
+                repeat(3) {
+                    delay(1000L)
+                    countdown--
+                }
+            }
+            val (location, delivered) = delivery.await()
+            locationShared = location != null
+            if (delivered.isEmpty()) {
+                // Fail fast: making someone in crisis wait out the countdown to learn nobody was
+                // alerted would be cruel.
+                countdownTicks.cancel()
                 val principal = contactos.first()
                 fallbackContactName = principal.name
                 fallbackContactPhone = principal.phone
@@ -115,13 +136,21 @@ class SosViewModel @Inject constructor(
                 initTts()
                 return@launch
             }
-
-            repeat(3) {
-                delay(1000L)
-                countdown--
-            }
+            countdownTicks.join()
+            logEvent(delivered)
             sosState = SosState.SENT
             initTts()
+        }
+    }
+
+    /** Audit trail only: a failure writing it must never keep the screen from resolving. */
+    private suspend fun logEvent(deliveredPhones: List<String>) {
+        try {
+            repository.registerEvent(deliveredPhones)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // The SMS already went out; losing the log row is acceptable.
         }
     }
 
@@ -129,41 +158,6 @@ class SosViewModel @Inject constructor(
         countdownJob?.cancel()
         tts?.stop()
     }
-
-    // ── SMS ───────────────────────────────────────────────────────────────────
-
-    /**
-     * `true` solo si el SMS realmente salió. Antes esto era fire-and-forget con un `runCatching`
-     * sin `onFailure`: cualquier fallo se tragaba en silencio y la pantalla afirmaba igual que los
-     * contactos habían sido notificados.
-     *
-     * `SEND_SMS` es un permiso *dangerous*: declararlo en el manifest no basta desde Android 6, hay
-     * que tenerlo concedido en runtime (se pide en Mi Red de Apoyo, al configurar los contactos).
-     * Sin él `sendTextMessage` lanza `SecurityException`, que es exactamente lo que se tragaba.
-     */
-    private suspend fun sendSms(phones: List<String>): Boolean = withContext(Dispatchers.IO) {
-        if (phones.isEmpty()) return@withContext false
-        if (!hasSmsPermission()) return@withContext false
-        runCatching {
-            val smsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                appContext.getSystemService(SmsManager::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                SmsManager.getDefault()
-            } ?: return@runCatching false
-            val msg = "Hola, estoy en crisis y necesito apoyo. " +
-                "Este mensaje fue enviado automáticamente por Solvyx."
-            phones.forEach { phone ->
-                smsManager.sendTextMessage(phone, null, msg, null, null)
-            }
-            repository.registerEvent(phones)
-            true
-        }.getOrDefault(false)
-    }
-
-    private fun hasSmsPermission(): Boolean =
-        ContextCompat.checkSelfPermission(appContext, Manifest.permission.SEND_SMS) ==
-            PackageManager.PERMISSION_GRANTED
 
     // ── TTS ───────────────────────────────────────────────────────────────────
 
@@ -203,7 +197,8 @@ class SosViewModel @Inject constructor(
                     "No se pudo enviar el mensaje. Puedes llamar directamente a tu contacto, " +
                         "o a la Línea de la Vida."
                 else ->
-                    "Alerta enviada. Tus contactos han sido notificados."
+                    if (locationShared) "Alerta enviada. Tus contactos recibieron tu ubicación."
+                    else "Alerta enviada. Tus contactos han sido notificados."
             }
             speak(apertura)
             delay(3800L)

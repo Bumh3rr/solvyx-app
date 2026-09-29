@@ -71,6 +71,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -401,7 +403,8 @@ fun SosPostSend(
         Text(
             text = when (outcome) {
                 SosState.SENT ->
-                    "Tus contactos han sido notificados."
+                    if (viewModel.locationShared) "Tus contactos recibieron tu ubicación."
+                    else "Tus contactos han sido notificados."
                 SosState.SEND_FAILED ->
                     "El SMS no salió. Puedes llamar a ${viewModel.fallbackContactName.ifBlank { "tu contacto" }} directamente."
                 else ->
@@ -508,7 +511,8 @@ fun SosPostSend(
                         .height(46.dp),
                     shape = RoundedCornerShape(50.dp),
                     border = BorderStroke(1.dp, Color.White.copy(alpha = 0.30f)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_phone),
@@ -525,7 +529,8 @@ fun SosPostSend(
                         else "Llamar",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 

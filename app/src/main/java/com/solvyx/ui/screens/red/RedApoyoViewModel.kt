@@ -6,9 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.data.local.entity.SosContactEntity
+import com.solvyx.backend.data.local.preferences.SosPreferencesRepository
 import com.solvyx.backend.repository.SosContactRepository
 import com.solvyx.backend.validation.Validadores
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,8 +21,13 @@ const val MAX_CONTACTS = 3
 
 @HiltViewModel
 class RedApoyoViewModel @Inject constructor(
-    private val repository: SosContactRepository
+    private val repository: SosContactRepository,
+    private val sosPreferences: SosPreferencesRepository
 ) : ViewModel() {
+
+    /** The user's opt-in to add their location to the SOS text (the permission is checked apart). */
+    val shareLocation: StateFlow<Boolean> = sosPreferences.shareLocation
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     var contactos by mutableStateOf(listOf(SosContactEntity()))
         private set
@@ -83,5 +92,9 @@ class RedApoyoViewModel @Inject constructor(
 
     fun resetSaved() {
         savedSuccessfully = false
+    }
+
+    fun setShareLocation(enabled: Boolean) {
+        viewModelScope.launch { sosPreferences.setShareLocation(enabled) }
     }
 }

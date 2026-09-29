@@ -13,15 +13,17 @@ import javax.inject.Singleton
 class SosEventRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-    /** Appends one SOS event. Auto-generated doc id — each activation is its own document. */
-    suspend fun saveEvent(uid: String, date: Long, notifiedPhones: List<String>) {
+    /**
+     * Appends one SOS event. Auto-generated doc id — each activation is its own document. Only the
+     * date and how many contacts were notified leave the phone: their numbers stay local (privacy).
+     */
+    suspend fun saveEvent(uid: String, date: Long, contactCount: Int) {
         firestore.collection(UserRemoteDto.USERS).document(uid)
             .collection(SosEventRemoteDto.SOS_EVENTS)
             .add(
                 mapOf(
                     SosEventRemoteDto.DATE to date,
-                    SosEventRemoteDto.NOTIFIED_PHONES to notifiedPhones,
-                    SosEventRemoteDto.CONTACT_COUNT to notifiedPhones.size,
+                    SosEventRemoteDto.CONTACT_COUNT to contactCount,
                     SosEventRemoteDto.CREATED_AT to FieldValue.serverTimestamp()
                 )
             ).await()

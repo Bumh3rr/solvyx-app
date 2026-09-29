@@ -19,7 +19,10 @@ class SosRepository @Inject constructor(
 ) {
     fun observeContacts(): Flow<List<SosContactEntity>> = sosContactDao.observe()
 
-    /** Logs the SOS activation locally (audit trail), then best-effort mirrors it to Firestore. */
+    /**
+     * Logs the SOS activation locally (audit trail, with the numbers), then best-effort mirrors it to
+     * Firestore without the numbers.
+     */
     suspend fun registerEvent(phones: List<String>) {
         val date = System.currentTimeMillis()
         sosEventDao.insert(SosEventEntity(date = date, notifiedPhones = phones.joinToString("|||")))
@@ -27,7 +30,7 @@ class SosRepository @Inject constructor(
         val user = firebaseAuth.currentUser ?: return
         if (user.isAnonymous) return
         try {
-            sosEventRemoteDataSource.saveEvent(user.uid, date, phones)
+            sosEventRemoteDataSource.saveEvent(user.uid, date, contactCount = phones.size)
         } catch (e: Exception) {
             // best-effort: the local audit row already exists.
         }

@@ -11,6 +11,9 @@ import com.google.firebase.auth.FirebaseUser
 import com.solvyx.backend.data.local.database.AppDatabase
 import com.solvyx.backend.data.local.entity.PlanEntity
 import com.solvyx.backend.data.local.entity.UserEntity
+import com.solvyx.backend.data.local.preferences.ChatPreferencesRepository
+import com.solvyx.backend.data.local.preferences.SosPreferencesRepository
+import com.solvyx.backend.data.remote.datasource.AccountRemoteDataSource
 import com.solvyx.backend.data.remote.datasource.UserRemoteDataSource
 import com.solvyx.backend.data.remote.model.UserRemoteDto
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +23,9 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Where users write for questions and data requests (also shown in Privacidad and Términos). */
+const val SUPPORT_EMAIL = "solvyx.animlune@gmail.com"
+
 @Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -28,6 +34,9 @@ class AuthRepository @Inject constructor(
     private val assistRepository: AssistRepository,
     private val planRepository: PlanRepository,
     private val appDatabase: AppDatabase,
+    private val accountRemoteDataSource: AccountRemoteDataSource,
+    private val chatPreferences: ChatPreferencesRepository,
+    private val sosPreferences: SosPreferencesRepository,
 ) {
 
     suspend fun registerWithEmail(
@@ -95,9 +104,34 @@ class AuthRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             appDatabase.clearAllTables()
         }
+        // The SOS contacts were just wiped; the location choice goes with them.
+        sosPreferences.clear()
     }
 
     val currentUser: FirebaseUser? get() = firebaseAuth.currentUser
+
+    /**
+     * Deletes the account and everything it has: Firestore data, the Firebase user and what is
+     * stored on the phone. The password is checked first (Firebase requires a recent sign-in to
+     * delete a user), so a wrong password fails before anything is erased.
+     */
+    suspend fun deleteAccount(password: String): Result<Unit> = try {
+        val user = firebaseAuth.currentUser
+        val email = user?.email
+        if (user == null || email == null) {
+            Result.failure(Exception("No hay una cuenta con correo en esta sesión."))
+        } else {
+            user.reauthenticate(EmailAuthProvider.getCredential(email, password)).await()
+            accountRemoteDataSource.deleteAllData(user.uid)
+            user.delete().await()
+            withContext(Dispatchers.IO) { appDatabase.clearAllTables() }
+            chatPreferences.revokeAiConsent()
+            sosPreferences.clear()
+            Result.success(Unit)
+        }
+    } catch (e: Exception) {
+        Result.failure(Exception(mapDeleteError(e)))
+    }
 
     suspend fun convertAnonymousToEmail(
         nickname: String,
@@ -173,6 +207,12 @@ class AuthRepository @Inject constructor(
                 substancesJson = substances?.joinToString(",") ?: current.substancesJson
             )
         )
+    }
+
+    private fun mapDeleteError(e: Throwable): String = when (e) {
+        is FirebaseAuthInvalidCredentialsException -> "La contraseña no es correcta."
+        is FirebaseNetworkException -> "Sin conexión a internet. Necesitas conexión para borrar tu cuenta."
+        else -> "No pudimos borrar tu cuenta. Intenta de nuevo o escríbenos a $SUPPORT_EMAIL."
     }
 
     private fun mapAuthError(e: Throwable): String = when (e) {

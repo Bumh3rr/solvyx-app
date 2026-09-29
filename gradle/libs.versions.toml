@@ -1,4 +1,5 @@
 [versions]
+playServicesLocation = "21.3.0"
 agp = "8.13.0"
 coreKtx = "1.18.0"
 junit = "4.13.2"
@@ -99,6 +100,7 @@ ui = { group = "androidx.compose.ui", name = "ui", version = "1.7.0-beta06" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 # Lifecycle dependencies
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
