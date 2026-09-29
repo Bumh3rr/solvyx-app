@@ -13,6 +13,7 @@ import com.solvyx.R
 import com.solvyx.backend.common.streak.StreakCalculator
 import com.solvyx.backend.data.model.Achievement
 import com.solvyx.backend.data.model.JournalEntry
+import com.solvyx.backend.repository.GoalRepository
 import com.solvyx.backend.repository.ProgressRepository
 import com.solvyx.ui.screens.journey.diary.diaryEntries
 import com.solvyx.ui.screens.journey.progress.WeekView
@@ -38,6 +39,7 @@ private const val DIARY_PREVIEW_DAYS = 7
 @HiltViewModel
 class JourneyViewModel @Inject constructor(
     private val repository: ProgressRepository,
+    private val goalRepository: GoalRepository,
     private val streakCalculator: StreakCalculator,
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
@@ -93,10 +95,11 @@ class JourneyViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 repository.observeJournal(),
-                repository.observeAchievements()
-            ) { journalEntries, achievementEntities -> Pair(journalEntries, achievementEntities) }
-            .catch { emit(emptyList<JournalEntry>() to emptyList()) }
-            .collect { (journalEntries, achievementEntities) ->
+                repository.observeAchievements(),
+                goalRepository.observeGoals()
+            ) { journalEntries, achievementEntities, goals -> Triple(journalEntries, achievementEntities, goals) }
+            .catch { emit(Triple(emptyList(), emptyList(), emptyList())) }
+            .collect { (journalEntries, achievementEntities, goals) ->
                 val today = LocalDate.now(zone)
                 todayEntry = journalEntries.firstOrNull { it.date == today }
 
@@ -113,24 +116,43 @@ class JourneyViewModel @Inject constructor(
                     registeredDays = registered.size
                 )
 
+                val completedGoals = goals.count { it.completed }
+                val (streakEntities, goalEntities) = achievementEntities.partition { it.id in Achievement.STREAK_THRESHOLDS }
                 achievementsState = achievementsStateFrom(
-                    list = achievementEntities.map { mapAchievement(it, stats.current) },
+                    list = streakEntities.map { mapAchievement(it, stats.current) },
                     currentStreak = stats.current,
-                    badges = diaryBadges(journalEntries)
+                    badges = diaryBadges(journalEntries),
+                    goalMedals = goalEntities.filter { it.id in Achievement.GOAL_THRESHOLDS }.map { mapGoalMedal(it, completedGoals) },
+                    completedGoals = completedGoals
                 )
-                autoUnlock(achievementEntities, stats.current)
+                autoUnlock(streakEntities, Achievement.STREAK_THRESHOLDS, stats.current)
+                autoUnlock(goalEntities, Achievement.GOAL_THRESHOLDS, completedGoals)
             }
         }
     }
 
-    private fun autoUnlock(achievements: List<Achievement>, currentStreak: Int) {
+    /** Unlocks (and queues the celebration of) every locked achievement whose [thresholds] [count] reached. */
+    private fun autoUnlock(achievements: List<Achievement>, thresholds: Map<String, Int>, count: Int) {
         achievements.filter { !it.unlocked }.forEach { achievement ->
-            val threshold = Achievement.STREAK_THRESHOLDS[achievement.id] ?: return@forEach
-            if (currentStreak >= threshold) {
+            val threshold = thresholds[achievement.id] ?: return@forEach
+            if (count >= threshold) {
                 justUnlockedIds = justUnlockedIds + achievement.id
                 viewModelScope.launch { repository.unlockAchievement(achievement.id) }
             }
         }
+    }
+
+    private fun mapGoalMedal(entity: Achievement, completedGoals: Int): UiAchievement {
+        val (icon, title, description) = when (entity.id) {
+            "metas_completadas_1"  -> Triple(R.drawable.ic_target,      "Primera meta", "Cumpliste tu primera meta")
+            "metas_completadas_5"  -> Triple(R.drawable.ic_trending_up, "Cinco metas",  "Cumpliste 5 metas")
+            "metas_completadas_10" -> Triple(R.drawable.ic_trophy,      "Diez metas",   "Cumpliste 10 metas")
+            else                   -> Triple(R.drawable.ic_target,      entity.id,      "")
+        }
+        val threshold = Achievement.GOAL_THRESHOLDS[entity.id] ?: 1
+        val progress = progressToward(completedGoals, threshold, entity.unlocked)
+        val unlockedOn = entity.unlockDate?.let { Instant.ofEpochMilli(it).atZone(zone).toLocalDate() }
+        return UiAchievement(entity.id, icon, title, description, entity.unlocked, progress, threshold, unlockedOn)
     }
 
     private fun mapAchievement(entity: Achievement, currentStreak: Int): UiAchievement {

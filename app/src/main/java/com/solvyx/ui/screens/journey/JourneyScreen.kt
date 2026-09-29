@@ -30,6 +30,7 @@ import com.solvyx.ui.components.haze.LocalHazeState
 import com.solvyx.ui.screens.journey.achievements.components.MedalInfo
 import com.solvyx.ui.screens.journey.achievements.components.UnlockCelebration
 import com.solvyx.ui.screens.journey.achievements.tierIndexOf
+import com.solvyx.ui.screens.journey.achievements.toGoalMedalInfo
 import com.solvyx.ui.screens.journey.achievements.toMedalInfo
 import com.solvyx.ui.screens.journey.components.AccountRequiredState
 import com.solvyx.ui.screens.journey.tabs.AchievementsTab
@@ -64,14 +65,21 @@ fun JourneyScreen(
 }
 
 /**
- * A streak milestone reached (usually right after saving the check-in) is celebrated full screen,
- * one achievement at a time, wherever the user is inside "Mi camino".
+ * A streak milestone or a goal medal reached (usually right after saving the check-in) is
+ * celebrated full screen, one achievement at a time, wherever the user is inside "Mi camino".
  */
 @Composable
 private fun JustUnlockedCelebration(journeyVM: JourneyViewModel) {
     val content = journeyVM.achievementsState as? AchievementsUiState.Content
-    val unlocked = content?.achievements?.firstOrNull { it.id in journeyVM.justUnlockedIds }
-    val info = unlocked?.let { it.toMedalInfo(tierIndexOf(it, content.achievements), content.currentStreak) }
+    val streak = content?.achievements?.firstOrNull { it.id in journeyVM.justUnlockedIds }
+    val goal = content?.goalMedals?.firstOrNull { it.id in journeyVM.justUnlockedIds }
+    val unlocked = streak ?: goal
+    val info = when {
+        content == null -> null
+        streak != null -> streak.toMedalInfo(tierIndexOf(streak, content.achievements), content.currentStreak)
+        goal != null -> goal.toGoalMedalInfo(tierIndexOf(goal, content.goalMedals), content.completedGoals)
+        else -> null
+    }
     // Remembers the last one so the exit animation still has something to show.
     var shown by remember { mutableStateOf<Pair<String, MedalInfo>?>(null) }
     if (unlocked != null && info != null) shown = unlocked.id to info

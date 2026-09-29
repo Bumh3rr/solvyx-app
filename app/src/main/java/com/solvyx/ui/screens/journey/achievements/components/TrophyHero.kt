@@ -47,7 +47,10 @@ private const val RING_FILL_MS = 1_200
 private const val FULL_CIRCLE = 360f
 private const val RING_START_ANGLE = -90f
 
-/** Top of Logros: a ring that fills with the unlocked share, the counts, and Berto's line. */
+/**
+ * Top of Logros: a ring that fills with the unlocked share of the medals (streak + goals), the
+ * counts, and Berto's line.
+ */
 @Composable
 fun TrophyHero(
     unlocked: Int,
@@ -55,7 +58,9 @@ fun TrophyHero(
     badgesUnlocked: Int,
     badgesTotal: Int,
     message: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    goalMedalsUnlocked: Int = 0,
+    goalMedalsTotal: Int = 0
 ) {
     Column(
         modifier = modifier
@@ -65,10 +70,13 @@ fun TrophyHero(
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            UnlockRing(unlocked = unlocked, total = total)
+            UnlockRing(unlocked = unlocked + goalMedalsUnlocked, total = total + goalMedalsTotal)
             Spacer(Modifier.width(16.dp))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 HeroCount(value = unlocked, total = total, label = "logros de racha")
+                if (goalMedalsTotal > 0) {
+                    HeroCount(value = goalMedalsUnlocked, total = goalMedalsTotal, label = "medallas de metas")
+                }
                 HeroCount(value = badgesUnlocked, total = badgesTotal, label = "insignias del diario")
             }
         }

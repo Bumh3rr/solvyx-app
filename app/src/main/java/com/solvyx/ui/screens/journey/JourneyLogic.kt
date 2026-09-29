@@ -33,10 +33,12 @@ fun canAdvanceWizard(
 fun achievementsStateFrom(
     list: List<UiAchievement>,
     currentStreak: Int = 0,
-    badges: List<DiaryBadge> = emptyList()
+    badges: List<DiaryBadge> = emptyList(),
+    goalMedals: List<UiAchievement> = emptyList(),
+    completedGoals: Int = 0
 ): AchievementsUiState =
     if (list.isEmpty()) AchievementsUiState.Empty
-    else AchievementsUiState.Content(list, list.count { it.unlocked }, currentStreak, badges)
+    else AchievementsUiState.Content(list, list.count { it.unlocked }, currentStreak, badges, goalMedals, completedGoals)
 
 /** How close [currentStreak] is to [threshold], 0f-1f; always 1f once [unlocked]. */
 fun progressToward(currentStreak: Int, threshold: Int, unlocked: Boolean): Float =

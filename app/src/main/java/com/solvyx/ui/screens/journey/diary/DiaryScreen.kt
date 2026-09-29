@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.solvyx.backend.common.goals.DayGoalNote
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.ui.components.common.SolvyxBackButton
 import com.solvyx.ui.components.common.SolvyxTopBar
@@ -92,6 +93,7 @@ fun DiaryScreen(
                 DayStory(
                     story = it,
                     today = viewModel.today,
+                    goalNotes = (viewModel.state as? DiaryUiState.Content)?.goalNotes.orEmpty(),
                     onEditToday = {
                         viewModel.closeStory()
                         onEditToday()
@@ -151,13 +153,17 @@ private fun DiaryContent(state: DiaryUiState.Content, viewModel: DiaryViewModel)
                 )
             }
         } else {
-            timeline(visible, onOpen = viewModel::openStory)
+            timeline(visible, state.goalNotes, onOpen = viewModel::openStory)
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun LazyListScope.timeline(entries: List<JournalEntry>, onOpen: (LocalDate) -> Unit) {
+private fun LazyListScope.timeline(
+    entries: List<JournalEntry>,
+    goalNotes: Map<LocalDate, DayGoalNote>,
+    onOpen: (LocalDate) -> Unit
+) {
     groupByMonth(entries).forEach { group ->
         stickyHeader(key = "month_${group.month}") {
             val name = group.month.month.getDisplayName(TextStyle.FULL, SpanishMexico).replaceFirstChar { it.uppercase() }
@@ -175,6 +181,7 @@ private fun LazyListScope.timeline(entries: List<JournalEntry>, onOpen: (LocalDa
         itemsIndexed(group.entries, key = { _, entry -> entry.date.toString() }) { index, entry ->
             TimelineEntry(
                 entry = entry,
+                goalNote = goalNotes[entry.date],
                 isFirst = index == 0,
                 isLast = index == group.entries.lastIndex,
                 onClick = { onOpen(entry.date) },

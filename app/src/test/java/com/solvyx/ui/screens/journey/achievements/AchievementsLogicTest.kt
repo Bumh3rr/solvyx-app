@@ -50,7 +50,8 @@ class AchievementsLogicTest {
         val badges = diaryBadges(listOf(goalOnly)).associateBy { it.id }
 
         assertFalse(badges.getValue("primer_registro").unlocked)
-        assertEquals(1, badges.getValue("tres_metas").current)
+        // "Meta tras meta" se quitó: las medallas de metas de Logros la reemplazan.
+        assertFalse(badges.containsKey("tres_metas"))
     }
 
     @Test

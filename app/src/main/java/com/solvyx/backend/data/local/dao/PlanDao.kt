@@ -7,6 +7,7 @@ import androidx.room.Query
 import com.solvyx.backend.data.local.entity.PlanEntity
 import kotlinx.coroutines.flow.Flow
 
+/** OBSOLETO, ver [PlanEntity]. Nadie lo usa; se queda porque AppDatabase lo declara. */
 @Dao
 interface PlanDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

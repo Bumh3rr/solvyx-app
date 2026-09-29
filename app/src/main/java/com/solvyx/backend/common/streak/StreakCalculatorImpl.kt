@@ -6,43 +6,54 @@ import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Regla de negocio (docs/app/Solvyx.md): solo un día con consumo rompe la racha. Los días sin
+ * registro son **neutros**: no suman ni la rompen. Así la racha no cae a 0 porque el usuario aún no
+ * hace el check-in de hoy o se saltó un día.
+ */
 @Singleton
 class StreakCalculatorImpl @Inject constructor() : StreakCalculator {
 
     private val milestoneDays = Achievement.MILESTONE_DAYS
 
     override fun compute(entries: List<JournalEntry>, today: LocalDate): StreakStats {
-        // Con doc-por-día hay a lo sumo una entrada por fecha; groupBy queda en grupos de 1.
-        val entryMap = entries.groupBy { it.date }
+        // Días que cuentan (limpios o con consumo), en orden; los neutros quedan fuera.
+        val countedDays = entries
+            .filter { !it.date.isAfter(today) }
+            .groupBy { it.date }
+            .mapValues { (_, dayEntries) -> dayStatus(dayEntries) }
+            .filterValues { it != DayStatus.NEUTRAL }
+            .toSortedMap()
+            .values
 
-        // Racha actual: hacia atrás desde hoy, se detiene en el primer día sin registro o con
-        // consumed = true. `consumed` es nullable; un día con consumed=null (p. ej. ánimo rápido)
-        // cuenta como día limpio y no rompe la racha.
-        var streak = 0
-        var day = today
-        while (true) {
-            val dayEntries = entryMap[day]
-            if (dayEntries == null || dayEntries.any { it.consumed == true }) break
-            streak++
-            day = day.minusDays(1)
-        }
-
-        var best = 0
+        // Racha actual: hacia atrás desde hoy, hasta el primer día con consumo.
         var current = 0
-        val sortedDates = entryMap.keys.sorted()
-        for (i in sortedDates.indices) {
-            val d = sortedDates[i]
-            val hasConsumption = entryMap[d]!!.any { it.consumed == true }
-            if (!hasConsumption) {
-                current = if (i > 0 && sortedDates[i - 1] == d.minusDays(1)) current + 1 else 1
-                if (current > best) best = current
-            } else {
-                current = 0
-            }
+        for (status in countedDays.reversed()) {
+            if (status == DayStatus.CONSUMED) break
+            current++
         }
-        val bestStreak = maxOf(best, streak)
 
-        val milestone = milestoneProgress(streak, milestoneDays)
-        return StreakStats(streak, bestStreak, milestone.next, milestone.progress)
+        // Mejor racha: la serie más larga de días limpios sin un consumo en medio.
+        var best = 0
+        var run = 0
+        for (status in countedDays) {
+            run = if (status == DayStatus.CLEAN) run + 1 else 0
+            best = maxOf(best, run)
+        }
+
+        val milestone = milestoneProgress(current, milestoneDays)
+        return StreakStats(current, maxOf(best, current), milestone.next, milestone.progress)
+    }
+
+    private enum class DayStatus { CLEAN, CONSUMED, NEUTRAL }
+
+    /**
+     * `consumed = null` (p. ej. el ánimo rápido de Inicio) cuenta como día limpio si hay ánimo.
+     * Un doc sin ánimo ni consumo (solo "meta lograda") no es un registro: es neutro.
+     */
+    private fun dayStatus(dayEntries: List<JournalEntry>): DayStatus = when {
+        dayEntries.any { it.consumed == true } -> DayStatus.CONSUMED
+        dayEntries.any { it.isRegistered } -> DayStatus.CLEAN
+        else -> DayStatus.NEUTRAL
     }
 }

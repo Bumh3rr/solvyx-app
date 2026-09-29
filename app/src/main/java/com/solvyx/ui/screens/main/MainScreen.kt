@@ -67,6 +67,8 @@ fun MainScreen(
     onNavigateToSos: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToCravingGuide: () -> Unit = {},
+    onNavigateToBreathing: () -> Unit = {},
     onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
     onNavigateToDiary: (day: LocalDate?) -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
@@ -198,6 +200,8 @@ fun MainScreen(
                 onNavigateToSos = onNavigateToSos,
                 onNavigateToAssist = onNavigateToAssist,
                 onNavigateToEjercicio = onNavigateToEjercicio,
+                onNavigateToCravingGuide = onNavigateToCravingGuide,
+                onNavigateToBreathing = onNavigateToBreathing,
                 onNavigateToCheckIn = onNavigateToCheckIn,
                 onNavigateToDiary = onNavigateToDiary,
                 onNavigateToCrearCuenta = onNavigateToCrearCuenta,
@@ -219,6 +223,8 @@ private fun SolvyxMainContent(
     onNavigateToSos: () -> Unit,
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToCravingGuide: () -> Unit = {},
+    onNavigateToBreathing: () -> Unit = {},
     onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
     onNavigateToDiary: (day: LocalDate?) -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
@@ -279,6 +285,7 @@ private fun SolvyxMainContent(
                         onNavigateToRedApoyo  = { onBottomNavNavigate(NavigationItem.RedApoyo) },
                         onNavigateToChat      = onNavigateToChat,
                         onNavigateToEjercicio = onNavigateToEjercicio,
+                        onNavigateToBreathing = onNavigateToBreathing,
                         onNavigateToPlan      = { onBottomNavNavigate(NavigationItem.Plan) },
                         onNavigateToJourney   = { onBottomNavNavigate(NavigationItem.Journey) },
                         onNavigateToGuias     = { onBottomNavNavigate(NavigationItem.GuiasPrimerosAuxilios) },
@@ -288,9 +295,13 @@ private fun SolvyxMainContent(
                 NavigationItem.Plan ->
                     PlanNavGraph(
                         onOpenDrawer = onDrawerClick,
+                        onOpenCravingGuide = onNavigateToCravingGuide,
+                        onOpenBreathing = onNavigateToBreathing,
+                        onOpenGrounding = onNavigateToEjercicio,
                         onNavigateToChat = onNavigateToChat,
-                        onNavigateToSos = onNavigateToSos,
-                        onNavigateToRedApoyo = { onBottomNavNavigate(NavigationItem.RedApoyo) }
+                        onOpenDirectory = { onBottomNavNavigate(NavigationItem.Directorio) },
+                        onCreateAccount = onNavigateToCrearCuenta,
+                        onOpenCheckIn = { onNavigateToCheckIn(false) }
                     )
                 NavigationItem.Journey ->
                     JourneyScreen(

@@ -124,7 +124,7 @@ fun BreathingSession(onPhase: (String) -> Unit, onClose: (completedCycles: Int) 
                     label = "BreathingFinish"
                 ) { reachedTarget ->
                     SolvyxButton(
-                        text = if (reachedTarget) "Me siento más tranquilo" else "Terminar",
+                        text = if (reachedTarget) "Ya me siento con más calma" else "Terminar",
                         onClick = close,
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = if (reachedTarget) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.12f)

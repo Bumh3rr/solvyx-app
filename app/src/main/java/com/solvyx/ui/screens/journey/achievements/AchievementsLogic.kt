@@ -52,10 +52,8 @@ data class DiaryBadge(
 private const val FIRST_ENTRY = 1
 private const val WEEK_OF_ENTRIES = 7
 private const val NOTES_TARGET = 5
-private const val GOALS_TARGET = 3
 private const val HONEST_DAYS_TARGET = 1
 
-/** Only full check-ins count (a doc with only "meta lograda" is not a written day). */
 fun diaryBadges(journal: List<JournalEntry>): List<DiaryBadge> {
     val written = journal.filter { it.isRegistered }
     val moodsUsed = written.mapNotNull { it.mood }.toSet()
@@ -79,10 +77,6 @@ fun diaryBadges(journal: List<JournalEntry>): List<DiaryBadge> {
         DiaryBadge(
             "todos_los_animos", "Todas mis emociones", "Registraste los 5 ánimos",
             R.drawable.ic_face_happy, moodsUsed.size.coerceAtMost(MoodOptions.size), MoodOptions.size
-        ),
-        DiaryBadge(
-            "tres_metas", "Meta tras meta", "Cumpliste tu meta del día 3 veces",
-            R.drawable.ic_target, journal.count { it.metaLograda }.coerceAtMost(GOALS_TARGET), GOALS_TARGET
         )
     )
 }

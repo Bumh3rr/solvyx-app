@@ -7,8 +7,8 @@ import java.time.LocalDate
  * (eliminada en la Task 5): la bitácora ahora vive solo en Firestore, un doc por día cuyo ID es
  * la fecha `yyyy-MM-dd`.
  *
- * `mood`/`consumed` son nullable a propósito: un doc puede existir con solo `metaLograda` (escrito
- * por "Lo logré hoy" de Mi Plan) antes de un registro completo. Un día "registrado" tiene mood.
+ * `mood`/`consumed` son nullable a propósito: un doc antiguo puede existir con solo `metaLograda`
+ * (el "Lo logré hoy" del plan viejo, que ya no se escribe) sin registro. Un día "registrado" tiene mood.
  * `consumed = null` significa "no tocar este campo en el merge", no "no consumió".
  */
 data class JournalEntry(

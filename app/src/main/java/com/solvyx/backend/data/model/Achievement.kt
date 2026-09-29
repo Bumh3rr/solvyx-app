@@ -26,6 +26,19 @@ data class Achievement(
         val BASE_IDS: List<String> = STREAK_THRESHOLDS.keys.toList()
 
         /**
+         * Medallas de metas: se desbloquean por cuántas metas se cumplieron
+         * (`JourneyViewModel.autoUnlock`). El ID codifica cuántas.
+         */
+        val GOAL_THRESHOLDS: Map<String, Int> = mapOf(
+            "metas_completadas_1" to 1,
+            "metas_completadas_5" to 5,
+            "metas_completadas_10" to 10
+        )
+
+        /** Todos los logros guardados en Firestore: los de racha y los de metas. */
+        val ALL_IDS: List<String> = BASE_IDS + GOAL_THRESHOLDS.keys
+
+        /**
          * Los mismos umbrales como lista ordenada de días. "Próximo logro" en Journey ("Mi camino") y
          * "% hacia N días" en la tarjeta de racha de Home son el mismo concepto, así que ambos
          * leen de aquí: si se agrega o mueve un hito, las dos pantallas y el desbloqueo

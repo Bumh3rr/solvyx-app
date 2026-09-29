@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.backend.common.goals.DayGoalNote
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.ui.components.common.moodOption
 import com.solvyx.ui.components.common.substanceLabel
@@ -58,6 +59,8 @@ private val CardShape = RoundedCornerShape(18.dp)
 @Composable
 fun TimelineEntry(
     entry: JournalEntry,
+    // Whether this day added to a goal or completed one; null when it touched none.
+    goalNote: DayGoalNote?,
     isFirst: Boolean,
     isLast: Boolean,
     onClick: () -> Unit,
@@ -98,11 +101,17 @@ fun TimelineEntry(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            if (entry.metaLograda) {
+            val goalText = when {
+                goalNote == null -> null
+                goalNote.completedTitles.isNotEmpty() -> "Cumpliste una meta"
+                goalNote.advanced -> "Avanzaste en tu meta"
+                else -> null
+            }
+            goalText?.let {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(painterResource(R.drawable.ic_check_circle), null, tint = TealPrimary, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Meta del día cumplida", style = MaterialTheme.typography.labelSmall, color = TealPrimary)
+                    Text(it, style = MaterialTheme.typography.labelSmall, color = TealPrimary)
                 }
             }
         }

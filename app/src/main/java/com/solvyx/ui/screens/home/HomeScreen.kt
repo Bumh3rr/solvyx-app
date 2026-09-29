@@ -41,6 +41,7 @@ fun HomeScreen(
     onNavigateToRedApoyo: () -> Unit = {},
     onNavigateToChat: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
+    onNavigateToBreathing: () -> Unit = {},
     onNavigateToPlan: () -> Unit = {},
     onNavigateToJourney: () -> Unit = {},
     onNavigateToGuias: () -> Unit = {},
@@ -142,7 +143,7 @@ fun HomeScreen(
                 onNavigateToPlan = onNavigateToPlan,
                 onNavigateToJourney = onNavigateToJourney,
                 onNavigateToChat = onNavigateToChat,
-                onNavigateToBreathing = onNavigateToEjercicio,
+                onNavigateToBreathing = onNavigateToBreathing,
                 onNavigateToFirstAid = onNavigateToGuias,
                 onNavigateToSupportNetwork = onNavigateToRedApoyo
             )

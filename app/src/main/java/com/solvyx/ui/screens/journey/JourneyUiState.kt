@@ -40,10 +40,16 @@ sealed interface ProgressUiState {
 sealed interface AchievementsUiState {
     data object Loading : AchievementsUiState
     data object Empty : AchievementsUiState
+    /**
+     * [achievements] are the streak ones (the trail); [goalMedals] unlock by [completedGoals].
+     * [unlockedCount] counts only the streak achievements.
+     */
     data class Content(
         val achievements: List<UiAchievement>,
         val unlockedCount: Int,
         val currentStreak: Int = 0,
-        val badges: List<DiaryBadge> = emptyList()
+        val badges: List<DiaryBadge> = emptyList(),
+        val goalMedals: List<UiAchievement> = emptyList(),
+        val completedGoals: Int = 0
     ) : AchievementsUiState
 }

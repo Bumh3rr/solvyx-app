@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -13,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.solvyx.backend.router.Destino
+import com.solvyx.ui.components.dialog.SosConfirmationDialog
 import com.solvyx.ui.components.drawer.model.NavigationItem
 import com.solvyx.ui.diagnostico.DiagnosticoNavGraph
 import com.solvyx.ui.screens.auth.choice.AuthChoiceScreen
@@ -20,7 +24,9 @@ import com.solvyx.ui.screens.auth.forgot_password.ForgotPasswordScreen
 import com.solvyx.ui.screens.auth.login.LoginScreen
 import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
+import com.solvyx.ui.screens.breathing.BreathingScreen
 import com.solvyx.ui.screens.chatbot.BertoScreen
+import com.solvyx.ui.screens.firstaid.guides.CravingGuideScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
 import com.solvyx.ui.screens.journey.checkin.CHECK_IN_EDIT_ARG
@@ -195,6 +201,12 @@ fun SolvyxNavGraph(
                 onNavigateToEjercicio = {
                     navController.navigate(Routes.EJERCICIO_GUIADO)
                 },
+                onNavigateToCravingGuide = {
+                    navController.navigate(Routes.CRAVING_GUIDE)
+                },
+                onNavigateToBreathing = {
+                    navController.navigate(Routes.BREATHING)
+                },
                 onNavigateToCheckIn = { edit ->
                     navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=$edit")
                 },
@@ -275,6 +287,28 @@ fun SolvyxNavGraph(
                 viewModel = viewModel,
                 onFinish = { navController.navigateUp() }
             )
+        }
+
+        // "Ganas muy fuertes" opened straight from Mi plan: full screen, so back returns to the plan.
+        composable(Routes.CRAVING_GUIDE) { entry ->
+            var showSosDialog by rememberSaveable { mutableStateOf(false) }
+            if (showSosDialog) {
+                SosConfirmationDialog(
+                    onConfirm = {
+                        showSosDialog = false
+                        navController.navigate(Routes.SOS_OVERLAY)
+                    },
+                    onDismiss = { showSosDialog = false }
+                )
+            }
+            CravingGuideScreen(
+                onBack = { navController.navigateUpFrom(entry) },
+                onSos = { showSosDialog = true }
+            )
+        }
+
+        composable(Routes.BREATHING) { entry ->
+            BreathingScreen(onFinish = { navController.navigateUpFrom(entry) })
         }
     }
 }
