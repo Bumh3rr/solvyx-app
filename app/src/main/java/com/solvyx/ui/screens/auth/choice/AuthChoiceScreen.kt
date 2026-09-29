@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -160,6 +159,8 @@ fun AuthChoiceScreen(
                 .fillMaxHeight(0.46f)
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surface)
+                // The card's color reaches the bottom edge; its buttons stay above the navigation bar.
+                .navigationBarsPadding()
                 .padding(horizontal = 24.dp)
                 .padding(top = 32.dp, bottom = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally

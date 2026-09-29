@@ -39,11 +39,9 @@ import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
 
 /**
- * Visual pieces shared between Home's compact streak card ([com.solvyx.ui.screens
- * .home.HomeStreakCard]) and Progress's full journey card (`StreakJourneyCard`): the flame
- * badge, the traveling marker, the thermal color scale, and the copy. For these pieces both
- * cards are, alike, "a horizontal track from 0 to 1" — they only differ in how many milestones
- * they draw on top of it.
+ * Visual pieces of Home's streak card ([com.solvyx.ui.screens.home.HomeStreakCard]): the flame
+ * badge, the traveling marker, the thermal color scale, and the copy — "a horizontal track from
+ * 0 to 1". (Progress no longer repeats the streak: it lives as a trail in Logros.)
  */
 
 /** Shared height of the streak track. */

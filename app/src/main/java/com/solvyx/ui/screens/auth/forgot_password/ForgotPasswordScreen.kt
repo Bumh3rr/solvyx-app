@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -134,6 +135,8 @@ fun ForgotPasswordScreen(
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
+                // Scrolls under the navigation bar but the last field/button ends above it.
+                .navigationBarsPadding()
                 .padding(horizontal = 32.dp)
                 .padding(top = 40.dp, bottom = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally

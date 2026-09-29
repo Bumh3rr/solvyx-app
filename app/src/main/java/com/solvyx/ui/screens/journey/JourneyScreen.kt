@@ -32,10 +32,10 @@ import com.solvyx.ui.screens.journey.achievements.components.UnlockCelebration
 import com.solvyx.ui.screens.journey.achievements.tierIndexOf
 import com.solvyx.ui.screens.journey.achievements.toMedalInfo
 import com.solvyx.ui.screens.journey.components.AccountRequiredState
-import com.solvyx.ui.screens.journey.components.DayDetailSheet
 import com.solvyx.ui.screens.journey.tabs.AchievementsTab
 import com.solvyx.ui.screens.journey.tabs.ProgressTab
 import dev.chrisbanes.haze.haze
+import java.time.LocalDate
 
 /**
  * "Mi camino": Progreso + Logros. Logging the day opens the check-in as its own full-screen
@@ -46,7 +46,7 @@ fun JourneyScreen(
     onOpenDrawer: () -> Unit,
     onCreateAccount: () -> Unit,
     onOpenCheckIn: (edit: Boolean) -> Unit,
-    onOpenDiary: () -> Unit
+    onOpenDiary: (day: LocalDate?) -> Unit
 ) {
     val journeyVM: JourneyViewModel = hiltViewModel()
 
@@ -60,10 +60,6 @@ fun JourneyScreen(
             onOpenDiary = onOpenDiary
         )
         JustUnlockedCelebration(journeyVM)
-    }
-
-    journeyVM.selectedDay?.let { entry ->
-        DayDetailSheet(entry = entry, onDismiss = { journeyVM.dismissDayDetail() })
     }
 }
 
@@ -97,7 +93,7 @@ private fun TabsScreen(
     onCreateAccount: () -> Unit,
     onRegister: () -> Unit,
     onEdit: () -> Unit,
-    onOpenDiary: () -> Unit
+    onOpenDiary: (day: LocalDate?) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -149,7 +145,8 @@ private fun TabsScreen(
                     todayEntry = todayEntry,
                     onRegister = onRegister,
                     onEdit = onEdit,
-                    onOpenDiary = onOpenDiary
+                    onOpenDiary = onOpenDiary,
+                    onOpenAchievements = { selectedTab = TAB_ACHIEVEMENTS }
                 )
                 TAB_ACHIEVEMENTS -> AchievementsTab(state = journeyVM.achievementsState)
             }

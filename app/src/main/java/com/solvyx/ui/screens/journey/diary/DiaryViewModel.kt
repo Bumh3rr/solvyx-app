@@ -4,6 +4,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.common.streak.StreakCalculator
@@ -29,11 +30,21 @@ sealed interface DiaryUiState {
 }
 
 /** "Mi diario": every logged day, live from Firestore, with filters and a story view per day. */
+/** Optional nav argument: open the story of this day (yyyy-MM-dd) as soon as the diary loads. */
+const val DIARY_DAY_ARG = "day"
+
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
     private val repository: ProgressRepository,
-    private val streakCalculator: StreakCalculator
+    private val streakCalculator: StreakCalculator,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    // A day tapped in "Mi semana" arrives here; its story opens once, and closing it goes back.
+    private var pendingDay: LocalDate? = savedStateHandle.get<String>(DIARY_DAY_ARG)?.let(LocalDate::parse)
+
+    /** True when the story was opened from outside: closing it should leave the diary too. */
+    val storyClosesScreen: Boolean = pendingDay != null
 
     private val zone = ZoneId.systemDefault()
     val today: LocalDate get() = LocalDate.now(zone)
@@ -62,7 +73,7 @@ class DiaryViewModel @Inject constructor(
                 .catch { emit(emptyList()) }
                 .collect { all ->
                     val entries = diaryEntries(all)
-                    state = if (entries.isEmpty()) {
+                    val loaded = if (entries.isEmpty()) {
                         DiaryUiState.Empty
                     } else {
                         DiaryUiState.Content(
@@ -71,6 +82,11 @@ class DiaryViewModel @Inject constructor(
                             summary = summarize(entries, streakCalculator.compute(all, today).best),
                             months = browsableMonths(entries, YearMonth.now(zone))
                         )
+                    }
+                    state = loaded
+                    pendingDay?.let { day ->
+                        pendingDay = null
+                        openStory(day)
                     }
                 }
         }

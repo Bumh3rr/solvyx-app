@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.solvyx.ui.screens.guias.components.GuiaTopBar
 import com.solvyx.ui.theme.TealDark
+import androidx.compose.foundation.layout.navigationBarsPadding
 
 @Composable
 fun PrivacyScreen(onBack: () -> Unit) {
@@ -30,6 +31,7 @@ fun PrivacyScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
                 .padding(horizontal = 20.dp, vertical = 24.dp)
         ) {
             Text(

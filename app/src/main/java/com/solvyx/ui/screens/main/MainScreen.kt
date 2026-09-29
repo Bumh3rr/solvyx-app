@@ -57,6 +57,7 @@ import com.solvyx.ui.screens.red.RedApoyoScreen
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealPrimary
 import dev.chrisbanes.haze.HazeState
+import java.time.LocalDate
 
 @Composable
 fun MainScreen(
@@ -67,7 +68,7 @@ fun MainScreen(
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
-    onNavigateToDiary: () -> Unit = {},
+    onNavigateToDiary: (day: LocalDate?) -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     openDrawerOnReturn: Boolean = false,
     onDrawerOpened: () -> Unit = {},
@@ -219,7 +220,7 @@ private fun SolvyxMainContent(
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
     onNavigateToCheckIn: (edit: Boolean) -> Unit = {},
-    onNavigateToDiary: () -> Unit = {},
+    onNavigateToDiary: (day: LocalDate?) -> Unit = {},
     onNavigateToCrearCuenta: () -> Unit = {},
     onLogout: () -> Unit,
     onBottomNavNavigate: (NavigationItem) -> Unit

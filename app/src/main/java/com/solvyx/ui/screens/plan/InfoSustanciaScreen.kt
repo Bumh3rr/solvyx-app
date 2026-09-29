@@ -32,8 +32,6 @@ import com.solvyx.ui.screens.guias.components.DotRow
 import com.solvyx.ui.screens.guias.components.GuiaPanel
 import com.solvyx.ui.screens.guias.components.GuiaTopBar
 import com.solvyx.ui.screens.guias.components.HeroSideBerto
-import com.solvyx.ui.theme.TealDark
-
 @Composable
 fun InfoSustanciaScreen(
     onBack: () -> Unit

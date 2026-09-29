@@ -44,7 +44,7 @@ fun DiaryEntryCard(recentMoods: List<String?>, registeredDays: Int, onClick: () 
             verticalAlignment = Alignment.CenterVertically
         ) {
             BertoPoseAnimation(
-                pose = BertoPose.CENTER_IDLE_TO_RIGHT,
+                pose = BertoPose.LEFT_SIMPLE,
                 riveFileRes = R.raw.berto_poses,
                 modifier = Modifier.size(52.dp),
                 fallback = R.drawable.berto_dedo_der

@@ -96,7 +96,14 @@ fun DiaryScreen(
                         viewModel.closeStory()
                         onEditToday()
                     },
-                    onClose = viewModel::closeStory
+                    onClose = {
+                        // Ignores a second tap on "X" while the story is already closing.
+                        if (viewModel.story != null) {
+                            viewModel.closeStory()
+                            if (viewModel.storyClosesScreen) onBack()
+                        }
+                    },
+                    isOpen = story != null
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.solvyx.ui.screens.journey
 
+import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.ui.screens.journey.achievements.DiaryBadge
 import java.time.LocalDate
 
@@ -23,14 +24,11 @@ sealed interface ProgressUiState {
     data object Loading : ProgressUiState
     data class Content(
         val streak: Int,
-        val bestStreak: Int,
-        val nextMilestone: Int,
-        val milestoneProgress: Float,
-        val feelingsWeek: List<Float>,
-        val feelingsMonth: List<Float>,
-        val useWeek: List<Float>,
-        val useMonth: List<Float>,
-        val insight: String,
+        // Written days (with mood), newest first; the week view and Berto's insights read them.
+        val entries: List<JournalEntry>,
+        val entriesByDate: Map<LocalDate, JournalEntry>,
+        // Mondays the week arrows can reach, oldest first.
+        val weeks: List<LocalDate>,
         val hasHistory: Boolean,
         // For the "Mi diario" card: moods of the last logged days (oldest first) and how many there are.
         val recentMoods: List<String?>,

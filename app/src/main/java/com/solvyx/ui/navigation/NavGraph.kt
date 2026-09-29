@@ -24,6 +24,7 @@ import com.solvyx.ui.screens.chatbot.BertoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
 import com.solvyx.ui.screens.journey.checkin.CHECK_IN_EDIT_ARG
+import com.solvyx.ui.screens.journey.diary.DIARY_DAY_ARG
 import com.solvyx.ui.screens.journey.diary.DiaryScreen
 import com.solvyx.ui.screens.journey.checkin.CheckInScreen
 import com.solvyx.ui.screens.main.MainScreen
@@ -197,7 +198,9 @@ fun SolvyxNavGraph(
                 onNavigateToCheckIn = { edit ->
                     navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=$edit")
                 },
-                onNavigateToDiary = { navController.navigate(Routes.DIARY) },
+                onNavigateToDiary = { day ->
+                    navController.navigate(if (day == null) Routes.DIARY else "${Routes.DIARY}?$DIARY_DAY_ARG=$day")
+                },
                 onNavigateToCrearCuenta = {
                     navController.navigate(Routes.REGISTER)
                 }
@@ -240,20 +243,27 @@ fun SolvyxNavGraph(
                 type = NavType.BoolType
                 defaultValue = false
             })
-        ) {
+        ) { entry ->
             CheckInScreen(
-                onClose = { navController.navigateUp() },
+                onClose = { navController.navigateUpFrom(entry) },
                 onOpenFirstAid = {
                     navController.previousBackStackEntry?.savedStateHandle
                         ?.set("initialTab", NavigationItem.GuiasPrimerosAuxilios)
-                    navController.navigateUp()
+                    navController.navigateUpFrom(entry)
                 }
             )
         }
 
-        composable(Routes.DIARY) {
+        composable(
+            route = "${Routes.DIARY}?$DIARY_DAY_ARG={$DIARY_DAY_ARG}",
+            arguments = listOf(navArgument(DIARY_DAY_ARG) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            })
+        ) { entry ->
             DiaryScreen(
-                onBack = { navController.navigateUp() },
+                onBack = { navController.navigateUpFrom(entry) },
                 onRegister = { navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=false") },
                 onEditToday = { navController.navigate("${Routes.CHECK_IN}?$CHECK_IN_EDIT_ARG=true") }
             )

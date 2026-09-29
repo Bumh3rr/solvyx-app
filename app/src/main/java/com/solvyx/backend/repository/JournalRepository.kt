@@ -33,8 +33,6 @@ class JournalRepository @Inject constructor(
         return remoteDataSource.getEntry(user.uid, LocalDate.now())
     }
 
-    suspend fun hasRegisteredToday(): Boolean = getToday()?.isRegistered == true
-
     /**
      * Escribe el registro y recalcula/persiste la racha del usuario. Devuelve la racha recalculada,
      * o null si no se pudo calcular (el registro igual queda). No-op (null) para anónimos.

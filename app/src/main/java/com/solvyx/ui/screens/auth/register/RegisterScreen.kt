@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -34,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -46,7 +46,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,8 +58,6 @@ import com.solvyx.ui.components.common.SolvyxDateField
 import com.solvyx.ui.components.common.SolvyxTextField
 import com.solvyx.ui.navigation.Routes
 import com.solvyx.ui.navigation.aRuta
-import com.solvyx.ui.theme.SolvyxappTheme
-
 @Composable
 fun RegisterScreen(
     nav: NavHostController,
@@ -161,6 +158,8 @@ fun RegisterScreen(
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
+                // Scrolls under the navigation bar but the last field/button ends above it.
+                .navigationBarsPadding()
                 .padding(horizontal = 32.dp)
                 .padding(top = 36.dp, bottom = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally

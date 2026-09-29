@@ -11,8 +11,8 @@ import com.solvyx.ui.theme.MoodTriste
 /**
  * Single source of truth for the 5 moods used across Home and "Mi camino": id (matches
  * `JournalEntry.mood`), display label, face icon, brand color, and the numeric value used to
- * plot mood on the wellbeing chart's Y-axis. Was duplicated, drifting slightly in shape, across
- * HomeMoodCard/CheckInCard/DayDetailSheet/check-in/FeelingsChart —
+ * compare moods (averages in Berto's weekly insights). Was duplicated, drifting slightly in shape,
+ * across HomeMoodCard/CheckInCard/check-in and the old charts —
  * consolidated here so a future 6th mood, or a color/icon change, only needs one edit.
  */
 data class MoodOption(

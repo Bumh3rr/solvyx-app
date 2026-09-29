@@ -3,7 +3,6 @@ package com.solvyx.ui.screens.journey
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
@@ -69,13 +68,6 @@ class JourneyLogicTest {
         val state = achievementsStateFrom(list)
         assertTrue(state is AchievementsUiState.Content)
         assertEquals(2, (state as AchievementsUiState.Content).unlockedCount)
-    }
-
-    @Test fun dateForChartIndex_devuelveFechaONull() {
-        val days = listOf(today.minusDays(1), today)
-        assertEquals(today, dateForChartIndex(1, days))
-        assertNull(dateForChartIndex(5, days))
-        assertNull(dateForChartIndex(-1, days))
     }
 
     @Test fun progressToward_lockedNoStreak_isZero() {

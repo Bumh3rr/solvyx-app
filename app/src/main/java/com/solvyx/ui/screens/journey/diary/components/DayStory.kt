@@ -93,7 +93,14 @@ private fun bertoMemory(moodId: String?): String = when (moodId) {
  * Only today can be edited: the check-in only edits today's entry.
  */
 @Composable
-fun DayStory(story: DiaryStory, today: LocalDate, onEditToday: () -> Unit, onClose: () -> Unit) {
+fun DayStory(
+    story: DiaryStory,
+    today: LocalDate,
+    onEditToday: () -> Unit,
+    onClose: () -> Unit,
+    // False while the story plays its exit animation, so a second back press does not close twice.
+    isOpen: Boolean = true
+) {
     val pagerState = rememberPagerState(initialPage = story.startIndex) { story.days.size }
     val scope = rememberCoroutineScope()
     val current = story.days[pagerState.currentPage]
@@ -102,7 +109,7 @@ fun DayStory(story: DiaryStory, today: LocalDate, onEditToday: () -> Unit, onClo
     val screen = MaterialTheme.colorScheme.background
     // Opaque all the way down: the diary behind must not show through.
     val gradient = Brush.verticalGradient(listOf(backdrop, lerp(backdrop, screen, STORY_FADE), screen))
-    BackHandler(onBack = onClose)
+    BackHandler(enabled = isOpen, onBack = onClose)
 
     Box(
         modifier = Modifier

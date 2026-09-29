@@ -2,9 +2,7 @@ package com.solvyx.ui.screens.journey.tabs
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,27 +20,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
 import com.solvyx.backend.data.model.JournalEntry
-import com.solvyx.ui.components.berto.BertoPose
-import com.solvyx.ui.components.berto.BertoPoseAnimation
-import com.solvyx.ui.components.common.SolvyxSegmentedControl
 import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.screens.journey.JourneyViewModel
-import com.solvyx.ui.screens.journey.ConsumptionChart
-import com.solvyx.ui.screens.journey.FeelingsChart
 import com.solvyx.ui.screens.journey.ProgressUiState
 import com.solvyx.ui.screens.journey.components.CheckInCard
 import com.solvyx.ui.screens.journey.components.DiaryEntryCard
 import com.solvyx.ui.screens.journey.components.ProgressEmptyState
-import com.solvyx.ui.screens.journey.components.StreakJourneyCard
-import com.solvyx.ui.screens.guias.components.BorderCard
-import com.solvyx.ui.theme.TealDark
-import com.solvyx.ui.theme.TealMedium
+import com.solvyx.ui.screens.journey.progress.components.BertoInsights
+import com.solvyx.ui.screens.journey.progress.components.WeekCard
+import java.time.LocalDate
 
+/**
+ * Progreso reads top to bottom as a weekly story: today (with the streak shortcut), "Mi semana",
+ * what Berto notices, and the door to the full diary. The streak trail lives in Logros and the
+ * month view in the diary's calendar, so nothing here repeats them.
+ */
 @Composable
 fun ProgressTab(
     viewModel: JourneyViewModel,
@@ -51,7 +46,8 @@ fun ProgressTab(
     todayEntry: JournalEntry?,
     onRegister: () -> Unit,
     onEdit: () -> Unit,
-    onOpenDiary: () -> Unit,
+    onOpenDiary: (day: LocalDate?) -> Unit,
+    onOpenAchievements: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val streak = (progressState as? ProgressUiState.Content)?.streak ?: 0
@@ -60,31 +56,50 @@ fun ProgressTab(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
-            .padding(bottom = SolvyxBottomNavClearance)
+            .padding(top = 16.dp, bottom = SolvyxBottomNavClearance)
     ) {
-        Spacer(Modifier.height(16.dp))
         CheckInCard(
             todayEntry = todayEntry,
             streak = streak,
             onRegister = onRegister,
-            onEdit = onEdit
+            onEdit = onEdit,
+            onOpenStreak = onOpenAchievements
         )
-        (progressState as? ProgressUiState.Content)?.takeIf { it.registeredDays > 0 }?.let { content ->
-            Spacer(Modifier.height(12.dp))
-            DiaryEntryCard(
-                recentMoods = content.recentMoods,
-                registeredDays = content.registeredDays,
-                onClick = onOpenDiary
-            )
-        }
-        Spacer(Modifier.height(20.dp))
-
+        Spacer(Modifier.height(16.dp))
         when (progressState) {
             ProgressUiState.Loading -> ProgressLoading()
-            is ProgressUiState.Content -> ProgressContent(progressState, viewModel)
+            is ProgressUiState.Content -> ProgressContent(progressState, viewModel, onOpenDiary)
         }
-
     }
+}
+
+@Composable
+private fun ProgressContent(
+    content: ProgressUiState.Content,
+    viewModel: JourneyViewModel,
+    onOpenDiary: (day: LocalDate?) -> Unit
+) {
+    if (!content.hasHistory) {
+        ProgressEmptyState(modifier = Modifier.fillMaxWidth())
+        return
+    }
+    viewModel.week?.let { week ->
+        WeekCard(
+            week = week,
+            onPrevious = viewModel::showPreviousWeek,
+            onNext = viewModel::showNextWeek,
+            // The story is full screen above the bottom bar, so it lives in "Mi diario".
+            onDaySelected = { onOpenDiary(it) }
+        )
+        Spacer(Modifier.height(24.dp))
+        BertoInsights(insights = week.insights)
+    }
+    Spacer(Modifier.height(24.dp))
+    DiaryEntryCard(
+        recentMoods = content.recentMoods,
+        registeredDays = content.registeredDays,
+        onClick = { onOpenDiary(null) }
+    )
 }
 
 @Composable
@@ -111,111 +126,6 @@ private fun ProgressLoading() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun ProgressContent(content: ProgressUiState.Content, viewModel: JourneyViewModel) {
-    // ── Streak hero (viaje completo de hitos) ──────────────────────
-    StreakJourneyCard(
-        streak = content.streak,
-        bestStreak = content.bestStreak,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Spacer(Modifier.height(20.dp))
-
-    if (!content.hasHistory) {
-        ProgressEmptyState(modifier = Modifier.fillMaxWidth())
-        return
-    }
-
-    // ── Week / Month selector ─────────────────────────────────────
-    SolvyxSegmentedControl(
-        options = listOf("Semana", "Mes"),
-        selectedIndex = viewModel.selectedPeriod,
-        onSelect = { viewModel.selectPeriod(it) }
-    )
-
-    Spacer(Modifier.height(20.dp))
-
-    val isWeek = viewModel.selectedPeriod == 0
-    val labels = if (isWeek) viewModel.labelsWeek else viewModel.labelsMonth
-
-    // ── Wellbeing chart ──────────────────────────────────────
-    SectionHeader(icon = R.drawable.ic_heart_pulse, text = "Mi bienestar")
-    Spacer(Modifier.height(8.dp))
-    FeelingsChart(
-        data = if (isWeek) content.feelingsWeek else content.feelingsMonth,
-        labels = labels,
-        modifier = Modifier.fillMaxWidth(),
-        onPointSelected = { viewModel.onChartPointSelected(it) }
-    )
-
-    Spacer(Modifier.height(20.dp))
-
-    // ── Use chart ────────────────────────────────────────
-    SectionHeader(icon = R.drawable.ic_droplet, text = "Días de consumo")
-    Spacer(Modifier.height(8.dp))
-    ConsumptionChart(
-        data = if (isWeek) content.useWeek else content.useMonth,
-        labels = labels,
-        modifier = Modifier.fillMaxWidth(),
-        onPointSelected = { viewModel.onChartPointSelected(it) }
-    )
-
-    Spacer(Modifier.height(20.dp))
-
-    // ── "Berto dice" ──────────────────────────────────────────────
-    BorderCard(
-        leftBorderColor = TealMedium,
-        bg = MaterialTheme.colorScheme.primaryContainer
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            BertoPoseAnimation(
-                pose = BertoPose.CENTER_IDLE_TO_RIGHT,
-                riveFileRes = R.raw.berto_poses,
-                modifier = Modifier.size(44.dp),
-                fallback = R.drawable.berto_dedo_der
-            )
-            Column {
-                Text(
-                    text = "Berto dice",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = content.insight,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TealDark
-                )
-            }
-        }
-    }
-}
-
-/** Encabezado de sección con un ícono decorativo pequeño junto al texto. */
-@Composable
-private fun SectionHeader(icon: Int, text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = null,
-            tint = TealDark,
-            modifier = Modifier.size(16.dp)
-        )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-            color = TealDark
         )
     }
 }

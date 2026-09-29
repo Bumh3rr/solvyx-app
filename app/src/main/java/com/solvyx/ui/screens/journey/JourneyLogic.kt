@@ -2,7 +2,6 @@
 package com.solvyx.ui.screens.journey
 
 import com.solvyx.ui.screens.journey.achievements.DiaryBadge
-import java.time.LocalDate
 
 const val TAB_PROGRESS = 0
 const val TAB_ACHIEVEMENTS = 1
@@ -29,8 +28,6 @@ fun canAdvanceWizard(
     WizardStep.SUBSTANCE.ordinal -> used != true || substance != null
     else -> false
 }
-
-fun dateForChartIndex(index: Int, days: List<LocalDate>): LocalDate? = days.getOrNull(index)
 
 /** Empty when there are no achievements to show (what used to leave the grid blank); Content otherwise. */
 fun achievementsStateFrom(

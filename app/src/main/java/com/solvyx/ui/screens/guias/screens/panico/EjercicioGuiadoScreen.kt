@@ -67,6 +67,7 @@ import com.solvyx.R
 import com.solvyx.ui.theme.TealDark
 import com.solvyx.ui.theme.TealMedium
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.systemBarsPadding
 
 private data class SenseData(
     val number: Int,
@@ -105,7 +106,9 @@ internal fun EjercicioGuiadoScreen(
                 slideInHorizontally { it } + fadeIn(tween(300)) togetherWith
                         slideOutHorizontally { -it } + fadeOut(tween(200))
             },
-            label = "exercise_step"
+            label = "exercise_step",
+            // The breathing background fills the screen; the steps stay clear of both system bars.
+            modifier = Modifier.systemBarsPadding()
         ) { currentStep ->
             when {
                 currentStep == -1 -> IntroStep(onStart = { viewModel.nextStep() })

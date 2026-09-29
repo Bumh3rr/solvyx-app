@@ -2,6 +2,7 @@ package com.solvyx.ui.screens.journey
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,8 +14,14 @@ import com.solvyx.backend.common.streak.StreakCalculator
 import com.solvyx.backend.data.model.Achievement
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.repository.ProgressRepository
-import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.screens.journey.diary.diaryEntries
+import com.solvyx.ui.screens.journey.progress.WeekView
+import com.solvyx.ui.screens.journey.progress.browsableWeeks
+import com.solvyx.ui.screens.journey.progress.weekDays
+import com.solvyx.ui.screens.journey.progress.weekLabel
+import com.solvyx.ui.screens.journey.progress.weekStartOf
+import com.solvyx.ui.screens.journey.progress.weekSummary
+import com.solvyx.ui.screens.journey.progress.weeklyInsights
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -23,12 +30,8 @@ import com.solvyx.ui.screens.journey.achievements.diaryBadges
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.TextStyle
-import java.util.Locale
 import javax.inject.Inject
 
-/** Minimum number of logged days before claiming any pattern in "Berto dice". */
-private const val MIN_DAYS_FOR_PATTERN = 5
 private const val DIARY_PREVIEW_DAYS = 7
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -40,10 +43,6 @@ class JourneyViewModel @Inject constructor(
 ) : ViewModel() {
 
     val isAnonymous: Boolean get() = firebaseAuth.currentUser?.isAnonymous == true
-
-    /** 0 = week, 1 = month (Semana/Mes toggle inside Progress). */
-    var selectedPeriod by mutableStateOf(0)
-        private set
 
     var progressState by mutableStateOf<ProgressUiState>(ProgressUiState.Loading)
         private set
@@ -59,8 +58,29 @@ class JourneyViewModel @Inject constructor(
         justUnlockedIds = justUnlockedIds - id
     }
 
-    var selectedDay by mutableStateOf<JournalEntry?>(null)
+    private val zone = ZoneId.systemDefault()
+    val today: LocalDate get() = LocalDate.now(zone)
+
+    /** Monday of the week shown in "Mi semana". */
+    var selectedWeek by mutableStateOf(weekStartOf(today))
         private set
+
+    /** The week on screen, recomputed only when the journal or the selected week change. */
+    val week: WeekView? by derivedStateOf {
+        (progressState as? ProgressUiState.Content)?.let { content ->
+            val days = weekDays(selectedWeek, content.entriesByDate, today)
+            val index = content.weeks.indexOf(selectedWeek)
+            WeekView(
+                days = days,
+                summary = weekSummary(days),
+                label = weekLabel(selectedWeek),
+                insights = weeklyInsights(content.entries, selectedWeek),
+                canGoBack = index > 0,
+                canGoForward = index in 0 until content.weeks.lastIndex
+            )
+        }
+    }
+
 
     // Exposed so CheckInViewModel doesn't need its own separate live listener on the same
     // journal collection just to know whether today is already logged (was a 3rd redundant
@@ -68,18 +88,6 @@ class JourneyViewModel @Inject constructor(
     // holds for progressState/achievementsState).
     var todayEntry by mutableStateOf<JournalEntry?>(null)
         private set
-
-    // Visible days per period and date->entry lookup, for the day detail sheet.
-    private var daysWeek: List<LocalDate> = emptyList()
-    private var daysMonth: List<LocalDate> = emptyList()
-    private var entriesByDate: Map<LocalDate, JournalEntry> = emptyMap()
-
-    val milestoneDays = Achievement.MILESTONE_DAYS
-    val labelsWeek = listOf("L", "M", "X", "J", "V", "S", "D")
-    val labelsMonth = (1..28).map { it.toString() }
-
-    private val moodScale = MoodOptions.associate { it.id to it.value }
-    private val zone = ZoneId.systemDefault()
 
     init {
         viewModelScope.launch {
@@ -90,45 +98,17 @@ class JourneyViewModel @Inject constructor(
             .catch { emit(emptyList<JournalEntry>() to emptyList()) }
             .collect { (journalEntries, achievementEntities) ->
                 val today = LocalDate.now(zone)
-                val entryMap = journalEntries.groupBy { it.date }
                 todayEntry = journalEntries.firstOrNull { it.date == today }
 
                 val stats = streakCalculator.compute(journalEntries, today)
                 val registered = diaryEntries(journalEntries)
 
-                // Chart data
-                val weekDays = (6 downTo 0).map { today.minusDays(it.toLong()) }
-                val monthDays = (27 downTo 0).map { today.minusDays(it.toLong()) }
-                daysWeek = weekDays
-                daysMonth = monthDays
-                entriesByDate = journalEntries.associateBy { it.date }
-                fun moodSeries(days: List<LocalDate>) = days.map { d ->
-                    entryMap[d]?.firstOrNull()?.mood?.let { m -> moodScale[m] } ?: 0f
-                }
-                // -1 = no entry that day at all, 0 = clean (an entry exists, no consumption),
-                // 1 = consumption. Keeping "no entry" distinct from "clean" matters: without it,
-                // the consumption chart couldn't tell "nothing was ever registered" apart from
-                // "registered and clean" — both used to collapse to 0f.
-                fun useSeries(days: List<LocalDate>) = days.map { d ->
-                    val dayEntries = entryMap[d]
-                    when {
-                        dayEntries == null -> -1f
-                        dayEntries.any { it.consumed == true } -> 1f
-                        else -> 0f
-                    }
-                }
-
                 progressState = ProgressUiState.Content(
                     streak = stats.current,
-                    bestStreak = stats.best,
-                    nextMilestone = stats.nextMilestone,
-                    milestoneProgress = stats.progress,
-                    feelingsWeek = moodSeries(weekDays),
-                    feelingsMonth = moodSeries(monthDays),
-                    useWeek = useSeries(weekDays),
-                    useMonth = useSeries(monthDays),
-                    insight = buildInsight(entryMap),
-                    hasHistory = entryMap.isNotEmpty(),
+                    entries = registered,
+                    entriesByDate = registered.associateBy { it.date },
+                    weeks = browsableWeeks(registered, today),
+                    hasHistory = registered.isNotEmpty(),
                     recentMoods = registered.take(DIARY_PREVIEW_DAYS).map { it.mood }.reversed(),
                     registeredDays = registered.size
                 )
@@ -141,36 +121,6 @@ class JourneyViewModel @Inject constructor(
                 autoUnlock(achievementEntities, stats.current)
             }
         }
-    }
-
-    /**
-     * Text for the "Berto dice" card. Derived only from the real journal: if there isn't
-     * enough data it says so instead of claiming a pattern that doesn't exist.
-     */
-    private fun buildInsight(entryMap: Map<LocalDate, List<JournalEntry>>): String {
-        val totalDays = entryMap.size
-        if (totalDays < MIN_DAYS_FOR_PATTERN) {
-            return "Aún no tengo suficientes registros para ver patrones. " +
-                "Registra unos días más y aquí te muestro lo que encuentre."
-        }
-
-        val daysWithUse = entryMap.filterValues { day -> day.any { it.consumed == true } }.keys
-        if (daysWithUse.isEmpty()) {
-            return "En $totalDays días registrados no reportaste consumo. " +
-                "Ese es un patrón que vale la pena sostener."
-        }
-
-        val byWeekday = daysWithUse.groupingBy { it.dayOfWeek }.eachCount()
-        val (topDay, count) = byWeekday.maxByOrNull { it.value }!!
-        if (count >= 2) {
-            val dayName = topDay.getDisplayName(TextStyle.FULL, Locale("es", "MX"))
-            return "Los $dayName concentran tu mayor consumo registrado " +
-                "($count de ${daysWithUse.size} días con consumo). " +
-                "Planear algo distinto ese día puede ayudarte."
-        }
-
-        return "Llevas ${daysWithUse.size} de $totalDays días registrados con consumo, " +
-            "sin repetirse en un mismo día de la semana. Sigue registrando para ver tus patrones."
     }
 
     private fun autoUnlock(achievements: List<Achievement>, currentStreak: Int) {
@@ -198,14 +148,12 @@ class JourneyViewModel @Inject constructor(
         return UiAchievement(entity.id, icon, title, description, entity.unlocked, progress, threshold, unlockedOn)
     }
 
-    fun selectPeriod(index: Int) { selectedPeriod = index }
+    fun showPreviousWeek() = moveWeek(-1)
 
-    /** Opens the detail of the day tapped on the chart. Ignores days with no entry. */
-    fun onChartPointSelected(index: Int) {
-        val days = if (selectedPeriod == 0) daysWeek else daysMonth
-        val date = dateForChartIndex(index, days) ?: return
-        entriesByDate[date]?.let { selectedDay = it }
+    fun showNextWeek() = moveWeek(1)
+
+    private fun moveWeek(step: Int) {
+        val weeks = (progressState as? ProgressUiState.Content)?.weeks ?: return
+        weeks.getOrNull(weeks.indexOf(selectedWeek) + step)?.let { selectedWeek = it }
     }
-
-    fun dismissDayDetail() { selectedDay = null }
 }

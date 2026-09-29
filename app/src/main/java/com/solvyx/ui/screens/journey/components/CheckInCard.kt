@@ -1,9 +1,7 @@
 package com.solvyx.ui.screens.journey.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,6 +29,7 @@ import com.solvyx.ui.components.berto.BertoPoseAnimation
 import com.solvyx.ui.components.common.SolvyxButton
 import com.solvyx.ui.components.common.SolvyxCard
 import com.solvyx.ui.components.common.moodOption
+import com.solvyx.ui.theme.StreakFlame
 
 /**
  * Day check-in at the top of the Progress tab. Replaces the old "Hoy" tab: logging is a
@@ -45,9 +43,10 @@ fun CheckInCard(
     streak: Int,
     onRegister: () -> Unit,
     onEdit: () -> Unit,
+    onOpenStreak: () -> Unit = {},
 ) {
     if (todayEntry != null) {
-        LoggedRow(entry = todayEntry, onEdit = onEdit)
+        LoggedRow(entry = todayEntry, streak = streak, onEdit = onEdit, onOpenStreak = onOpenStreak)
     } else {
         PendingCard(streak = streak, onRegister = onRegister)
     }
@@ -99,7 +98,13 @@ private fun PendingCard(streak: Int, onRegister: () -> Unit, modifier: Modifier 
 }
 
 @Composable
-private fun LoggedRow(entry: JournalEntry, onEdit: () -> Unit, modifier: Modifier = Modifier) {
+private fun LoggedRow(
+    entry: JournalEntry,
+    streak: Int,
+    onEdit: () -> Unit,
+    onOpenStreak: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val mood = moodOption(entry.mood)
     SolvyxCard(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -147,6 +152,7 @@ private fun LoggedRow(entry: JournalEntry, onEdit: () -> Unit, modifier: Modifie
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (streak > 0) StreakChip(streak = streak, onClick = onOpenStreak)
             }
             Text(
                 text = "Editar",
@@ -158,5 +164,28 @@ private fun LoggedRow(entry: JournalEntry, onEdit: () -> Unit, modifier: Modifie
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             )
         }
+    }
+}
+
+/** "Racha N días ›": the streak lives in Logros (the trail); this is the shortcut to it. */
+@Composable
+private fun StreakChip(streak: Int, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(top = 6.dp)
+            .clip(RoundedCornerShape(50))
+            .background(StreakFlame.copy(alpha = 0.12f))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(painterResource(R.drawable.ic_flame), null, tint = StreakFlame, modifier = Modifier.size(14.dp))
+        Spacer(Modifier.size(4.dp))
+        Text(
+            if (streak == 1) "Racha 1 día" else "Racha $streak días",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = StreakFlame
+        )
+        Icon(painterResource(R.drawable.ic_chevron_right), null, tint = StreakFlame, modifier = Modifier.size(14.dp))
     }
 }
