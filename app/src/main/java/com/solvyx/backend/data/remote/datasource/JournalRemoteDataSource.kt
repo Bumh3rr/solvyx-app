@@ -32,9 +32,9 @@ class JournalRemoteDataSource @Inject constructor(
             .collection(JournalRemoteDto.JOURNAL)
 
     /**
-     * Merge a nivel de campo: solo escribe los campos de registro no nulos + updated_at. Nunca
-     * escribe meta_lograda (eso es setMetaLograda). Así el ánimo rápido no borra un consumed
-     * previo y un registro completo no borra un meta_lograda previo.
+     * Merge a nivel de campo: solo escribe los campos de registro no nulos + updated_at. Así el
+     * ánimo rápido no borra un consumed previo y un registro completo no borra el meta_lograda de
+     * días antiguos (campo heredado: ya no se escribe, las metas viven en `metas`).
      */
     suspend fun saveEntry(uid: String, entry: JournalEntry) {
         val data = buildMap<String, Any?> {
@@ -78,17 +78,6 @@ class JournalRemoteDataSource @Inject constructor(
             }
         }
         awaitClose { registration.remove() }
-    }
-
-    suspend fun setMetaLograda(uid: String, date: LocalDate, value: Boolean) {
-        journalCol(uid).document(dateId(date)).set(
-            mapOf(
-                JournalRemoteDto.META_LOGRADA to value,
-                JournalRemoteDto.DATE to date.atStartOfDay(zone).toInstant().toEpochMilli(),
-                JournalRemoteDto.UPDATED_AT to FieldValue.serverTimestamp()
-            ),
-            SetOptions.merge()
-        ).await()
     }
 
     private fun DocumentSnapshot.toJournalEntry(): JournalEntry? {

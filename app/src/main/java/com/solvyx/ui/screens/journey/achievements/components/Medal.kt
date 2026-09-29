@@ -58,6 +58,11 @@ fun streakTierColor(tierIndex: Int): Color = TierColors[tierIndex.coerceIn(0, Ti
 /** Diary badges all share the brand teal, so they read as a different family from streak medals. */
 val DiaryBadgeColor: Color = TealPrimary
 
+/** Goal medals (1, 5 and 10 goals): green, blue and gold. */
+private val GoalTierColors = listOf(MoodBien, MoodTriste, MedalGold)
+
+fun goalTierColor(tierIndex: Int): Color = GoalTierColors[tierIndex.coerceIn(0, GoalTierColors.lastIndex)]
+
 /**
  * A medal. Unlocked: a glossy disc in [color] with light rays turning slowly behind it. Locked: a
  * grey disc with a lock and a ring showing [progress] toward unlocking it.

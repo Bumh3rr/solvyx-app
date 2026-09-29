@@ -28,17 +28,19 @@ import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
 import com.solvyx.ui.screens.journey.AchievementsUiState
 import com.solvyx.ui.screens.journey.achievements.components.AchievementTrail
 import com.solvyx.ui.screens.journey.achievements.components.DiaryBadgesGrid
+import com.solvyx.ui.screens.journey.achievements.components.GoalMedalsGrid
 import com.solvyx.ui.screens.journey.achievements.components.MedalDetailSheet
 import com.solvyx.ui.screens.journey.achievements.components.MedalInfo
 import com.solvyx.ui.screens.journey.achievements.components.TrophyHero
 import com.solvyx.ui.screens.journey.achievements.tierIndexOf
+import com.solvyx.ui.screens.journey.achievements.toGoalMedalInfo
 import com.solvyx.ui.screens.journey.achievements.toMedalInfo
 import com.solvyx.ui.screens.journey.achievements.trailMessage
 import com.solvyx.ui.theme.TealDark
 
 /**
- * Logros: a trophy hero, the streak achievements as a trail Berto walks along, and the diary
- * badges. Any medal opens its detail. The "just unlocked" celebration lives in `JourneyScreen`,
+ * Logros: a trophy hero, the streak achievements as a trail Berto walks along, the goal medals
+ * and the diary badges. Any medal opens its detail. The "just unlocked" celebration lives in `JourneyScreen`,
  * so it shows up wherever the user is when a streak milestone is reached.
  */
 @Composable
@@ -76,7 +78,9 @@ private fun AchievementsContent(state: AchievementsUiState.Content, modifier: Mo
             total = state.achievements.size,
             badgesUnlocked = state.badges.count { it.unlocked },
             badgesTotal = state.badges.size,
-            message = trailMessage(state.currentStreak, milestones)
+            message = trailMessage(state.currentStreak, milestones),
+            goalMedalsUnlocked = state.goalMedals.count { it.unlocked },
+            goalMedalsTotal = state.goalMedals.size
         )
         SectionTitle("Mi sendero", subtitle = "Cada medalla es una racha de días sin consumo")
         AchievementTrail(
@@ -86,6 +90,16 @@ private fun AchievementsContent(state: AchievementsUiState.Content, modifier: Mo
                 selected = achievement.toMedalInfo(tierIndexOf(achievement, state.achievements), state.currentStreak)
             }
         )
+        if (state.goalMedals.isNotEmpty()) {
+            SectionTitle("Mis metas", subtitle = "Cada medalla es una meta que cumpliste")
+            GoalMedalsGrid(
+                medals = state.goalMedals,
+                completedGoals = state.completedGoals,
+                onSelect = { medal ->
+                    selected = medal.toGoalMedalInfo(tierIndexOf(medal, state.goalMedals), state.completedGoals)
+                }
+            )
+        }
         if (state.badges.isNotEmpty()) {
             SectionTitle("Insignias del diario", subtitle = "Por escribir tus días y por tu honestidad")
             DiaryBadgesGrid(badges = state.badges, onSelect = { selected = it.toMedalInfo() })

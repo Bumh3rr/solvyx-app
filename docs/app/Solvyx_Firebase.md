@@ -76,7 +76,7 @@ Registro emocional diario. Un documento por día, identificado por la fecha en f
 | `sustancia`     | String | Condicional | Solo si `consumio=true`. Valores: `alcohol`, `vape`, `cristal`, `cigarro`. |
 | `cantidad_aprox` | String | No | Cantidad aproximada en texto libre. Ej: `2 cervezas`, `una dosis`. |
 | `nota_contexto` | String | No | Contexto del consumo. Máximo 200 caracteres. |
-| `meta_lograda`  | Boolean | No | `true` si el usuario marcó haber cumplido su meta del día. |
+| `meta_lograda`  | Boolean | No | **Heredado, ya no se escribe.** Lo usaba el "Lo logré hoy" del plan viejo; se sigue leyendo para días antiguos. Las metas viven en `metas`. |
 | `creado_en`     | Timestamp | Auto | `FieldValue.serverTimestamp()` al guardar por primera vez. |
 | `actualizado_en` | Timestamp | Auto | Se actualiza en cada operación merge sobre el documento. |
 
@@ -115,17 +115,24 @@ Metas de reducción de daños. Pueden ser creadas manualmente por el usuario o s
 | --- | --- | --- | --- |
 | `tipo` | String | Sí | `sin_consumo`, `reducir_frecuencia`, `tecnicas_regulacion`. |
 | `origen` | String | Sí | `usuario` (creada manualmente) o `sugerida_berto` (propuesta por el agente). |
-| `sustancia` | String | No | Nulo si es una meta general de bienestar. |
-| `titulo` | String | Sí | Descripción breve. Generada por la app o escrita por el usuario. |
-| `objetivo` | Number | Sí | Valor numérico del objetivo. Ej: `15` (días), `3` (veces/semana). |
-| `progreso_actual` | Number | Sí | Progreso actual. Se actualiza desde la bitácora. |
-| `unidad` | String | Sí | `dias`, `veces_semana`, `tecnicas_dia`. |
+| `sustancia` | String | No | Nulo = cualquier sustancia (solo en metas `sin_consumo` creadas por el usuario). |
+| `titulo` | String | Sí | Descripción breve. La genera la app (ej. `5 días sin vapear`); el usuario no escribe texto libre. |
+| `objetivo` | Number | Sí | `sin_consumo`: días (ej. `5`). `reducir_frecuencia`: semanas a cumplir (ej. `3`). |
+| `progreso_actual` | Number | Sí | Días o semanas cumplidos. Se calcula en el teléfono desde la bitácora. |
+| `unidad` | String | Sí | `dias` (`sin_consumo`) o `semanas` (`reducir_frecuencia`). |
+| `limite_semanal` | Number | Condicional | Solo en `reducir_frecuencia`: máximo de días de consumo por semana (ej. `2`). |
 | `fecha_inicio` | Timestamp | Sí | Fecha de creación de la meta. |
 | `fecha_limite` | Timestamp | No | Nulo si la meta no tiene plazo fijo. |
 | `activa` | Boolean | Sí | `true` = activa. `false` = archivada o completada. |
 | `completada` | Boolean | Sí | `false` por defecto. `true` cuando `progreso_actual >= objetivo`. |
 | `completada_en` | Timestamp | Condicional | Solo existe si `completada=true`. |
 | `creado_en` | Timestamp | Auto | `FieldValue.serverTimestamp()` |
+
+**Cálculo del progreso** (`GoalProgressCalculator`). Nada se reinicia: un día con consumo simplemente no suma.
+
+- Solo cuentan los días en que el usuario respondió si consumió (`consumed` no nulo). El ánimo rápido de Inicio y los días sin registro son neutros.
+- `sin_consumo`: +1 por día registrado sin consumir esa sustancia (no tienen que ser seguidos).
+- `reducir_frecuencia`: bloques de 7 días desde `fecha_inicio`. Una semana suma +1 cuando ya terminó, tiene al menos 4 días registrados y los días de consumo no pasan de `limite_semanal`.
 
 ---
 

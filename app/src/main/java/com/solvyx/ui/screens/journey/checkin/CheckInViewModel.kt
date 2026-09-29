@@ -7,13 +7,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.common.goals.CheckInGoalOutcome
+import com.solvyx.backend.data.model.Goal
 import com.solvyx.backend.data.model.JournalEntry
+import com.solvyx.backend.repository.GoalRepository
 import com.solvyx.backend.repository.JournalRepository
 import com.solvyx.ui.screens.journey.WizardStep
+import com.solvyx.ui.screens.plan.BertoLine
+import com.solvyx.ui.screens.plan.advancedLine
 import com.solvyx.ui.screens.journey.canAdvanceWizard
 import com.solvyx.ui.screens.journey.isLastWizardStep
 import com.solvyx.ui.screens.journey.totalWizardSteps
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -38,6 +44,9 @@ private const val MOOD_REACTION_MILLIS = 1_100L
  */
 private const val SAVE_CONFIRMATION_TIMEOUT_MILLIS = 4_000L
 
+/** Goals are read from the local cache; this only guards against a cache that never answers. */
+private const val GOALS_TIMEOUT_MILLIS = 2_000L
+
 sealed interface SaveState {
     data object Idle : SaveState
     data object Saving : SaveState
@@ -49,6 +58,7 @@ sealed interface SaveState {
 @HiltViewModel
 class CheckInViewModel @Inject constructor(
     private val repository: JournalRepository,
+    private val goalRepository: GoalRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -67,6 +77,14 @@ class CheckInViewModel @Inject constructor(
     var step by mutableIntStateOf(WizardStep.MOOD.ordinal)
         private set
     var saveState by mutableStateOf<SaveState>(SaveState.Idle)
+        private set
+
+    /** "Avanzaste en tu meta" for the result screen; null when the day added to no goal. */
+    var advanced by mutableStateOf<BertoLine?>(null)
+        private set
+
+    /** Goals this check-in completed, celebrated full screen one at a time after saving. */
+    var celebrations by mutableStateOf<List<Goal>>(emptyList())
         private set
 
     val currentStep: WizardStep get() = WizardStep.entries[step]
@@ -136,6 +154,12 @@ class CheckInViewModel @Inject constructor(
             notaContexto = context.ifBlank { null }
         )
         viewModelScope.launch {
+            // Goals first, from the cache and before the entry is written: this way the check-in is
+            // the one that celebrates the goal it completes (Plan would otherwise race to it).
+            withTimeoutOrNull(GOALS_TIMEOUT_MILLIS) { goalOutcome(entry) }?.let { outcome ->
+                advanced = advancedLine(outcome.advanced)
+                celebrations = outcome.completed
+            }
             // The write keeps going in its own coroutine even if we stop waiting for it.
             val write = async { runCatching { repository.save(entry) } }
             val result = withTimeoutOrNull(SAVE_CONFIRMATION_TIMEOUT_MILLIS) { write.await() }
@@ -145,6 +169,19 @@ class CheckInViewModel @Inject constructor(
                 else -> SaveState.Failed
             }
         }
+    }
+
+    /** Null when the goals couldn't be read; the check-in is saved either way. */
+    private suspend fun goalOutcome(entry: JournalEntry): CheckInGoalOutcome? = try {
+        goalRepository.afterCheckIn(entry)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    }
+
+    fun celebrationDone() {
+        celebrations = celebrations.drop(1)
     }
 
     private fun loadToday() {

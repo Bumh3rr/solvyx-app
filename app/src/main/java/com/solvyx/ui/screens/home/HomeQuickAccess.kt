@@ -56,7 +56,7 @@ fun HomeQuickAccess(
         QuickAccessItem("Mi Plan", "Tu meta de hoy", R.drawable.ic_plan, onNavigateToPlan),
         QuickAccessItem("Mi camino", "Registra tu día", R.drawable.ic_footsteps, onNavigateToJourney),
         QuickAccessItem("Hablar con Berto", "Disponible ahora", R.drawable.ic_chat, onNavigateToChat),
-        QuickAccessItem("Respirar", "Ejercicio 5-4-3-2-1", R.drawable.ic_wind, onNavigateToBreathing),
+        QuickAccessItem("Respirar", "Respira conmigo", R.drawable.ic_wind, onNavigateToBreathing),
         QuickAccessItem("Primeros auxilios", "Funciona sin internet", R.drawable.ic_guide, onNavigateToFirstAid),
         QuickAccessItem("Mi red de apoyo", "Contactos de confianza", R.drawable.ic_people, onNavigateToSupportNetwork)
     )

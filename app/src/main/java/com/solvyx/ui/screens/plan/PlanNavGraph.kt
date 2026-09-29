@@ -1,51 +1,45 @@
 package com.solvyx.ui.screens.plan
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.solvyx.ui.components.dialog.SosConfirmationDialog
 
+private const val PLAN_HUB = "planHub"
+private const val SUBSTANCE_INFO = "info_sustancia"
+
+/**
+ * Own NavHost of "Mi plan". The quick tools open full-screen routes of the main graph (craving
+ * guide, breathing, 5-4-3-2-1, chat), so going back from them returns here.
+ */
 @Composable
 fun PlanNavGraph(
     onOpenDrawer: () -> Unit,
-    onNavigateToChat: () -> Unit = {},
-    onNavigateToSos: () -> Unit = {},
-    onNavigateToRedApoyo: () -> Unit = {}
+    onOpenCravingGuide: () -> Unit,
+    onOpenBreathing: () -> Unit,
+    onOpenGrounding: () -> Unit,
+    onNavigateToChat: () -> Unit,
+    onOpenDirectory: () -> Unit,
+    onCreateAccount: () -> Unit,
+    onOpenCheckIn: () -> Unit
 ) {
     val navController = rememberNavController()
-    var showSosDialog by remember { mutableStateOf(false) }
 
-    if (showSosDialog) {
-        SosConfirmationDialog(
-            onConfirm = {
-                showSosDialog = false
-                onNavigateToSos()
-            },
-            onDismiss = { showSosDialog = false }
-        )
-    }
-
-    NavHost(navController = navController, startDestination = "planHub") {
-        composable("planHub") {
+    NavHost(navController = navController, startDestination = PLAN_HUB) {
+        composable(PLAN_HUB) {
             MiPlanHubScreen(
                 onOpenDrawer = onOpenDrawer,
-                onNavigateToManejoCraving = { navController.navigate("manejo_craving") },
-                onNavigateToInfoSustancia = { navController.navigate("info_sustancia") }
+                onOpenCravingGuide = onOpenCravingGuide,
+                onOpenBreathing = onOpenBreathing,
+                onOpenGrounding = onOpenGrounding,
+                onOpenChat = onNavigateToChat,
+                onOpenSubstanceInfo = { navController.navigate(SUBSTANCE_INFO) },
+                onOpenDirectory = onOpenDirectory,
+                onCreateAccount = onCreateAccount,
+                onOpenCheckIn = onOpenCheckIn
             )
         }
-        composable("manejo_craving") {
-            ManejoCravingScreen(
-                onBack = { navController.navigateUp() },
-                onNavigateToEjercicio = { /* ejercicio route comes later */ },
-                onNavigateToRedApoyo = onNavigateToRedApoyo
-            )
-        }
-        composable("info_sustancia") {
+        composable(SUBSTANCE_INFO) {
             InfoSustanciaScreen(onBack = { navController.navigateUp() })
         }
     }

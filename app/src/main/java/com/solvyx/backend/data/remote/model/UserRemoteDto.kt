@@ -9,10 +9,7 @@ data class UserRemoteDto(
     val isAnonymous: Boolean = false,
     val currentStreak: Int = 0,
     val bestStreak: Int = 0,
-    val createdAt: Long? = null,
-    val planGoalIndex: Int? = null,
-    val planGoalAchievedToday: Boolean? = null,
-    val planDate: Long? = null
+    val createdAt: Long? = null
 ){
     companion object {
         const val USERS = "users"
@@ -25,8 +22,5 @@ data class UserRemoteDto(
         const val CURRENT_STREAK = "current_streak"
         const val BEST_STREAK = "best_streak"
         const val CREATED_AT = "created_at"
-        const val PLAN_GOAL_INDEX = "plan_goal_index"
-        const val PLAN_GOAL_ACHIEVED_TODAY = "plan_goal_achieved_today"
-        const val PLAN_DATE = "plan_date"
     }
 }

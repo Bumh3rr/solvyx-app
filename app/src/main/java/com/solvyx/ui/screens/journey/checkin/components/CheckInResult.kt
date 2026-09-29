@@ -36,6 +36,7 @@ import com.solvyx.ui.theme.TealDark
 
 private val ResultBertoSize = 180.dp
 private const val StreakTintAlpha = 0.14f
+private const val GoalTintAlpha = 0.1f
 
 /**
  * Closing screen after saving. A clean day celebrates (confetti + streak counting up); a day with
@@ -49,7 +50,10 @@ fun CheckInResult(
     pendingSync: Boolean,
     onDone: () -> Unit,
     onOpenFirstAid: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // "Avanzaste en tu meta" and which one; null when the day added to no goal (nothing is said).
+    advancedTitle: String? = null,
+    advancedDetail: String? = null
 ) {
     val reaction = resultReaction(used)
     Box(modifier = modifier.fillMaxSize()) {
@@ -74,6 +78,10 @@ fun CheckInResult(
                 Spacer(Modifier.height(12.dp))
                 StreakBadge(streak)
             }
+            if (advancedTitle != null) {
+                Spacer(Modifier.height(12.dp))
+                GoalAdvancedBadge(title = advancedTitle, detail = advancedDetail)
+            }
             if (pendingSync) {
                 Spacer(Modifier.height(12.dp))
                 Text(
@@ -91,6 +99,38 @@ fun CheckInResult(
                     text = "Ver primeros auxilios",
                     onClick = onOpenFirstAid,
                     modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GoalAdvancedBadge(title: String, detail: String?) {
+    Row(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = GoalTintAlpha), RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_check_circle),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.width(10.dp))
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = TealDark
+            )
+            detail?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

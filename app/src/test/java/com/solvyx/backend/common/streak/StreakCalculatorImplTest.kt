@@ -4,11 +4,9 @@ import com.solvyx.backend.data.model.JournalEntry
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate
-import java.time.ZoneId
 
 class StreakCalculatorImplTest {
 
-    private val zone = ZoneId.systemDefault()
     private val calculator = StreakCalculatorImpl()
 
     private fun entryFor(daysAgo: Int, today: LocalDate, consumed: Boolean, mood: String = "neutral") =
@@ -54,10 +52,31 @@ class StreakCalculatorImplTest {
         val entries = listOf(
             entryFor(daysAgo = 0, today = today, consumed = false),
             entryFor(daysAgo = 2, today = today, consumed = false)
-            // daysAgo = 1 no tiene entrada — día neutro
+            // daysAgo = 1 no tiene entrada — día neutro: ni suma ni rompe
         )
         val stats = calculator.compute(entries, today)
-        assertEquals(1, stats.current)
+        assertEquals(2, stats.current)
+    }
+
+    @Test
+    fun `today without a check-in keeps the streak instead of dropping it to zero`() {
+        val today = LocalDate.of(2026, 7, 14)
+        val entries = (1..3).map { entryFor(daysAgo = it, today = today, consumed = false) }
+        val stats = calculator.compute(entries, today)
+        assertEquals(3, stats.current)
+    }
+
+    @Test
+    fun `a consumed day stops the streak even across neutral days`() {
+        val today = LocalDate.of(2026, 7, 14)
+        val entries = listOf(
+            entryFor(daysAgo = 0, today = today, consumed = false),
+            entryFor(daysAgo = 3, today = today, consumed = false),
+            entryFor(daysAgo = 5, today = today, consumed = true),
+            entryFor(daysAgo = 6, today = today, consumed = false)
+        )
+        val stats = calculator.compute(entries, today)
+        assertEquals(2, stats.current)
     }
 
     @Test
@@ -65,15 +84,47 @@ class StreakCalculatorImplTest {
         val today = LocalDate.of(2026, 7, 14)
         val entries = listOf(
             entryFor(daysAgo = 0, today = today, consumed = false),
+            entryFor(daysAgo = 1, today = today, consumed = true),
             entryFor(daysAgo = 3, today = today, consumed = false),
             entryFor(daysAgo = 4, today = today, consumed = false),
-            entryFor(daysAgo = 5, today = today, consumed = false),
             entryFor(daysAgo = 6, today = today, consumed = false),
-            entryFor(daysAgo = 7, today = today, consumed = false)
+            entryFor(daysAgo = 7, today = today, consumed = false),
+            entryFor(daysAgo = 8, today = today, consumed = false)
         )
         val stats = calculator.compute(entries, today)
         assertEquals(1, stats.current)
         assertEquals(5, stats.best)
+    }
+
+    @Test
+    fun `a doc with only the old daily goal flag is neutral`() {
+        val today = LocalDate.of(2026, 7, 14)
+        val entries = listOf(
+            entryFor(daysAgo = 0, today = today, consumed = false),
+            JournalEntry(date = today.minusDays(1), metaLograda = true),
+            entryFor(daysAgo = 2, today = today, consumed = false)
+        )
+        val stats = calculator.compute(entries, today)
+        assertEquals(2, stats.current)
+    }
+
+    @Test
+    fun `a quick mood without the consumption answer counts as a clean day`() {
+        val today = LocalDate.of(2026, 7, 14)
+        val entries = listOf(JournalEntry(date = today, mood = "bien", consumed = null))
+        val stats = calculator.compute(entries, today)
+        assertEquals(1, stats.current)
+    }
+
+    @Test
+    fun `entries dated after today are ignored`() {
+        val today = LocalDate.of(2026, 7, 14)
+        val entries = listOf(
+            JournalEntry(date = today.plusDays(1), mood = "bien", consumed = true),
+            entryFor(daysAgo = 0, today = today, consumed = false)
+        )
+        val stats = calculator.compute(entries, today)
+        assertEquals(1, stats.current)
     }
 
     @Test

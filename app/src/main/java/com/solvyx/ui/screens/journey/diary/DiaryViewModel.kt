@@ -7,11 +7,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solvyx.backend.common.goals.DayGoalNote
+import com.solvyx.backend.common.goals.GoalDays
 import com.solvyx.backend.common.streak.StreakCalculator
 import com.solvyx.backend.data.model.JournalEntry
+import com.solvyx.backend.repository.GoalRepository
 import com.solvyx.backend.repository.ProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
@@ -25,7 +29,9 @@ sealed interface DiaryUiState {
         val entries: List<JournalEntry>,
         val entriesByDate: Map<LocalDate, JournalEntry>,
         val summary: DiarySummary,
-        val months: List<YearMonth>
+        val months: List<YearMonth>,
+        // Days that added to a goal ("Avanzaste en tu meta") or completed one.
+        val goalNotes: Map<LocalDate, DayGoalNote> = emptyMap()
     ) : DiaryUiState
 }
 
@@ -36,6 +42,7 @@ const val DIARY_DAY_ARG = "day"
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
     private val repository: ProgressRepository,
+    private val goalRepository: GoalRepository,
     private val streakCalculator: StreakCalculator,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -69,9 +76,9 @@ class DiaryViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.observeJournal()
-                .catch { emit(emptyList()) }
-                .collect { all ->
+            combine(repository.observeJournal(), goalRepository.observeGoals()) { all, goals -> all to goals }
+                .catch { emit(emptyList<JournalEntry>() to emptyList()) }
+                .collect { (all, goals) ->
                     val entries = diaryEntries(all)
                     val loaded = if (entries.isEmpty()) {
                         DiaryUiState.Empty
@@ -80,7 +87,8 @@ class DiaryViewModel @Inject constructor(
                             entries = entries,
                             entriesByDate = entries.associateBy { it.date },
                             summary = summarize(entries, streakCalculator.compute(all, today).best),
-                            months = browsableMonths(entries, YearMonth.now(zone))
+                            months = browsableMonths(entries, YearMonth.now(zone)),
+                            goalNotes = GoalDays.dayNotes(goals, all, today)
                         )
                     }
                     state = loaded

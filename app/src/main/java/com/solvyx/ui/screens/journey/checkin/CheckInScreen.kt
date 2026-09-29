@@ -15,6 +15,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -58,6 +59,7 @@ import com.solvyx.ui.screens.journey.checkin.steps.MoodStep
 import com.solvyx.ui.screens.journey.checkin.steps.NoteStep
 import com.solvyx.ui.screens.journey.checkin.steps.SubstanceStep
 import com.solvyx.ui.screens.journey.checkin.steps.UseStep
+import com.solvyx.ui.screens.plan.GoalCompletedCelebration
 import com.solvyx.ui.theme.CrisisRed
 import com.solvyx.ui.theme.CrisisRedLight
 import com.solvyx.ui.theme.TealDark
@@ -90,33 +92,43 @@ fun CheckInScreen(
 
     BackHandler(enabled = saved == null && viewModel.step > 0, onBack = viewModel::back)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(topTint, background)))
-            .statusBarsPadding()
-    ) {
-        AnimatedContent(
-            targetState = saved,
-            transitionSpec = { (fadeIn(tween(400)) + scaleIn(initialScale = 0.96f)) togetherWith fadeOut(tween(200)) },
-            label = "checkInResult"
-        ) { result ->
-            if (result != null) {
-                CheckInResult(
-                    used = viewModel.used == true,
-                    streak = result.streak,
-                    pendingSync = result.pendingSync,
-                    onDone = onClose,
-                    onOpenFirstAid = onOpenFirstAid
-                )
-            } else {
-                CheckInFlow(
-                    viewModel = viewModel,
-                    accent = moodColor,
-                    caretX = caretX,
-                    onCaretMoved = { caretX = it },
-                    onClose = onClose
-                )
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(listOf(topTint, background)))
+                .statusBarsPadding()
+        ) {
+            AnimatedContent(
+                targetState = saved,
+                transitionSpec = { (fadeIn(tween(400)) + scaleIn(initialScale = 0.96f)) togetherWith fadeOut(tween(200)) },
+                label = "checkInResult"
+            ) { result ->
+                if (result != null) {
+                    CheckInResult(
+                        used = viewModel.used == true,
+                        streak = result.streak,
+                        pendingSync = result.pendingSync,
+                        advancedTitle = viewModel.advanced?.message,
+                        advancedDetail = viewModel.advanced?.supporting,
+                        onDone = onClose,
+                        onOpenFirstAid = onOpenFirstAid
+                    )
+                } else {
+                    CheckInFlow(
+                        viewModel = viewModel,
+                        accent = moodColor,
+                        caretX = caretX,
+                        onCaretMoved = { caretX = it },
+                        onClose = onClose
+                    )
+                }
+            }
+        }
+        // A goal completed by this check-in is celebrated over the result, one at a time.
+        if (saved != null) {
+            viewModel.celebrations.firstOrNull()?.let { goal ->
+                GoalCompletedCelebration(goal = goal, onDone = viewModel::celebrationDone)
             }
         }
     }

@@ -19,18 +19,19 @@ class ProgressRepository @Inject constructor(
     fun observeJournal(): Flow<List<JournalEntry>> = journalRepository.observeAll()
 
     /**
-     * Deriva el estado de los 5 logros combinando el catálogo estático (`Achievement.BASE_IDS`)
-     * con lo que exista en la colección sparse de Firestore. Anónimo o sin sesión: catálogo
-     * completo bloqueado, sin tocar Firestore — Mi camino ya bloquea esta sección para anónimos.
+     * Deriva el estado de todos los logros (racha y metas, `Achievement.ALL_IDS`) combinando el
+     * catálogo estático con lo que exista en la colección sparse de Firestore. Anónimo o sin
+     * sesión: catálogo completo bloqueado, sin tocar Firestore — Mi camino ya bloquea esta
+     * sección para anónimos.
      */
     fun observeAchievements(): Flow<List<Achievement>> {
         val user = firebaseAuth.currentUser
         if (user == null || user.isAnonymous) {
-            return flowOf(Achievement.BASE_IDS.map { Achievement(id = it) })
+            return flowOf(Achievement.ALL_IDS.map { Achievement(id = it) })
         }
         return achievementRemoteDataSource.observe(user.uid).map { remoteUnlocked ->
             val unlockedById = remoteUnlocked.associateBy { it.id }
-            Achievement.BASE_IDS.map { id ->
+            Achievement.ALL_IDS.map { id ->
                 val dto = unlockedById[id]
                 if (dto != null) Achievement(id = id, unlocked = true, unlockDate = dto.unlockDate)
                 else Achievement(id = id)

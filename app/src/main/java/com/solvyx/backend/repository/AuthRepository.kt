@@ -9,7 +9,6 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.solvyx.backend.data.local.database.AppDatabase
-import com.solvyx.backend.data.local.entity.PlanEntity
 import com.solvyx.backend.data.local.entity.UserEntity
 import com.solvyx.backend.data.local.preferences.ChatPreferencesRepository
 import com.solvyx.backend.data.local.preferences.SosPreferencesRepository
@@ -32,7 +31,6 @@ class AuthRepository @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val userRepository: UserRepository,
     private val assistRepository: AssistRepository,
-    private val planRepository: PlanRepository,
     private val appDatabase: AppDatabase,
     private val accountRemoteDataSource: AccountRemoteDataSource,
     private val chatPreferences: ChatPreferencesRepository,
@@ -67,15 +65,6 @@ class AuthRepository @Inject constructor(
             substances = profile?.selectedSubstances
         )
         assistRepository.hydrateFromServer()
-        if (profile?.planGoalIndex != null && profile.planGoalAchievedToday != null) {
-            planRepository.saveLocalOnly(
-                PlanEntity(
-                    goalIndex = profile.planGoalIndex,
-                    goalAchievedToday = profile.planGoalAchievedToday,
-                    date = profile.planDate ?: System.currentTimeMillis()
-                )
-            )
-        }
         Result.success(user)
     } catch (e: Exception) {
         Result.failure(Exception(mapAuthError(e)))

@@ -15,11 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.ui.components.common.StaggeredAppear
+import com.solvyx.ui.screens.journey.UiAchievement
 import com.solvyx.ui.screens.journey.achievements.DiaryBadge
 import com.solvyx.ui.theme.TealDark
 
@@ -29,26 +31,71 @@ private const val BADGE_STAGGER_MS = 60L
 /** Diary badges in rows of three: medal, name and "3/5" while it is still locked. */
 @Composable
 fun DiaryBadgesGrid(badges: List<DiaryBadge>, onSelect: (DiaryBadge) -> Unit, modifier: Modifier = Modifier) {
+    MedalTilesGrid(badges, modifier) { badge ->
+        MedalTile(
+            title = badge.title,
+            icon = badge.icon,
+            color = DiaryBadgeColor,
+            unlocked = badge.unlocked,
+            progress = badge.progress,
+            counter = "${badge.current}/${badge.target}",
+            onClick = { onSelect(badge) }
+        )
+    }
+}
+
+/** Goal medals (1, 5 and 10 goals completed), same tiles as the diary badges. */
+@Composable
+fun GoalMedalsGrid(
+    medals: List<UiAchievement>,
+    completedGoals: Int,
+    onSelect: (UiAchievement) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tiers = medals.sortedBy { it.threshold }
+    MedalTilesGrid(tiers, modifier) { medal ->
+        MedalTile(
+            title = medal.title,
+            icon = medal.icon,
+            color = goalTierColor(tiers.indexOf(medal)),
+            unlocked = medal.unlocked,
+            progress = medal.progress,
+            counter = "${completedGoals.coerceAtMost(medal.threshold)}/${medal.threshold}",
+            onClick = { onSelect(medal) }
+        )
+    }
+}
+
+@Composable
+private fun <T> MedalTilesGrid(items: List<T>, modifier: Modifier, tile: @Composable (T) -> Unit) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        badges.chunked(BADGES_PER_ROW).forEachIndexed { row, rowBadges ->
+        items.chunked(BADGES_PER_ROW).forEachIndexed { row, rowItems ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                rowBadges.forEachIndexed { column, badge ->
+                rowItems.forEachIndexed { column, item ->
                     StaggeredAppear(
                         index = row * BADGES_PER_ROW + column,
                         stepMs = BADGE_STAGGER_MS,
                         modifier = Modifier.weight(1f)
                     ) {
-                        BadgeTile(badge = badge, onClick = { onSelect(badge) })
+                        tile(item)
                     }
                 }
-                repeat(BADGES_PER_ROW - rowBadges.size) { Spacer(Modifier.weight(1f)) }
+                repeat(BADGES_PER_ROW - rowItems.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
 }
 
 @Composable
-private fun BadgeTile(badge: DiaryBadge, onClick: () -> Unit) {
+private fun MedalTile(
+    title: String,
+    icon: Int,
+    color: Color,
+    unlocked: Boolean,
+    progress: Float,
+    counter: String,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -58,25 +105,25 @@ private fun BadgeTile(badge: DiaryBadge, onClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Medal(
-            icon = badge.icon,
-            color = DiaryBadgeColor,
-            unlocked = badge.unlocked,
-            progress = badge.progress,
+            icon = icon,
+            color = color,
+            unlocked = unlocked,
+            progress = progress,
             size = 64.dp
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            badge.title,
+            title,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
-            color = if (badge.unlocked) TealDark else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (unlocked) TealDark else MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 2
         )
-        if (!badge.unlocked) {
+        if (!unlocked) {
             Text(
-                "${badge.current}/${badge.target}",
+                counter,
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                color = DiaryBadgeColor
+                color = color
             )
         }
     }

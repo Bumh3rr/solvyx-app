@@ -14,6 +14,8 @@ object Routes {
     const val RED_APOYO_SETUP = "red_apoyo_setup"
     const val SOS_OVERLAY = "sos_overlay"
     const val EJERCICIO_GUIADO = "ejercicio_guiado"
+    const val CRAVING_GUIDE = "craving_guide"
+    const val BREATHING = "breathing"
     const val CHECK_IN = "check_in"
     const val DIARY = "diary"
     const val TERMINOS = "terminos"

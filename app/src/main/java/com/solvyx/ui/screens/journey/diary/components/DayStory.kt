@@ -54,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.solvyx.R
+import com.solvyx.backend.common.goals.DayGoalNote
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.ui.components.berto.BertoReactTrigger
 import com.solvyx.ui.components.berto.BertoReactsAnimation
@@ -96,6 +97,7 @@ private fun bertoMemory(moodId: String?): String = when (moodId) {
 fun DayStory(
     story: DiaryStory,
     today: LocalDate,
+    goalNotes: Map<LocalDate, DayGoalNote>,
     onEditToday: () -> Unit,
     onClose: () -> Unit,
     // False while the story plays its exit animation, so a second back press does not close twice.
@@ -134,6 +136,7 @@ fun DayStory(
                 StoryCard(
                     entry = story.days[page],
                     today = today,
+                    goalNote = goalNotes[story.days[page].date],
                     modifier = Modifier.pageDepth(pagerState, page)
                 )
             }
@@ -233,7 +236,7 @@ private fun BertoRemembers(entry: JournalEntry) {
 }
 
 @Composable
-private fun StoryCard(entry: JournalEntry, today: LocalDate, modifier: Modifier) {
+private fun StoryCard(entry: JournalEntry, today: LocalDate, goalNote: DayGoalNote?, modifier: Modifier) {
     val mood = moodOption(entry.mood)
     // The card is as tall as its content (scrolls if the note is long) and sits at the top of its page.
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -287,18 +290,26 @@ private fun StoryCard(entry: JournalEntry, today: LocalDate, modifier: Modifier)
                     .padding(16.dp)
             )
         }
-        if (entry.metaLograda) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(painterResource(R.drawable.ic_check_circle), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "Cumpliste tu meta del día",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+        goalNote?.completedTitles?.forEach { title ->
+            GoalNoteLine(R.drawable.ic_trophy, "Cumpliste tu meta: “$title”")
+        }
+        if (goalNote?.advanced == true && goalNote.completedTitles.isEmpty()) {
+            GoalNoteLine(R.drawable.ic_check_circle, "Avanzaste en tu meta")
         }
     }
+    }
+}
+
+@Composable
+private fun GoalNoteLine(icon: Int, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(painterResource(icon), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 

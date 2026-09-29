@@ -145,7 +145,7 @@ consumio: Boolean
 sustancia: String?                     // solo si consumio=true
 nota_animo: String?                    // máx 100 chars
 nota_contexto: String?                 // máx 200 chars
-meta_lograda: Boolean?
+meta_lograda: Boolean?                 // heredado: ya no se escribe (ver metas)
 creado_en, actualizado_en: Timestamp
 ```
 
