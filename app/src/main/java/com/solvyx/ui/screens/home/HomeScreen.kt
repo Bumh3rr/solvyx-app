@@ -11,30 +11,31 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.solvyx.ui.components.berto.BertoReactTrigger
-import com.solvyx.ui.components.berto.BertoReactsAnimation
 import com.solvyx.ui.components.drawer.model.CustomDrawerState
 import com.solvyx.ui.components.common.GuestLockOverlay
 import com.solvyx.ui.components.haze.LocalHazeState
 import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
+import com.solvyx.ui.screens.home.stage.HomeStage
+import com.solvyx.ui.screens.home.stage.SuggestionAction
+import com.solvyx.ui.screens.home.stage.rememberBertoStageState
 import com.solvyx.ui.screens.red.RedApoyoViewModel
 import dev.chrisbanes.haze.haze
+import kotlinx.coroutines.launch
 
 /**
- * Pantalla de Inicio. Orquesta las secciones (barra superior, hero, banners condicionales, racha,
+ * Pantalla de Inicio. Orquesta las secciones (barra superior, el jardín de Berto, banners condicionales, racha,
  * ánimo, accesos rápidos y el cierre de Berto); cada sección vive en su propio archivo `Home*`.
  * Aquí solo queda el estado de la pantalla y el ensamblado.
  */
@@ -60,6 +61,10 @@ fun HomeScreen(
     var assistBannerDescartado by rememberSaveable { mutableStateOf(false) }
     var registroBannerDescartado by rememberSaveable { mutableStateOf(false) }
 
+    val stage = rememberBertoStageState()
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,22 +83,27 @@ fun HomeScreen(
                     tint = MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
                     blurRadius = 16.dp
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 20.dp)
         ) {
-            /*
-            HomeHeroSection(
-                estadoAnimo = viewModel.moodToday ?: "neutral",
-                rachaActual = viewModel.streak
-            )
-            */
-            BertoReactsAnimation(
-                reaction = BertoReactTrigger.GOOD,
-                isReading = false,
-                lookX = 0f,
-                modifier = Modifier
-                    .size(250.dp)
-                    .align(Alignment.CenterHorizontally)
+            HomeStage(
+                state = stage,
+                streak = viewModel.streak,
+                nickname = viewModel.nickname,
+                moodToday = viewModel.moodToday,
+                introduceBerto = viewModel.introduceBerto,
+                onGreeted = viewModel::onBertoGreeted,
+                onSuggestionAction = { action ->
+                    when (action) {
+                        SuggestionAction.BREATHE -> onNavigateToBreathing()
+                        SuggestionAction.GROUNDING -> onNavigateToEjercicio()
+                        SuggestionAction.TALK -> onNavigateToChat()
+                        SuggestionAction.SUPPORT_NETWORK -> onNavigateToRedApoyo()
+                        SuggestionAction.JOURNAL -> onNavigateToJourney()
+                        SuggestionAction.SELF_CARE -> Unit
+                    }
+                },
+                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
 
             DismissibleBanner(visible = contactCount == 0 && !sosBannerDescartado) {
@@ -143,11 +153,14 @@ fun HomeScreen(
             ) {
                 HomeMoodCard(
                     moodToday = viewModel.moodToday,
-                    onMoodSelected = { viewModel.logMood(it) },
-                    onNavigateToChat = onNavigateToChat,
-                    onNavigateToEjercicio = onNavigateToEjercicio,
-                    onNavigateToJourney = onNavigateToJourney,
-                    onNavigateToRedApoyo = onNavigateToRedApoyo
+                    onMoodSelected = { mood ->
+                        viewModel.logMood(mood)
+                        // Berto is at the top: bring him into view, then he reacts.
+                        scope.launch {
+                            scrollState.animateScrollTo(0)
+                            stage.reactTo(mood)
+                        }
+                    }
                 )
             }
 

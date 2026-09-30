@@ -1,10 +1,5 @@
 package com.solvyx.ui.screens.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,21 +28,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.solvyx.R
-import com.solvyx.ui.theme.TealLight
 import com.solvyx.ui.components.common.MoodOptions
 import com.solvyx.ui.components.common.SolvyxCard
 
-private const val SuggestionTintAlpha = 0.35f
 
 @Composable
 fun HomeMoodCard(
     moodToday: String?,
     onMoodSelected: (String) -> Unit,
-    onNavigateToChat: () -> Unit,
-    onNavigateToEjercicio: () -> Unit,
-    onNavigateToJourney: () -> Unit,
-    onNavigateToRedApoyo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SolvyxCard(modifier = modifier.fillMaxWidth()) {
@@ -125,22 +113,6 @@ fun HomeMoodCard(
                     }
                 }
             }
-            AnimatedVisibility(
-                visible = moodToday != null,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
-            ) {
-                Column {
-                    Spacer(Modifier.height(12.dp))
-                    EmocionSugerenciaCard(
-                        mood = moodToday ?: "neutral",
-                        onNavigateToChat = onNavigateToChat,
-                        onNavigateToEjercicio = onNavigateToEjercicio,
-                        onNavigateToJourney = onNavigateToJourney,
-                        onNavigateToRedApoyo = onNavigateToRedApoyo
-                    )
-                }
-            }
             Spacer(Modifier.height(10.dp))
             Text(
                 "Tu registro se guarda de forma privada en tu cuenta.",
@@ -150,73 +122,5 @@ fun HomeMoodCard(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    }
-}
-
-@Composable
-private fun EmocionSugerenciaCard(
-    mood: String,
-    onNavigateToChat: () -> Unit,
-    onNavigateToEjercicio: () -> Unit,
-    onNavigateToJourney: () -> Unit,
-    onNavigateToRedApoyo: () -> Unit
-) {
-    val iconRes = when (mood) {
-        "bien", "neutral" -> R.drawable.ic_footsteps
-        "ansioso"         -> R.drawable.ic_wind
-        "euforico"        -> R.drawable.ic_people
-        else              -> R.drawable.ic_chat
-    }
-    val mensaje = when (mood) {
-        "bien"     -> "¡Qué bueno escuchar eso! Buen momento para registrar tu día."
-        "neutral"  -> "Un día tranquilo también cuenta. Gracias por registrarlo."
-        "ansioso"  -> "Prueba un ejercicio de respiración."
-        "triste"   -> "Registrar cómo te sientes toma valentía. Berto puede escucharte."
-        "euforico" -> "¡Qué energía! Comparte este momento con tu red de apoyo."
-        else       -> "¡Qué energía! Aprovéchala con sabiduría."
-    }
-    val accion = when (mood) {
-        "bien", "neutral" -> "Ir a Mi camino"
-        "ansioso"         -> "Respirar ahora"
-        "euforico"        -> "Ver mi red"
-        else              -> "Hablar con Berto"
-    }
-    val onAccion: () -> Unit = when (mood) {
-        "bien", "neutral" -> onNavigateToJourney
-        "ansioso"         -> onNavigateToEjercicio
-        "euforico"        -> onNavigateToRedApoyo
-        else              -> onNavigateToChat
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(TealLight.copy(alpha = SuggestionTintAlpha))
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(iconRes),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(18.dp)
-        )
-        Text(
-            text = mensaje,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp)
-        )
-        Text(
-            text = accion,
-            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { onAccion() }
-        )
     }
 }

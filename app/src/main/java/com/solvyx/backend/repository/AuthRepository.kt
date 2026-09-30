@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.solvyx.backend.data.local.database.AppDatabase
 import com.solvyx.backend.data.local.entity.UserEntity
 import com.solvyx.backend.data.local.preferences.ChatPreferencesRepository
+import com.solvyx.backend.data.local.preferences.HomePreferencesRepository
 import com.solvyx.backend.data.local.preferences.SosPreferencesRepository
 import com.solvyx.backend.data.remote.datasource.AccountRemoteDataSource
 import com.solvyx.backend.data.remote.datasource.UserRemoteDataSource
@@ -35,6 +36,7 @@ class AuthRepository @Inject constructor(
     private val accountRemoteDataSource: AccountRemoteDataSource,
     private val chatPreferences: ChatPreferencesRepository,
     private val sosPreferences: SosPreferencesRepository,
+    private val homePreferences: HomePreferencesRepository,
 ) {
 
     suspend fun registerWithEmail(
@@ -93,8 +95,10 @@ class AuthRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             appDatabase.clearAllTables()
         }
-        // The SOS contacts were just wiped; the location choice goes with them.
+        // The SOS contacts were just wiped; the location choice goes with them. The next person
+        // to sign in also gets Berto's introduction.
         sosPreferences.clear()
+        homePreferences.clear()
     }
 
     val currentUser: FirebaseUser? get() = firebaseAuth.currentUser
@@ -116,6 +120,7 @@ class AuthRepository @Inject constructor(
             withContext(Dispatchers.IO) { appDatabase.clearAllTables() }
             chatPreferences.revokeAiConsent()
             sosPreferences.clear()
+            homePreferences.clear()
             Result.success(Unit)
         }
     } catch (e: Exception) {

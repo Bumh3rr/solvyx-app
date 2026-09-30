@@ -21,8 +21,8 @@ private const val TAG = "BertoPoseAnimation"
 
 /**
  * Reusable Rive-animated Berto for a single static pose/angle (left/right/center/etc.), as
- * opposed to [BertoRiveAnimation]'s mood+streak hero. Takes its own `.riv` resource since poses
- * live in a file separate from `bertovm.riv` — reusable across any future pose file, not just one.
+ * opposed to [BertoHomeAnimation]'s greetings and reactions. Takes its own `.riv` resource, so
+ * it's reusable across any future pose file, not just one.
  */
 @Composable
 fun BertoPoseAnimation(

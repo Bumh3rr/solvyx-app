@@ -9,10 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.common.streak.StreakCalculator
+import com.solvyx.backend.data.local.preferences.HomePreferencesRepository
 import com.solvyx.backend.data.model.JournalEntry
 import com.solvyx.backend.repository.AuthRepository
 import com.solvyx.backend.repository.JournalRepository
 import com.solvyx.backend.repository.UserRepository
+import com.solvyx.ui.screens.home.stage.needsIntroduction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -25,7 +27,8 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val journalRepository: JournalRepository,
     private val authRepository: AuthRepository,
-    private val streakCalculator: StreakCalculator
+    private val streakCalculator: StreakCalculator,
+    private val homePreferences: HomePreferencesRepository
 ) : ViewModel() {
 
     var nickname by mutableStateOf("Usuario")
@@ -46,9 +49,17 @@ class HomeViewModel @Inject constructor(
     var isAnonymous by mutableStateOf(false)
         private set
 
+    /** Null until read: Berto waits for it, since it decides which greeting plays. */
+    var introduceBerto by mutableStateOf<Boolean?>(null)
+        private set
+
     private val zone = ZoneId.systemDefault()
 
     init {
+        viewModelScope.launch {
+            val today = LocalDate.now(zone)
+            introduceBerto = needsIntroduction(homePreferences.lastHomeVisit(), today)
+        }
         viewModelScope.launch {
             userRepository.observe().collect { user ->
                 isAnonymous = user?.isAnonymous ?: false
@@ -74,6 +85,12 @@ class HomeViewModel @Inject constructor(
                 moodToday = entries.firstOrNull { it.date == today && it.isRegistered }?.mood
             }
         }
+    }
+
+    /** Berto greeted (either way): counts as a visit, so the next one just gets a wave. */
+    fun onBertoGreeted() {
+        introduceBerto = false
+        viewModelScope.launch { homePreferences.markHomeVisit(LocalDate.now(zone)) }
     }
 
     fun logMood(mood: String) {
