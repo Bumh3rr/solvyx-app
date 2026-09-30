@@ -1,263 +1,310 @@
 package com.solvyx.ui.screens.plan
 
+import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.solvyx.R
-import com.solvyx.ui.screens.guias.components.BorderCard
-import com.solvyx.ui.screens.guias.components.CardLabel
-import com.solvyx.ui.screens.guias.components.DotRow
-import com.solvyx.ui.screens.guias.components.GuiaPanel
-import com.solvyx.ui.screens.guias.components.GuiaTopBar
-import com.solvyx.ui.screens.guias.components.HeroSideBerto
+import com.solvyx.ui.components.berto.BertoPose
+import com.solvyx.ui.components.berto.BertoPoseAnimation
+import com.solvyx.ui.components.berto.BertoSpeechRow
+import com.solvyx.ui.components.common.EMERGENCY_NUMBER
+import com.solvyx.ui.components.common.HelpLine
+import com.solvyx.ui.components.common.SolvyxBackButton
+import com.solvyx.ui.components.common.SolvyxButton
+import com.solvyx.ui.components.common.SolvyxCard
+import com.solvyx.ui.components.common.SolvyxSegmentedControl
+import com.solvyx.ui.components.common.SolvyxTopBar
+import com.solvyx.ui.components.common.openDialer
+import com.solvyx.ui.components.haze.LocalHazeState
+import com.solvyx.ui.components.navigation.SolvyxBottomNavClearance
+import com.solvyx.ui.theme.CrisisRed
+import com.solvyx.ui.theme.CrisisRedDark
+import com.solvyx.ui.theme.CrisisRedLight
+import com.solvyx.ui.theme.TealDark
+import dev.chrisbanes.haze.haze
+
+/**
+ * "Conoce tu sustancia": the user's substances first, and for each one five sections (the
+ * essentials, body and mind, how to take care, risky mixes, when to ask for help) with the help
+ * lines, the directory and a way to keep asking Berto. The content lives in [SubstanceInfos].
+ */
 @Composable
 fun InfoSustanciaScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onAskBerto: (substanceId: String) -> Unit,
+    onOpenDirectory: () -> Unit,
+    viewModel: InfoSustanciaViewModel = hiltViewModel()
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Alcohol", "Cristal", "Vape", "Tabaco")
+    val substances by viewModel.substances.collectAsStateWithLifecycle()
+    // Until the user picks one, the first of the list (their own substance) is shown.
+    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selected = substances.firstOrNull { it.id == selectedId } ?: substances.first()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        GuiaTopBar(
-            title = "Info por sustancia",
-            onBack = onBack
+        SolvyxTopBar(
+            title = "Conoce tu sustancia",
+            navigationButton = { SolvyxBackButton(onClick = onBack) }
         )
-
-        HeroSideBerto(
-            mascot = R.drawable.berto_tranquilo,
-            title = "Información",
-            subtitle = "Conoce cómo actúa cada sustancia"
-        )
-
-        GuiaPanel(modifier = Modifier.weight(1f)) {
-
-            // ── Tab row ───────────────────────────────────────────────────
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceDim)
-                    .border(
-                        width = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(4.dp)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    tabs.forEachIndexed { i, tab ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(
-                                    if (i == selectedTab) MaterialTheme.colorScheme.primary
-                                    else Color.Transparent
-                                )
-                                .clickable { selectedTab = i }
-                                .padding(8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = tab,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                color = if (i == selectedTab) Color.White
-                                        else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                // El contenido es la fuente del blur del bottom nav (ver LocalHazeState).
+                .haze(
+                    LocalHazeState.current,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
+                    blurRadius = 16.dp
+                )
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 16.dp, bottom = SolvyxBottomNavClearance),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            BertoSpeechRow(message = SubstanceInfoIntroTitle, supporting = SubstanceInfoIntro) {
+                BertoPoseAnimation(
+                    pose = BertoPose.CENTER_IDLE,
+                    riveFileRes = R.raw.berto_poses,
+                    modifier = Modifier.fillMaxSize(),
+                    fallback = R.drawable.berto_tranquilo
+                )
+            }
+            SolvyxSegmentedControl(
+                options = substances.map { it.label },
+                selectedIndex = substances.indexOf(selected),
+                onSelect = { selectedId = substances[it].id }
+            )
+            AnimatedContent(
+                targetState = selected,
+                transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(150)) },
+                label = "substanceInfo"
+            ) { info ->
+                SubstanceSections(info = info, onOpenDirectory = onOpenDirectory)
+            }
+            SolvyxButton(
+                text = "Pregúntale a Berto sobre ${selected.askBerto}",
+                onClick = { onAskBerto(selected.id) },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(painterResource(R.drawable.ic_chat), contentDescription = null, modifier = Modifier.size(20.dp))
                 }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // ── Content sections per tab ──────────────────────────────────
-            when (selectedTab) {
-                0 -> AlcoholContent()
-                1 -> CristalContent()
-                2 -> VapeContent()
-                3 -> TabacoContent()
-            }
+            )
+            Text(
+                SubstanceInfoDisclaimer,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
 
-// ── Alcohol ───────────────────────────────────────────────────────────────────
+private const val SubstanceInfoIntroTitle = "Conoce tu sustancia"
 
 @Composable
-private fun AlcoholContent() {
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_heart_pulse, text = "Qué le hace a tu cuerpo")
-        DotRow(text = "Afecta el hígado: el consumo frecuente puede causar hígado graso, hepatitis y cirrosis.")
-        DotRow(text = "Altera el cerebro: deteriora la memoria, el juicio y la coordinación motriz.")
-        DotRow(text = "Daña el sistema cardiovascular: aumenta el riesgo de presión alta y problemas del corazón.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_brain, text = "Por qué genera dependencia")
-        DotRow(text = "Eleva la dopamina en el cerebro, creando una sensación placentera que el cuerpo quiere repetir.")
-        DotRow(text = "La abstinencia provoca ansiedad, temblores e irritabilidad, lo que impulsa a consumir más.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_alert_triangle, text = "Señales de alerta")
-        DotRow(text = "Necesitar beber para funcionar con normalidad o calmarse.")
-        DotRow(text = "Aumentar la cantidad sin darse cuenta y no poder parar.")
-        DotRow(text = "Descuidar responsabilidades o relaciones por el consumo.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_flag, text = "Reducción de daños")
-        DotRow(text = "Nunca consumas con el estómago vacío y alterna con agua entre bebidas.")
-        DotRow(text = "Evita mezclar alcohol con otros depresores como tranquilizantes o somníferos.")
-        DotRow(text = "Establece un límite antes de empezar y comparte tu plan con alguien de confianza.")
+private fun SubstanceSections(info: SubstanceInfo, onOpenDirectory: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        InfoSection(R.drawable.ic_info_circle, "Lo esencial") {
+            BodyText(info.essentials)
+        }
+        InfoSection(R.drawable.ic_brain, "Qué le hace a tu cuerpo y mente") {
+            info.bodyAndMind.forEach { Bullet(it) }
+        }
+        InfoSection(R.drawable.ic_shield, info.careTitle) {
+            info.careTips.forEach { Bullet(it) }
+        }
+        InfoSection(R.drawable.ic_alert_triangle, "Mezclas riesgosas") {
+            info.riskyMixes.forEach { mix ->
+                Bullet(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("${mix.with}: ") }
+                        append(mix.why)
+                    }
+                )
+            }
+        }
+        InfoSection(R.drawable.ic_heart_pulse, "Señales para pedir ayuda") {
+            EmergencyBox(info.emergency)
+            info.helpTips.forEach { Bullet(it) }
+            HelpLines(onOpenDirectory = onOpenDirectory)
+        }
     }
 }
 
-// ── Cristal ───────────────────────────────────────────────────────────────────
-
 @Composable
-private fun CristalContent() {
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_heart_pulse, text = "Qué le hace a tu cuerpo")
-        DotRow(text = "Acelera el sistema nervioso central: aumenta la presión arterial, la frecuencia cardíaca y la temperatura corporal.")
-        DotRow(text = "Deteriora el cerebro: daña neuronas dopaminérgicas, afectando el placer, el movimiento y el aprendizaje.")
-        DotRow(text = "Provoca insomnio severo, pérdida de peso y envejecimiento prematuro de la piel y los dientes.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_brain, text = "Por qué genera dependencia")
-        DotRow(text = "Libera una cantidad masiva de dopamina, mucho mayor que el alcohol o el tabaco, produciendo euforia intensa.")
-        DotRow(text = "El cerebro deja de producir dopamina por sí mismo, haciendo que sin cristal sea imposible sentir placer.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_alert_triangle, text = "Señales de alerta")
-        DotRow(text = "Paranoia, alucinaciones o comportamientos erráticos durante o después del consumo.")
-        DotRow(text = "Perderse días enteros ('benders') sin dormir ni comer.")
-        DotRow(text = "Daño dentario severo ('meth mouth') o lesiones en la piel por rascado compulsivo.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_flag, text = "Reducción de daños")
-        DotRow(text = "No consumas solo: ten siempre a alguien de confianza cerca.")
-        DotRow(text = "Hidratación es crítica: la metanfetamina causa deshidratación severa, bebe agua frecuentemente.")
-        DotRow(text = "Espacía los consumos tanto como puedas para permitir que el cerebro se recupere parcialmente.")
+private fun InfoSection(@DrawableRes icon: Int, title: String, content: @Composable ColumnScope.() -> Unit) {
+    SolvyxCard(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconCapsule(icon)
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TealDark,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            content()
+        }
     }
 }
 
-// ── Vape ──────────────────────────────────────────────────────────────────────
+@Composable
+private fun BodyText(text: String) {
+    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+}
 
 @Composable
-private fun VapeContent() {
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_heart_pulse, text = "Qué le hace a tu cuerpo")
-        DotRow(text = "Irrita y daña el tejido pulmonar: los aerosoles contienen partículas finas y metales pesados.")
-        DotRow(text = "Entrega nicotina de forma muy eficiente, generando dependencia tan rápido como los cigarros.")
-        DotRow(text = "En personas jóvenes, interfiere con el desarrollo del cerebro en áreas de atención y control de impulsos.")
-    }
+private fun Bullet(text: String) = Bullet(AnnotatedString(text))
 
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_brain, text = "Por qué genera dependencia")
-        DotRow(text = "La nicotina activa receptores de acetilcolina y libera dopamina, creando un ciclo de recompensa rápido.")
-        DotRow(text = "Los vapes de alta concentración (sales de nicotina) generan dependencia más rápido que los cigarros convencionales.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_alert_triangle, text = "Señales de alerta")
-        DotRow(text = "Sentir ansiedad, irritabilidad o dificultad para concentrarse sin vapear.")
-        DotRow(text = "Vapear en lugares o situaciones donde antes no lo hacías (trabajo, escuela, en la cama).")
-        DotRow(text = "Tos crónica, dificultad para respirar o sensación de presión en el pecho.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_flag, text = "Reducción de daños")
-        DotRow(text = "Si vas a vapear, evita los productos con sabores artificiales que pueden contener compuestos más irritantes.")
-        DotRow(text = "Reduce la concentración de nicotina gradualmente para facilitar la eventual cesación.")
-        DotRow(text = "Nunca uses vapes modificados o de procedencia desconocida; el riesgo de daño pulmonar agudo aumenta.")
+@Composable
+private fun Bullet(text: AnnotatedString) {
+    Row(verticalAlignment = Alignment.Top) {
+        Box(
+            Modifier
+                .padding(top = 8.dp)
+                .size(6.dp)
+                .background(MaterialTheme.colorScheme.primary, CircleShape)
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
-// ── Tabaco ────────────────────────────────────────────────────────────────────
+/** What should make someone call 911, with a button that opens the dialer (it never calls by itself). */
+@Composable
+private fun EmergencyBox(text: String) {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(CrisisRedLight)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.Top) {
+            Icon(
+                painterResource(R.drawable.ic_alert_octagon),
+                contentDescription = null,
+                tint = CrisisRed,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = CrisisRedDark
+            )
+        }
+        Button(
+            onClick = { context.openDialer(EMERGENCY_NUMBER) },
+            colors = ButtonDefaults.buttonColors(containerColor = CrisisRed),
+            shape = RoundedCornerShape(20.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Icon(painterResource(R.drawable.ic_phone), contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Llamar al $EMERGENCY_NUMBER", style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+/** The free 24/7 lines (tap opens the dialer, no permission needed) and the help directory. */
+@Composable
+private fun HelpLines(onOpenDirectory: () -> Unit) {
+    val context = LocalContext.current
+    Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        HelpLineRow(HelpLine.LINEA_DE_LA_VIDA, note = "Gratis, 24 horas") { context.openDialer(it) }
+        HelpLineRow(HelpLine.SAPTEL, note = "24 horas") { context.openDialer(it) }
+        TextButton(onClick = onOpenDirectory, modifier = Modifier.align(Alignment.End)) {
+            Text(
+                "Ver directorio de ayuda →",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
 
 @Composable
-private fun TabacoContent() {
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_heart_pulse, text = "Qué le hace a tu cuerpo")
-        DotRow(text = "Daño pulmonar progresivo: el alquitrán destruye los alvéolos, reduciendo la capacidad respiratoria con el tiempo.")
-        DotRow(text = "Aumenta significativamente el riesgo de enfermedades cardiovasculares, infartos y accidentes cerebrovasculares.")
-        DotRow(text = "El monóxido de carbono reduce el oxígeno en sangre, causando fatiga crónica y disminución del rendimiento físico.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_brain, text = "Por qué genera dependencia")
-        DotRow(text = "La nicotina llega al cerebro en segundos, liberando dopamina y creando un refuerzo inmediato muy potente.")
-        DotRow(text = "La abstinencia causa irritabilidad, dificultad para concentrarse y ansiedad intensa, lo que dificulta dejarlo.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_alert_triangle, text = "Señales de alerta")
-        DotRow(text = "Fumar el primer cigarro dentro de los 30 minutos de despertar, señal de dependencia severa a la nicotina.")
-        DotRow(text = "Intentos previos de dejar de fumar fallidos por síntomas de abstinencia.")
-        DotRow(text = "Tos matutina persistente con flema o episodios frecuentes de bronquitis.")
-    }
-
-    Spacer(Modifier.height(12.dp))
-
-    BorderCard {
-        CardLabel(iconRes = R.drawable.ic_flag, text = "Reducción de daños")
-        DotRow(text = "Evita fumar en interiores o cerca de otras personas, especialmente niños y embarazadas.")
-        DotRow(text = "Reduce gradualmente la cantidad diaria de cigarros antes de intentar dejar completamente.")
-        DotRow(text = "Los sustitutos de nicotina (parches, chicles) pueden reducir síntomas de abstinencia si planeas dejar de fumar.")
+private fun HelpLineRow(line: HelpLine, note: String, onDial: (String) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(role = Role.Button) { onDial(line.dialNumber) }
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconCapsule(R.drawable.ic_phone)
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                "${line.displayName} · ${line.displayNumber}",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(
+            painterResource(R.drawable.ic_chevron_right),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+        )
     }
 }

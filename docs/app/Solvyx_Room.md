@@ -100,9 +100,9 @@ Registro emocional diario, local. Entidad: `JournalEntity` (ex `BitacoraEntity`)
 
 ---
 
-### `plan`
+### `plan` — OBSOLETA
 
-Plan de metas activo del usuario. Fila única. Entidad: `PlanEntity` (sin cambio de nombre). Aún no se sincroniza con Firestore.
+**Sin uso desde el rediseño de Mi plan (sept. 2026):** las metas viven en Firestore `metas` (ver `Solvyx_MiPlan.md`). La tabla, `PlanEntity` y `PlanDao` se quedan solo para no cambiar el esquema (ver el riesgo al final). Antes guardaba el índice del consejo del día.
 
 | Campo | Tipo | Notas |
 | --- | --- | --- |
@@ -152,6 +152,17 @@ Log de auditoría local de activaciones del botón SOS. Entidad: `SosEventEntity
 | `chat_session` | 0–1 fila | Generado por la app *(actualmente no registrada en `AppDatabase`, ver nota arriba)* |
 | `last_assist` | 0–1 fila | Copia local de un resultado ASSIST guardado en Firestore |
 | `journal` | N filas | Ingreso directo del usuario. Sin sincronizar a Firestore todavía |
-| `plan` | 0–1 fila | Generado/actualizado por la app según el progreso del usuario |
+| `plan` | 0–1 fila | **Obsoleta**: ya nadie la escribe ni la lee |
 | `achievements` | Filas sembradas + actualizadas | Semilla local (`SEED_CALLBACK`) + `ProgressRepository.unlockAchievement()` |
 | `sos_events` | N filas | Generado automáticamente al activarse el SOS |
+
+---
+
+## ⚠️ Riesgo: `fallbackToDestructiveMigration`
+
+`AppModule` crea la base con `.fallbackToDestructiveMigration()`. Si alguien sube la `version` de `AppDatabase` (o cambia una entidad) **sin escribir una migración**, Room **borra todas las tablas** al abrir la app. Eso incluye `sos_contacts`, que **solo existen en el teléfono** (sin copia en Firestore): el usuario perdería sus contactos de emergencia sin aviso.
+
+**Recomendación para el equipo:**
+1. Quitar `.fallbackToDestructiveMigration()` y activar `exportSchema = true` (con `room.schemaLocation`) para versionar el esquema.
+2. Escribir una `Migration` por cada cambio de esquema (y un test con `MigrationTestHelper`).
+3. Mientras tanto, no cambiar el esquema; por eso la tabla `plan` obsoleta no se borró.

@@ -21,7 +21,7 @@ val cristalInfoTree = DecisionTree(
 
             mensaje =
                 """
-                Estoy aqui para explicartelo claro y sin reganos.
+                Estoy aquí para explicártelo claro y sin regaños.
                 """.trimIndent(),
 
             tipo = NodeType.QUESTION,

@@ -326,7 +326,7 @@ private fun UseLine(entry: JournalEntry) {
         Spacer(Modifier.width(8.dp))
         Column {
             Text(
-                if (used) "Consumí ${entry.substance?.let(::substanceLabel)?.lowercase() ?: ""}".trim() else "Día limpio",
+                if (used) "Consumí ${entry.substance?.let(::substanceLabel)?.lowercase() ?: ""}".trim() else "Día sin consumo",
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 color = TealDark
             )

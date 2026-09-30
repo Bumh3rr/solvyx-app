@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 /** Quick filter over the diary. Moods are filtered separately, so both can combine. */
 enum class UseFilter(val label: String) {
     ALL("Todos"),
-    CLEAN("Días limpios"),
+    CLEAN("Días sin consumo"),
     WITH_USE("Con consumo")
 }
 
@@ -88,7 +88,7 @@ fun bertoRecap(summary: DiarySummary): String {
     return when {
         days == 0 -> "Cuando registres tu primer día, aquí lo vamos a recordar juntos."
         summary.cleanDays == days ->
-            "Llevas $days $dayWord en tu diario y todos son días limpios. Qué bonito camino."
+            "Llevas $days $dayWord en tu diario y todos fueron sin consumo. Qué bonito camino."
         mood != null ->
             "Llevas $days $dayWord en tu diario. Tu ánimo más frecuente es $mood. Toca un día para recordarlo."
         else -> "Llevas $days $dayWord en tu diario. Toca un día para recordarlo."

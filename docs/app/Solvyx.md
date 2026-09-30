@@ -153,18 +153,21 @@ creado_en, actualizado_en: Timestamp
 
 ### `metas/{metaId}` — campos clave
 ```
-tipo: String           // "sin_consumo"|"reducir_frecuencia"|"tecnicas_regulacion"
+tipo: String           // "sin_consumo"|"reducir_frecuencia" ("tecnicas_regulacion" pospuesto)
 origen: String         // "usuario" | "sugerida_berto"
-sustancia: String?
+sustancia: String?     // null = cualquier sustancia (solo sin_consumo)
 titulo: String
-objetivo: Number
+objetivo: Number       // días (sin_consumo) o semanas (reducir_frecuencia)
+limite_semanal: Number? // solo reducir_frecuencia
 progreso_actual: Number
-unidad: String         // "dias"|"veces_semana"|"tecnicas_dia"
+unidad: String         // "dias"|"semanas"
+fecha_inicio: Timestamp
 activa: Boolean
 completada: Boolean
 completada_en: Timestamp?
 creado_en: Timestamp
 ```
+Diseño completo, reglas de progreso y pantallas: ver `Solvyx_MiPlan.md`.
 
 ### `logros_definicion/{logroId}` — catálogo
 ```
@@ -200,6 +203,8 @@ fecha_unlock: Timestamp
 | Guías de primeros auxilios | Hardcodeado en Android |
 | Técnica 5-4-3-2-1 | Hardcodeado en Android |
 | Contexto de riesgo para Berto | Room `ultimo_assist` |
+| Mi plan: metas y su progreso | Caché de Firestore (escrituras en cola) + cálculo en el teléfono |
+| Conoce tu sustancia | Hardcodeado en Android (`SubstanceInfoContent.kt`) |
 
 Todo lo demás requiere internet.
 
@@ -207,7 +212,7 @@ Todo lo demás requiere internet.
 
 ## Qué requiere internet
 
-Bitácora · ASSIST · Metas · Logros · Avances · Directorio (mapas) · Berto LLM (cuando se implemente)
+Bitácora · ASSIST · Logros · Avances · Directorio (mapas) · Berto con IA. Las metas se crean y avanzan sin internet y se sincronizan al volver la conexión.
 
 ---
 
@@ -261,12 +266,15 @@ Nunito en toda la app. Nunca cambiar la familia tipográfica.
 "chat" → BertoScreen
 "sos_overlay" → SosOverlayScreen
 "ejercicio_guiado" → EjercicioGuiadoScreen
+"craving_guide" → CravingGuideScreen ("Tengo ganas ahora" de Mi plan)
+"breathing" → BreathingScreen (respiración guiada con voz)
+"chat?source=&topic=&substance=" → BertoScreen (topic+substance abren directo esa guía)
 ```
 
 ### Sub-NavGraphs
 - `DiagnosticoNavGraph`: selection → questions → result → history
 - `GuiasNavGraph`: guiasHub → crisisId / panic / craving / overuse / crisis
-- `PlanNavGraph`: planHub → manejo_craving / info_sustancia
+- `PlanNavGraph`: planHub → info_sustancia (la guía de ganas y Respirar viven en el grafo principal)
 - `PerfilNavGraph`: perfil_main → privacidad / acerca / terminos
 
 ---

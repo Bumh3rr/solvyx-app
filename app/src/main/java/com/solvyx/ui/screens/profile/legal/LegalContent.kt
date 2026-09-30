@@ -26,7 +26,7 @@ val PrivacyDocument = LegalDocumentContent(
                 "Tu apodo y tu fecha de nacimiento.",
                 "Las sustancias que elegiste y tus resultados del cuestionario ASSIST.",
                 "Tu bitácora: cómo te sentiste, si hubo consumo, la sustancia, la cantidad aproximada y tus notas.",
-                "Tu racha, tus logros y tu meta del día.",
+                "Tu racha, tus logros y tus metas: cuáles elegiste, de qué sustancia y cómo vas.",
                 "Cada vez que usas el botón SOS: la fecha y cuántos contactos se avisaron (no sus números)."
             )
         ),

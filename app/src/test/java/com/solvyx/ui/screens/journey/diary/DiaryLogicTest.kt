@@ -97,7 +97,7 @@ class DiaryLogicTest {
     @Test
     fun `Berto recap only claims what the diary shows`() {
         assertTrue(bertoRecap(summarize(emptyList(), 0)).startsWith("Cuando registres"))
-        assertTrue(bertoRecap(summarize(listOf(entry(0), entry(1)), 2)).contains("todos son días limpios"))
+        assertTrue(bertoRecap(summarize(listOf(entry(0), entry(1)), 2)).contains("todos fueron sin consumo"))
         assertTrue(
             bertoRecap(summarize(listOf(entry(0, "triste", consumed = true)), 0))
                 .contains("Tu ánimo más frecuente es triste")

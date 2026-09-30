@@ -64,8 +64,16 @@ fun DiaryHero(summary: DiarySummary, modifier: Modifier = Modifier) {
         }
         Spacer(Modifier.height(18.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            HeroStat(value = summary.registeredDays, label = "días escritos", modifier = Modifier.weight(1f))
-            HeroStat(value = summary.cleanDays, label = "días limpios", modifier = Modifier.weight(1f))
+            HeroStat(
+                value = summary.registeredDays,
+                label = if (summary.registeredDays == 1) "día escrito" else "días escritos",
+                modifier = Modifier.weight(1f)
+            )
+            HeroStat(
+                value = summary.cleanDays,
+                label = if (summary.cleanDays == 1) "día sin consumo" else "días sin consumo",
+                modifier = Modifier.weight(1f)
+            )
             HeroStat(value = summary.bestStreak, label = "mejor racha", modifier = Modifier.weight(1f))
         }
     }

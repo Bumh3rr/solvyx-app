@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solvyx.backend.data.local.preferences.ChatPreferencesRepository
@@ -28,6 +29,10 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 
+/** Optional chat route arguments: a [TopicIntent] name and a substance id open that guide directly. */
+const val CHAT_TOPIC_ARG = "topic"
+const val CHAT_SUBSTANCE_ARG = "substance"
+
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val treeRepository: DecisionTreeRepository,
@@ -35,7 +40,8 @@ class ChatViewModel @Inject constructor(
     private val chatRemoteRepository: ChatRemoteRepository,
     private val connectivity: ConnectivityRepository,
     private val chatPreferences: ChatPreferencesRepository,
-    @ApplicationScope private val appScope: CoroutineScope
+    @ApplicationScope private val appScope: CoroutineScope,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     var messages by mutableStateOf<List<ChatMessage>>(emptyList())
@@ -114,11 +120,18 @@ class ChatViewModel @Inject constructor(
     // "Ahora no" only hides the card for this chat; it is asked again the next time the chat opens.
     private var aiConsentPostponed = false
 
+    // Opened from "Pregúntale a Berto" (Plan): start straight in that guide instead of the topic picker.
+    private val presetTopic: TopicIntent? = savedStateHandle.get<String>(CHAT_TOPIC_ARG)
+        ?.let { topic -> TopicIntent.entries.firstOrNull { it.name.equals(topic, ignoreCase = true) } }
+    private val presetSubstance: String? = savedStateHandle.get<String>(CHAT_SUBSTANCE_ARG)?.takeIf { it.isNotBlank() }
+
     init {
         viewModelScope.launch {
             // Consent must be known before the greeting and before anything is sent to the server.
             aiConsentGranted = chatPreferences.aiConsentGranted.first()
-            showWelcome()
+            val topic = presetTopic
+            val substance = presetSubstance
+            if (topic != null && substance != null) startTree(topic, substance, announce = true) else showWelcome()
             if (aiConsentGranted) startOnlineChat()
             actualizarModo()
             observarConectividad()

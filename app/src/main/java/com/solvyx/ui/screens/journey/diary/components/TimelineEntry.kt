@@ -169,7 +169,7 @@ private fun Thread(color: Color, isFirst: Boolean, isLast: Boolean) {
 @Composable
 private fun UseBadge(entry: JournalEntry) {
     val used = entry.consumed == true
-    val text = if (used) entry.substance?.let(::substanceLabel) ?: "Con consumo" else "Día limpio"
+    val text = if (used) entry.substance?.let(::substanceLabel) ?: "Con consumo" else "Sin consumo"
     Text(
         text,
         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),

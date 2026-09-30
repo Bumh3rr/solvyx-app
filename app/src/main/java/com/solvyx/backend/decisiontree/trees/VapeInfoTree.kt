@@ -16,7 +16,7 @@ val vapeInfoTree = DecisionTree(
             texto = "¿Quieres que te cuente, sin juicio, los efectos del vape en tu cuerpo y tu mente?",
             mensaje =
                 """
-                Te lo explico claro y sin reganos.
+                Te lo explico claro y sin regaños.
                 """.trimIndent(),
             tipo = NodeType.QUESTION,
             opciones = listOf(

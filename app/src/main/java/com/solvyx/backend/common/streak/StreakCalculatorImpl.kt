@@ -17,7 +17,7 @@ class StreakCalculatorImpl @Inject constructor() : StreakCalculator {
     private val milestoneDays = Achievement.MILESTONE_DAYS
 
     override fun compute(entries: List<JournalEntry>, today: LocalDate): StreakStats {
-        // Días que cuentan (limpios o con consumo), en orden; los neutros quedan fuera.
+        // Días que cuentan (sin consumo o con consumo), en orden; los neutros quedan fuera.
         val countedDays = entries
             .filter { !it.date.isAfter(today) }
             .groupBy { it.date }
@@ -33,7 +33,7 @@ class StreakCalculatorImpl @Inject constructor() : StreakCalculator {
             current++
         }
 
-        // Mejor racha: la serie más larga de días limpios sin un consumo en medio.
+        // Mejor racha: la serie más larga de días sin consumo, sin un consumo en medio.
         var best = 0
         var run = 0
         for (status in countedDays) {
@@ -48,7 +48,7 @@ class StreakCalculatorImpl @Inject constructor() : StreakCalculator {
     private enum class DayStatus { CLEAN, CONSUMED, NEUTRAL }
 
     /**
-     * `consumed = null` (p. ej. el ánimo rápido de Inicio) cuenta como día limpio si hay ánimo.
+     * `consumed = null` (p. ej. el ánimo rápido de Inicio) cuenta como día sin consumo si hay ánimo.
      * Un doc sin ánimo ni consumo (solo "meta lograda") no es un registro: es neutro.
      */
     private fun dayStatus(dayEntries: List<JournalEntry>): DayStatus = when {

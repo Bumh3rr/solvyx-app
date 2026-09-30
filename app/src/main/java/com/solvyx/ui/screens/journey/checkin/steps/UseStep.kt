@@ -67,7 +67,7 @@ fun UseStep(used: Boolean?, onSelect: (Boolean) -> Unit, modifier: Modifier = Mo
     ) {
         UseCard(
             title = "No consumí",
-            subtitle = "Hoy fue un día limpio",
+            subtitle = "Hoy fue un día sin consumo",
             icon = R.drawable.ic_check_circle,
             accent = MaterialTheme.colorScheme.primary,
             isSelected = used == false,

@@ -4,6 +4,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.solvyx.backend.data.remote.model.AchievementRemoteDto
 import com.solvyx.backend.data.remote.model.AssessmentResultRemoteDto
+import com.solvyx.backend.data.remote.model.GoalRemoteDto
 import com.solvyx.backend.data.remote.model.JournalRemoteDto
 import com.solvyx.backend.data.remote.model.SosEventRemoteDto
 import com.solvyx.backend.data.remote.model.UserRemoteDto
@@ -27,7 +28,8 @@ class AccountRemoteDataSource @Inject constructor(
         JournalRemoteDto.JOURNAL,
         AssessmentResultRemoteDto.ASSESSMENT_RESULTS,
         AchievementRemoteDto.ACHIEVEMENTS,
-        SosEventRemoteDto.SOS_EVENTS
+        SosEventRemoteDto.SOS_EVENTS,
+        GoalRemoteDto.METAS
     )
 
     suspend fun deleteAllData(uid: String) {

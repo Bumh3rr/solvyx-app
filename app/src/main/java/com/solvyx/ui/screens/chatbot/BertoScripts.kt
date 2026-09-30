@@ -33,9 +33,10 @@ internal object BertoScripts {
         if (intent == TopicIntent.CRAVING) "Gracias por decírmelo. ¿Ganas de qué sustancia?"
         else "Claro. ¿Sobre qué sustancia quieres saber?"
 
-    fun askIntentFor(substanceLabel: String): String = "¿Qué necesitas sobre $substanceLabel?"
+    // The label goes mid-sentence, so it is lowercased ("hablemos de vape", not "de Vape").
+    fun askIntentFor(substanceLabel: String): String = "¿Qué necesitas sobre ${substanceLabel.lowercase()}?"
 
-    fun startingTopic(substanceLabel: String): String = "Va, hablemos de $substanceLabel."
+    fun startingTopic(substanceLabel: String): String = "Va, hablemos de ${substanceLabel.lowercase()}."
 
     // ── Support and crisis ────────────────────────────────────────────────────
 

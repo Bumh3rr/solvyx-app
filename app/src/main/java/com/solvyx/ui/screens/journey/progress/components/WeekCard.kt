@@ -153,7 +153,7 @@ private fun DayColumn(day: WeekDay, initial: String, onClick: (LocalDate) -> Uni
                 entry.consumed == true -> UseDot()
                 else -> Icon(
                     painterResource(R.drawable.ic_check_circle),
-                    contentDescription = "Día limpio",
+                    contentDescription = "Día sin consumo",
                     tint = TealPrimary,
                     modifier = Modifier.size(15.dp)
                 )
@@ -215,7 +215,7 @@ private fun WeekNumbers(week: WeekView) {
         }
         NumberChip(modifier = Modifier.weight(1f)) {
             AnimatedCountText(week.summary.clean, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold), color = TealPrimary)
-            Text("limpios", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("sin consumo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         NumberChip(modifier = Modifier.weight(1.3f)) {
             val topMood = week.summary.topMoodId?.let { moodOption(it) }
@@ -257,16 +257,21 @@ private fun UseDot() {
     )
 }
 
+/** Two lines: the markers, then the hint, so neither wraps in the middle on a narrow phone. */
 @Composable
 private fun WeekLegend() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(painterResource(R.drawable.ic_check_circle), null, tint = TealPrimary, modifier = Modifier.size(12.dp))
-        Text(" limpio   ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        UseDot()
-        Text(" con consumo   ·   toca un día para recordarlo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(painterResource(R.drawable.ic_check_circle), null, tint = TealPrimary, modifier = Modifier.size(12.dp))
+            Text(" sin consumo      ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            UseDot()
+            Text(" con consumo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Text(
+            "Toca un día para recordarlo",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }
