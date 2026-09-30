@@ -7,6 +7,7 @@ import com.solvyx.ui.screens.firstaid.components.GuideScaffold
 import com.solvyx.ui.screens.firstaid.components.InfoSectionCard
 import com.solvyx.ui.screens.firstaid.content.CravingGuideContent
 import com.solvyx.ui.screens.firstaid.model.SosEmphasis
+import com.solvyx.ui.screens.plan.CravingGoalsCard
 
 /** "Craving muy intenso": riding out the wave with a timer is the main action. */
 @Composable
@@ -22,6 +23,8 @@ fun CravingGuideScreen(
     ) {
         BertoSpeechHero(hero = CravingGuideContent.hero)
         CravingWaveTimerCard()
+        // The user's days-without-use goals, as motivation; nothing shows without them.
+        CravingGoalsCard()
         ActionChecklistCard(plan = CravingGuideContent.plan)
         InfoSectionCard(section = CravingGuideContent.whatIsCraving)
         InfoSectionCard(section = CravingGuideContent.saferUse)

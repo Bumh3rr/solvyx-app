@@ -26,6 +26,9 @@ import com.solvyx.ui.screens.auth.onboarding.OnboardingScreen
 import com.solvyx.ui.screens.auth.register.RegisterScreen
 import com.solvyx.ui.screens.breathing.BreathingScreen
 import com.solvyx.ui.screens.chatbot.BertoScreen
+import com.solvyx.ui.screens.chatbot.CHAT_SUBSTANCE_ARG
+import com.solvyx.ui.screens.chatbot.CHAT_TOPIC_ARG
+import com.solvyx.ui.screens.chatbot.TopicIntent
 import com.solvyx.ui.screens.firstaid.guides.CravingGuideScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoScreen
 import com.solvyx.ui.screens.guias.screens.panico.EjercicioGuiadoViewModel
@@ -192,6 +195,10 @@ fun SolvyxNavGraph(
                 onNavigateToChatFromDrawer = {
                     navController.navigate("${Routes.CHAT}?source=drawer")
                 },
+                onNavigateToChatAbout = { substanceId ->
+                    val topic = TopicIntent.INFO.name.lowercase()
+                    navController.navigate("${Routes.CHAT}?$CHAT_TOPIC_ARG=$topic&$CHAT_SUBSTANCE_ARG=$substanceId")
+                },
                 onNavigateToSos = {
                     navController.navigate(Routes.SOS_OVERLAY)
                 },
@@ -220,8 +227,13 @@ fun SolvyxNavGraph(
         }
 
         composable(
-            route = "${Routes.CHAT}?source={source}",
-            arguments = listOf(navArgument("source") { defaultValue = "" })
+            // topic + substance open the chat straight in a guide (e.g. "Pregúntale a Berto" in Plan).
+            route = "${Routes.CHAT}?source={source}&$CHAT_TOPIC_ARG={$CHAT_TOPIC_ARG}&$CHAT_SUBSTANCE_ARG={$CHAT_SUBSTANCE_ARG}",
+            arguments = listOf(
+                navArgument("source") { defaultValue = "" },
+                navArgument(CHAT_TOPIC_ARG) { defaultValue = "" },
+                navArgument(CHAT_SUBSTANCE_ARG) { defaultValue = "" }
+            )
         ) { backStackEntry ->
             val source = backStackEntry.arguments?.getString("source") ?: ""
             BertoScreen(

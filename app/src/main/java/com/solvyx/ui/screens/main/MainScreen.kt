@@ -64,6 +64,7 @@ fun MainScreen(
     onLogout: () -> Unit,
     onNavigateToChat: () -> Unit,
     onNavigateToChatFromDrawer: (() -> Unit)? = null,
+    onNavigateToChatAbout: (substanceId: String) -> Unit = {},
     onNavigateToSos: () -> Unit = {},
     onNavigateToAssist: () -> Unit = {},
     onNavigateToEjercicio: () -> Unit = {},
@@ -197,6 +198,7 @@ fun MainScreen(
                 drawerState = drawerState,
                 onDrawerClick = { drawerState = drawerState.opposite() },
                 onNavigateToChat = onNavigateToChat,
+                onNavigateToChatAbout = onNavigateToChatAbout,
                 onNavigateToSos = onNavigateToSos,
                 onNavigateToAssist = onNavigateToAssist,
                 onNavigateToEjercicio = onNavigateToEjercicio,
@@ -220,6 +222,7 @@ private fun SolvyxMainContent(
     drawerState: CustomDrawerState,
     onDrawerClick: () -> Unit,
     onNavigateToChat: () -> Unit,
+    onNavigateToChatAbout: (substanceId: String) -> Unit = {},
     onNavigateToSos: () -> Unit,
     onNavigateToAssist: () -> Unit,
     onNavigateToEjercicio: () -> Unit = {},
@@ -301,7 +304,8 @@ private fun SolvyxMainContent(
                         onNavigateToChat = onNavigateToChat,
                         onOpenDirectory = { onBottomNavNavigate(NavigationItem.Directorio) },
                         onCreateAccount = onNavigateToCrearCuenta,
-                        onOpenCheckIn = { onNavigateToCheckIn(false) }
+                        onOpenCheckIn = { onNavigateToCheckIn(false) },
+                        onAskBertoAbout = onNavigateToChatAbout
                     )
                 NavigationItem.Journey ->
                     JourneyScreen(

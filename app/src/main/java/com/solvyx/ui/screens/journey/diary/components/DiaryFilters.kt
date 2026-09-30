@@ -42,7 +42,7 @@ import com.solvyx.ui.theme.TealPrimary
 private const val SELECTED_MOOD_SCALE = 1.15f
 private const val DIMMED_MOOD_ALPHA = 0.35f
 
-/** Use filter chips plus the five moods; both combine ("días limpios" + "bien"). */
+/** Use filter chips plus the five moods; both combine ("días sin consumo" + "bien"). */
 @Composable
 fun DiaryFilters(
     useFilter: UseFilter,

@@ -21,7 +21,9 @@ fun PlanNavGraph(
     onNavigateToChat: () -> Unit,
     onOpenDirectory: () -> Unit,
     onCreateAccount: () -> Unit,
-    onOpenCheckIn: () -> Unit
+    onOpenCheckIn: () -> Unit,
+    // Opens the chat straight in that substance's information guide.
+    onAskBertoAbout: (substanceId: String) -> Unit
 ) {
     val navController = rememberNavController()
 
@@ -40,7 +42,11 @@ fun PlanNavGraph(
             )
         }
         composable(SUBSTANCE_INFO) {
-            InfoSustanciaScreen(onBack = { navController.navigateUp() })
+            InfoSustanciaScreen(
+                onBack = { navController.navigateUp() },
+                onAskBerto = onAskBertoAbout,
+                onOpenDirectory = onOpenDirectory
+            )
         }
     }
 }

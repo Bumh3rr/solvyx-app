@@ -81,5 +81,5 @@ fun resultReaction(used: Boolean): BertoReaction = if (used) {
         "Registrarlo es cuidarte. Mañana es una nueva oportunidad y aquí voy a estar."
     )
 } else {
-    BertoReaction(BertoGesture.CELEBRATE, "¡Lo lograste! Un día limpio más en tu camino.")
+    BertoReaction(BertoGesture.CELEBRATE, "¡Lo lograste! Un día sin consumo más en tu camino.")
 }

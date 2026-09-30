@@ -42,7 +42,7 @@ import com.solvyx.ui.theme.TealDark
 
 private val WhatGetsDeleted = listOf(
     "Tu perfil, sustancias y resultados del ASSIST",
-    "Toda tu bitácora, tu racha y tus logros",
+    "Toda tu bitácora, tus metas, tu racha y tus logros",
     "Tu cuenta: no podrás volver a entrar con este correo sin registrarte de nuevo"
 )
 

@@ -117,7 +117,7 @@ private fun cleanDaysMoodPattern(written: List<JournalEntry>): String? {
     if (clean.size < MIN_CLEAN_DAYS_FOR_CORRELATION || withUse.size < MIN_USE_DAYS_FOR_CORRELATION) return null
     val gap = clean.averageMood() - withUse.averageMood()
     return if (gap >= MEANINGFUL_MOOD_GAP) {
-        "Tus días limpios suelen ser días de mejor ánimo. Vale la pena recordarlo cuando lleguen las ganas."
+        "Tus días sin consumo suelen ser días de mejor ánimo. Vale la pena recordarlo cuando lleguen las ganas."
     } else {
         null
     }

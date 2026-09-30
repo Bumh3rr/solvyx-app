@@ -88,7 +88,7 @@ class WeekLogicTest {
             entry(today.minusDays(10), "triste", consumed = true), entry(today.minusDays(11), "ansioso", consumed = true)
         )
 
-        assertTrue(weeklyInsights(entries, thisWeek).any { it.startsWith("Tus días limpios suelen ser") })
+        assertTrue(weeklyInsights(entries, thisWeek).any { it.startsWith("Tus días sin consumo suelen ser") })
     }
 
     @Test
@@ -98,7 +98,7 @@ class WeekLogicTest {
             entry(today.minusDays(10), consumed = true), entry(today.minusDays(11), consumed = true)
         )
 
-        assertFalse(weeklyInsights(entries, thisWeek).any { it.startsWith("Tus días limpios suelen ser") })
+        assertFalse(weeklyInsights(entries, thisWeek).any { it.startsWith("Tus días sin consumo suelen ser") })
     }
 
     @Test
