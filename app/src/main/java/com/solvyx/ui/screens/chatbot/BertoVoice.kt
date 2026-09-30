@@ -9,15 +9,46 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-private const val UTTERANCE_ID = "berto_tts"
+private const val UTTERANCE_PREFIX = "berto_tts_"
 private const val VOICE_PITCH = 1.15f
 private const val VOICE_RATE = 0.85f
 private val LineBreaks = Regex("\n+")
 private val RepeatedSpaces = Regex(" +")
+private val SentenceEnd = Regex("(?<=[.!?])\\s+")
 
 /**
- * Berto's spoken voice. Text said before the engine finishes starting is kept and spoken once it
- * is ready. Markdown is stripped first so the engine does not read "asterisco".
+ * Splits [text] (already stripped of markdown) into what the engine speaks one after another: a
+ * chunk per paragraph, and a paragraph longer than [maxLength] cut at sentence ends (or hard cut
+ * as a last resort), since the engine rejects anything over its maximum input length.
+ */
+internal fun speechChunks(text: String, maxLength: Int): List<String> =
+    text.split(LineBreaks)
+        .map { it.replace(RepeatedSpaces, " ").trim() }
+        .filter { it.isNotEmpty() }
+        .flatMap { paragraph -> fitToLength(paragraph, maxLength) }
+
+private fun fitToLength(paragraph: String, maxLength: Int): List<String> {
+    if (paragraph.length <= maxLength) return listOf(paragraph)
+    val chunks = mutableListOf<String>()
+    var current = StringBuilder()
+    paragraph.split(SentenceEnd).forEach { sentence ->
+        if (current.isNotEmpty() && current.length + 1 + sentence.length > maxLength) {
+            chunks += current.toString()
+            current = StringBuilder()
+        }
+        if (current.isNotEmpty()) current.append(' ')
+        current.append(sentence)
+    }
+    if (current.isNotEmpty()) chunks += current.toString()
+    return chunks.flatMap { it.chunked(maxLength) }
+}
+
+/**
+ * Berto's spoken voice. Several bubbles in a row (a tree node's detail, its question, the closing
+ * line) are queued and said whole, in order: each one used to flush the previous, so the first
+ * paragraph was cut halfway and the voice jumped to the last one. [speak] with `interrupt` (or
+ * [stop], e.g. when the user acts) drops what's pending. Text said before the engine finishes
+ * starting is kept and spoken once it is ready. Markdown is stripped so it doesn't read "asterisco".
  */
 class BertoVoice(context: Context) {
 
@@ -27,9 +58,12 @@ class BertoVoice(context: Context) {
         private set
 
     private var isReady = false
-    private var pendingText: String? = null
+    private val pendingTexts = mutableListOf<String>()
     private val mainHandler = Handler(Looper.getMainLooper())
     private var tts: TextToSpeech? = null
+    private var utteranceCount = 0
+    /** Only the end of the last queued chunk means Berto stopped talking. */
+    @Volatile private var lastUtteranceId: String? = null
 
     init {
         tts = TextToSpeech(context) { status ->
@@ -37,12 +71,21 @@ class BertoVoice(context: Context) {
         }
     }
 
-    fun speak(text: String) {
+    /** Queues [text] after whatever Berto is saying; [interrupt] cuts that off first. */
+    fun speak(text: String, interrupt: Boolean = false) {
         if (isMuted) return
-        if (isReady) doSpeak(text) else pendingText = text
+        if (!isReady) {
+            if (interrupt) pendingTexts.clear()
+            pendingTexts += text
+            return
+        }
+        if (interrupt) stop()
+        enqueue(text)
     }
 
     fun stop() {
+        pendingTexts.clear()
+        lastUtteranceId = null
         tts?.stop()
         isSpeaking = false
     }
@@ -78,23 +121,28 @@ class BertoVoice(context: Context) {
         engine.setSpeechRate(VOICE_RATE)
         engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(id: String?) { mainHandler.post { isSpeaking = true } }
-            override fun onDone(id: String?) { mainHandler.post { isSpeaking = false } }
+            override fun onDone(id: String?) = onFinished(id)
             @Deprecated("Deprecated in Java")
-            override fun onError(id: String?) { mainHandler.post { isSpeaking = false } }
+            override fun onError(id: String?) = onFinished(id)
         })
         mainHandler.post {
             isReady = true
-            pendingText?.let { text ->
-                pendingText = null
-                speak(text)
-            }
+            val queued = pendingTexts.toList()
+            pendingTexts.clear()
+            queued.forEach { speak(it) }
         }
     }
 
-    private fun doSpeak(text: String) {
-        val clean = textoParaVoz(text).trim()
-            .replace(LineBreaks, ". ")
-            .replace(RepeatedSpaces, " ")
-        tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)
+    private fun onFinished(id: String?) {
+        if (id == lastUtteranceId) mainHandler.post { isSpeaking = false }
+    }
+
+    private fun enqueue(text: String) {
+        val engine = tts ?: return
+        speechChunks(textoParaVoz(text), TextToSpeech.getMaxSpeechInputLength()).forEach { chunk ->
+            val id = UTTERANCE_PREFIX + utteranceCount++
+            lastUtteranceId = id
+            engine.speak(chunk, TextToSpeech.QUEUE_ADD, null, id)
+        }
     }
 }

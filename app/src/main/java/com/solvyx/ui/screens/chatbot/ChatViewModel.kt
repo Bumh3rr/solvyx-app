@@ -206,6 +206,8 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun addUserMessage(text: String) {
+        // The user moved on: Berto stops whatever he was still saying about the previous turn.
+        voice.stop()
         messages = messages + ChatMessage(
             content = text,
             isFromBerto = false,
@@ -452,7 +454,7 @@ class ChatViewModel @Inject constructor(
     }
 
     /** Berto says each phase out loud, so the user can breathe with their eyes closed. */
-    fun onBreathPhase(phaseName: String) = voice.speak(phaseName)
+    fun onBreathPhase(phaseName: String) = voice.speak(phaseName, interrupt = true)
 
     fun closeBreathing(completedCycles: Int) {
         isBreathingOpen = false
